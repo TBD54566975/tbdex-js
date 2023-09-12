@@ -8,7 +8,7 @@
   "bugs": "https://github.com/TBD54566975/tbdex-js/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/TBD54566975/tbdex-protocol",
+    "url": "git+https://github.com/TBD54566975/tbdex-js",
     "directory": "packages/protocol"
   },
   "contributors": [

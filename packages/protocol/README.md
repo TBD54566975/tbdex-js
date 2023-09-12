@@ -1,8 +1,6 @@
 # tbDEX Protocol <!-- omit in toc -->
 
-Library that can be used to:
-* create, parse, verify, and validate the tbDEX Messages and Resources defined in the [protocol specification](../README.md)
-* send requests to PFIs
+Library that can be used to create, parse, verify, and validate the tbDEX Messages and Resources defined in the [protocol specification](https://github.com/TBD54566975/tbdex-protocol/blob/main/README.md)
 # Table of Contents <!-- omit in toc -->
 - [Installation](#installation)
 - [Usage](#usage)
@@ -16,7 +14,6 @@ Library that can be used to:
     - [`node` and `npm`](#node-and-npm)
   - [Running Tests](#running-tests)
   - [`npm` scripts](#npm-scripts)
-- [Publishing Releases](#publishing-releases)
 
 
 # Installation
@@ -28,7 +25,7 @@ npm install @tbdex/protocol
 # Usage
 
 ## Message Creation
-There's a concrete class for each [Message Kind](../README.md#message-kinds). These classes can be used to create messages. e.g. 
+There's a concrete class for each [Message Kind](https://github.com/TBD54566975/tbdex-protocol/blob/main/README.md#message-kinds). These classes can be used to create messages. e.g. 
 ```typescript
 import { DevTools, Rfq } from '@tbdex/protocol'
 
@@ -115,8 +112,8 @@ Once you have installed `nvm`, install the desired node version with `nvm instal
 
 0. clone the repo and `cd` into the project directory
 1. Install all project dependencies by running `npm install`
-2. start the test databases using `./scripts/start-databases` (requires Docker)
-3. run tests using `npm run test`
+2. run tests using `npm run test:node` to run tests within a nodejs runtime
+3. 2. run tests using `npm run test:browser` to run tests within a browser runtime
 
 ## `npm` scripts
 
@@ -128,28 +125,3 @@ Once you have installed `nvm`, install the desired node version with `nvm instal
 | `npm run lint`         | runs linter without auto-fixing                           |
 | `npm run lint:fix`     | runs linter and applies automatic fixes wherever possible |
 | `npm run build`        | builds all distributions and dumps them into `dist`       |
-
-# Publishing Releases
-
-> [!NOTE]
->
-> This section is applicable to core maintainers only
-
-> [!IMPORTANT]
->
-> be sure to version bump the package in `package.json` _before_ merging a PR
-
-1. After merging the PR, navigate to Github's `tags` section of this repo [here](https://github.com/TBD54566975/tbdex-protocol/tags)
-![Tags](./images/github_tags.png)
-
-1. Click on `Releases` button and click `Draft a new release`.
-
-2. Click on `Choose a tag`, then create a new tag with the version number matching from step 3. The release title is also the same version number, i.e. `v0.0.3`
-![New release](./images/new_release.png)
-
-1. Click `Generate release notes`. This will auto-populate a list of all PRs merged to main since the last release.
-![Generated release notes](./images/generated_release_notes.png)
-
-1. Click `Publish release`, which will kick off the `Release to NPM Registry` action, which you can see [here](https://github.com/TBD54566975/tbdex-protocol/actions/workflows/release-npm.yml)
-
-2.  After the github action is successfully completed, you will have a new version of `@tbdex/protocol` available in the [NPM registry](https://www.npmjs.com/package/@tbdex/protocol).

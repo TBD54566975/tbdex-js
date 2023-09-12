@@ -1,4 +1,4 @@
-# tbDEX RESTful API
+# tbdex http server
 
 > [!WARNING]
 >
@@ -6,13 +6,13 @@
 
 # Installation
 ```bash
-npm install @tbdex/protocol-rest-api
+npm install @tbdex/http-server
 ```
 # Usage
 ```typescript
-import { RestApi } from '@tbdex/protocol-rest-api'
+import { TbdexHttpServer } from '@tbdex/http-server'
 
-const api = new RestApi()
+const api = new TbdexHttpServer()
 
 api.get('offerings', async (ctx, filter) => { /* write biz logic here */ })
 api.get('exchanges', async (ctx, filter) => { /* write biz logic here */ })
@@ -22,5 +22,7 @@ api.submit('order', async (ctx, message) => { /* write biz logic here */ })
 api.submit('close', async (ctx, message) => { /* write biz logic here */ })
 
 
-await api.listen()
+await api.listen(9000, () => {
+  console.log('Server listening on port 9000')
+})
 ```
