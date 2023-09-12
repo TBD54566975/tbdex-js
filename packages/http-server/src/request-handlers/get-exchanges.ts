@@ -29,7 +29,7 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }
 
-    const queryParams = request.query as GetExchangesFilter
+    const queryParams = Array.isArray(request.query) ? request.query as GetExchangesFilter : [request.query] as GetExchangesFilter
 
     // check exchanges exist - what to do if some exist but others don't?
     const exchanges = await exchangesApi.getExchanges({ filter: queryParams || {} })
