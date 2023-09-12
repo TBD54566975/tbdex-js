@@ -3,7 +3,6 @@ import type { ErrorDetail } from '@tbdex/http-client'
 import type { MessageKind } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
-import { error } from 'console'
 
 type SubmitOrderOpts = {
   callback: SubmitCallback<'order'>
