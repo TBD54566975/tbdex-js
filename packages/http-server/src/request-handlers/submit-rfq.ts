@@ -52,6 +52,6 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
       // TODO: handle error lewl (#issue 8)
     }
 
-    return res.sendStatus(501)
+    return res.sendStatus(202)
   }
 }
