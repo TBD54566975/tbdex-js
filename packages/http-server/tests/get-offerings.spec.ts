@@ -1,4 +1,4 @@
-import type { Offering } from '../src/main.js'
+import type { Offering } from '@tbdex/protocol'
 import type { Server } from 'http'
 
 import { TbdexHttpServer } from '../src/main.js'
