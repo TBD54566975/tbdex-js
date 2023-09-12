@@ -3,6 +3,7 @@ import type { ErrorDetail } from '@tbdex/http-client'
 import type { MessageKind } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
+import { error } from 'console'
 
 type SubmitOrderOpts = {
   callback: SubmitCallback<'order'>
@@ -31,7 +32,8 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
 
     const quote = await exchangesApi.getQuote({ exchangeId: message.exchangeId })
     if(quote == undefined) {
-      return res.sendStatus(404)
+      const errorResponse: ErrorDetail = { detail: 'quote is undefined' }
+      return res.status(404).json({errors: [errorResponse]})
     }
 
     if (!callback) {

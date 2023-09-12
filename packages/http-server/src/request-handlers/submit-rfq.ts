@@ -39,7 +39,12 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
       return res.status(400).json({ errors: [`offering ${message.data.offeringId} does not exist`] })
     }
 
-    message.verifyOfferingRequirements(offering)
+    try {
+      message.verifyOfferingRequirements(offering)
+    } catch(e) {
+      const errorResponse: ErrorDetail = { detail: `Failed to verify offering requirements: ${e.message}` }
+      return res.status(400).json({ errors: [errorResponse] })
+    }
 
     if (!callback) {
       return res.sendStatus(202)
