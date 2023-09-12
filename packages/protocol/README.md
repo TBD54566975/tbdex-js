@@ -103,8 +103,13 @@ $ npm --version
 
 If you don't have `node` installed. Feel free to choose whichever approach you feel the most comfortable with. If you don't have a preferred installation method, i'd recommend using `nvm` (aka node version manager). `nvm` allows you to install and use different versions of node. It can be installed by running `brew install nvm` (assuming that you have homebrew)
 
-Once you have installed `nvm`, install the desired node version with `nvm install vX.Y.Z`.
+Once you have installed `nvm`, install the desired node version with `nvm install vX.Y.Z`. After installation, you may run `nvm use` to automatically tell `nvm` which `node` version to use (this will be picked up from the target version noted in `.nvmrc`):
 
+```
+$> nvm use
+Found '/Users/.../TBD54566975/tbdex-js/packages/protocol/.nvmrc' with version <v20.3.0>
+Now using node v20.3.0 (npm v9.6.7)
+```
 ## Running Tests
 > [!NOTE]
 > 
