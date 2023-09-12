@@ -26,7 +26,7 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
     try {
       _requesterDid = await TbdexHttpClient.verify(requestToken)
     } catch(e) {
-      return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header.' }] })
+      return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }
 
     const queryParams = request.query as GetExchangesFilter
