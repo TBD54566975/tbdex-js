@@ -50,7 +50,7 @@ export type GetExchangesOptions = {
   pfiDid: string
   privateKeyJwk: Web5PrivateKeyJwk
   kid: string
-  filter: {
+  filter?: {
     exchangeId: string | string[]
   }
 }

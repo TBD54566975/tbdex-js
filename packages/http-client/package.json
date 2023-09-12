@@ -1,6 +1,6 @@
 {
   "name": "@tbdex/http-client",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "description": "Http client that can be used to send tbdex messages",
   "license": "Apache-2.0",
@@ -49,7 +49,7 @@
     }
   },
   "dependencies": {
-    "@tbdex/protocol": "0.9.0",
+    "@tbdex/protocol": "0.10.0",
     "@web5/dids": "0.1.9-alpha-20230828-8204a49",
     "query-string": "8.1.0"
   },
