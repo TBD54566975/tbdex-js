@@ -25,7 +25,7 @@ export type GetOfferingsFilter = {
 }
 
 export type GetExchangesFilter = {
-  exchangeIds?: string[]
+  exchangeId?: string[]
 }
 
 export type RequestContext = {
