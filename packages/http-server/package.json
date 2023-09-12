@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@tbdex/protocol": "0.10.0",
-    "@tbdex/http-client": "0.1.0",
+    "@tbdex/http-client": "0.3.0",
     "@web5/dids": "0.1.9-alpha-20230828-8204a49",
     "cors": "2.8.5",
     "express": "4.18.2"

@@ -189,12 +189,12 @@ export class TbdexHttpClient {
    * @param _opts - options
    */
   static async getExchanges(opts: GetExchangesOptions): Promise<DataResponse<MessageKindClass[][]> | ErrorResponse> {
-    const { pfiDid, filter, privateKeyJwk } = opts
+    const { pfiDid, filter, privateKeyJwk, kid } = opts
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
 
     const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
     const apiRoute = `${pfiServiceEndpoint}/exchanges${queryParams}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, privateKeyJwk.kid)
+    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, kid)
 
     let response: Response
     try {
