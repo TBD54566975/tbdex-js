@@ -29,10 +29,14 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }
 
-    const queryParams = request.query as GetExchangesFilter
+    const queryParams = {}
+    for (let param in request.query) {
+      const val = request.query[param]
+      queryParams[param] = Array.isArray(val) ? val : [val]
+    }
 
     // check exchanges exist - what to do if some exist but others don't?
-    const exchanges = await exchangesApi.getExchanges({ filter: queryParams || {} })
+    const exchanges = await exchangesApi.getExchanges({ filter: queryParams as GetExchangesFilter || {} })
 
     if (callback) {
       // TODO: figure out what to do with callback result. should we pass through the exchanges we've fetched
