@@ -4,16 +4,16 @@ import { OfferingsApi, ExchangesApi } from './main.js'
 const offering = Offering.create({
   metadata : { from: 'did:ex:pfi' },
   data     : {
-    description  : 'Selling BTC for USD',
-    baseCurrency : {
+    description   : 'Selling BTC for USD',
+    payinCurrency : {
+      currencyCode: 'USD'
+    },
+    payoutCurrency: {
       currencyCode : 'BTC',
       maxSubunits  : '99952611'
     },
-    quoteCurrency: {
-      currencyCode: 'USD'
-    },
-    quoteUnitsPerBaseUnit : '26043.40',
-    payinMethods          : [{
+    payoutUnitsPerPayinUnit : '0.000038',
+    payinMethods            : [{
       kind                   : 'DEBIT_CARD',
       requiredPaymentDetails : {
         $schema    : 'http://json-schema.org/draft-07/schema',

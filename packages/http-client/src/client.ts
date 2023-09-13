@@ -22,9 +22,9 @@ export type GetOfferingsOptions = {
   pfiDid: string
   filter?: {
     /** ISO 3166 currency code string */
-    baseCurrency?: OfferingData['baseCurrency']['currencyCode']
+    payinCurrency?: OfferingData['payinCurrency']['currencyCode']
     /** ISO 3166 currency code string */
-    quoteCurrency?: OfferingData['baseCurrency']['currencyCode']
+    payoutCurrency?: OfferingData['payoutCurrency']['currencyCode']
     id?: ResourceMetadata<any>['id']
   }
 }
