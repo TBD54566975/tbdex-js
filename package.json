@@ -28,5 +28,8 @@
     "eslint": "8.49.0",
     "mocha": "10.2.0",
     "npkill": "0.11.3"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.26.2"
   }
 }
