@@ -30,27 +30,28 @@ export class Offering extends Resource<'offering'> {
     return this.data.description
   }
 
-  /** Number of quote currency units for one base currency unit (i.e 290000 USD for 1 BTC) */
-  get quoteUnitsPerBaseUnit() {
-    return this.data.quoteUnitsPerBaseUnit
+  /** Number of payout currency units for one payin currency unit (i.e 290000 USD for 1 BTC) */
+  get payoutUnitsPerPayinUnit() {
+    return this.data.payoutUnitsPerPayinUnit
   }
 
-  /** Details about the currency that the PFI is buying in exchange for baseCurrency. */
-  get baseCurrency() {
-    return this.data.baseCurrency
+  /** Details about the currency that the PFI is buying in exchange for payoutCurrency. */
+  get payinCurrency() {
+    return this.data.payinCurrency
   }
 
-  /** Details about the currency that the PFI is buying in exchange for baseCurrency. */
-  get quoteCurrency() {
-    return this.data.quoteCurrency
+  /** Details about the currency that the PFI is buying in exchange for payinCurrency. */
+  get payoutCurrency() {
+    return this.data.payoutCurrency
   }
 
-  /** A list of accepted payment methods that Alice can use to send quoteCurrency to a PFI */
+
+  /** A list of accepted payment methods that Alice can use to send payinCurrency to a PFI */
   get payinMethods() {
     return this.data.payinMethods
   }
 
-  /** A list of accepted payment methods that Alice can use to receive baseCurrency from a PFI */
+  /** A list of accepted payment methods that Alice can use to receive payoutCurrency from a PFI */
   get payoutMethods() {
     return this.data.payoutMethods
   }

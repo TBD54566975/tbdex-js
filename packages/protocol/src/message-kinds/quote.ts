@@ -31,14 +31,14 @@ export class Quote extends Message<'quote'> {
     return this.data.expiresAt
   }
 
-  /** the amount of base currency that Alice will receive */
-  get base() {
-    return this.data.base
+  /** the amount of payin currency that the PFI will receive */
+  get payin() {
+    return this.data.payin
   }
 
-  /** the amount of quote currency that the PFI will receive */
-  get quote() {
-    return this.data.base
+  /** the amount of payout currency that Alice will receive */
+  get payout() {
+    return this.data.payout
   }
 
   /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */

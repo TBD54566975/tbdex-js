@@ -6,16 +6,16 @@ import { Convert } from '@web5/common'
 import { expect } from 'chai'
 
 const offeringData: OfferingData = {
-  description  : 'Selling BTC for USD',
-  baseCurrency : {
+  description   : 'Selling BTC for USD',
+  payinCurrency : {
+    currencyCode: 'USD'
+  },
+  payoutCurrency: {
     currencyCode : 'BTC',
     maxSubunits  : '99952611'
   },
-  quoteCurrency: {
-    currencyCode: 'USD'
-  },
-  quoteUnitsPerBaseUnit : '26043.40',
-  payinMethods          : [{
+  payoutUnitsPerPayinUnit : '0.00003826',
+  payinMethods            : [{
     kind                   : 'DEBIT_CARD',
     requiredPaymentDetails : {
       $schema    : 'http://json-schema.org/draft-07/schema',
