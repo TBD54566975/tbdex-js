@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { TbdexHttpClient } from '../src/client.js'
+import { TbdexHttpClient } from '../src/main.js'
 
 describe('client', () => {
   it('needs tests', () => {
