@@ -19,8 +19,8 @@ export type Filters = {
 }
 
 export type GetOfferingsFilter = {
-  baseCurrency?: string
-  quoteCurrency?: string
+  payinCurrency?: string
+  payoutCurrency?: string
   id?: string
 }
 

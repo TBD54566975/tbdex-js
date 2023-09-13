@@ -75,22 +75,22 @@ export class Rfq extends Message<'rfq'> {
     return this.data.offeringId
   }
 
-  /** Amount of quote currency you want to spend in order to receive base currency */
-  get quoteAmountSubunits() {
-    return this.data.quoteAmountSubunits
+  /** Amount of payin currency you want to spend in order to receive payout currency */
+  get payinSubunits() {
+    return this.data.payinSubunits
   }
 
-  /** Presentation Submission VP that fulfills the requirements included in the respective Offering */
+  /** Array of claims that satisfy the respective offering's requiredClaims */
   get claims() {
     return this.data.claims
   }
 
-  /** Selected payment method that Alice will use to send the listed quote currency to the PFI. */
+  /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   get payinMethod() {
     return this.data.payinMethod
   }
 
-  /** Selected payment method that the PFI will use to send the listed base currency to Alice */
+  /** Selected payment method that the PFI will use to send the listed payout currency to Alice */
   get payoutMethod() {
     return this.data.payoutMethod
   }
