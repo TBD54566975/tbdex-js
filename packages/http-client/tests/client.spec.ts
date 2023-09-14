@@ -5,3 +5,4 @@ describe('client', () => {
     expect(true).to.be.true
   })
 })
+
