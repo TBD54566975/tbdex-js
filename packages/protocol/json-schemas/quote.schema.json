@@ -61,5 +61,5 @@
       "$ref": "#/definitions/PaymentInstructions"
     }
   },
-  "required": ["expiresAt", "base", "quote", "paymentInstructions"]
+  "required": ["expiresAt", "payin", "payout"]
 }

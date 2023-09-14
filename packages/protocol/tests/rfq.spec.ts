@@ -171,7 +171,7 @@ describe('Rfq', () => {
       const alice = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
-        type    : 'YoloCredential',
+        type    : 'SanctionsCredential',
         issuer  : alice,
         subject : alice.did,
         data    : {
@@ -203,7 +203,7 @@ describe('Rfq', () => {
         }
       })
 
-      rfq.verifyClaims(offering)
+      await rfq.verifyClaims(offering)
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
@@ -243,7 +243,7 @@ describe('Rfq', () => {
       })
 
       try {
-        rfq.verifyClaims(offering)
+        await rfq.verifyClaims(offering)
       } catch(e) {
         expect(e.message).to.include(`claims do not fulfill the offering's requirements`)
       }
