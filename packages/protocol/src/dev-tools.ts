@@ -1,14 +1,15 @@
 
+import type { OfferingData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
 
 import { DidIonMethod, DidKeyMethod } from '@web5/dids'
-import { Jose } from '@web5/crypto'
-import { Convert } from '@web5/common'
-
-import { Rfq } from './message-kinds/index.js'
+import { utils as vcUtils } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
+import { Convert } from '@web5/common'
 import { Crypto } from './crypto.js'
-import { OfferingData, RfqData } from './types.js'
+import { Jose } from '@web5/crypto'
+import { Rfq } from './message-kinds/index.js'
+
 
 export type DidMethodOptions = 'key' | 'ion'
 
@@ -124,10 +125,10 @@ export class DevTools {
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
           constraints : {
             fields: [{
-              path   : ['$.type'],
+              path   : ['$.type[*]'],
               filter : {
-                type  : 'string',
-                const : 'YoloCredential'
+                type    : 'string',
+                pattern : '^SanctionsCredential$'
               }
             }]
           }
@@ -195,9 +196,9 @@ export class DevTools {
     const credential = {
       '@context'          : ['https://www.w3.org/2018/credentials/v1'],
       'id'                : Date.now().toString(),
-      'type'              : opts.type,
+      'type'              : ['VerifiableCredential', opts.type],
       'issuer'            : opts.issuer.did,
-      'issuanceDate'      : new Date().toISOString(),
+      'issuanceDate'      : vcUtils.getCurrentXmlSchema112Timestamp(),
       'credentialSubject' : { id: opts.subject, ...opts.data }
     }
 

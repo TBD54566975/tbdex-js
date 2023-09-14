@@ -40,7 +40,7 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     try {
-      message.verifyOfferingRequirements(offering)
+      await message.verifyOfferingRequirements(offering)
     } catch(e) {
       const errorResponse: ErrorDetail = { detail: `Failed to verify offering requirements: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })
