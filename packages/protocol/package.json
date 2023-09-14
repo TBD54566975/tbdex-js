@@ -1,6 +1,6 @@
 {
   "name": "@tbdex/protocol",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "type": "module",
   "description": "Library that includes type definitions for tbdex messages",
   "license": "Apache-2.0",
