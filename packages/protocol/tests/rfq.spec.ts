@@ -1,4 +1,3 @@
-import { VerifiableCredential } from '@web5/credentials'
 import type { RfqData } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
