@@ -21,8 +21,8 @@ const rfqData: RfqData = {
       btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
     }
   },
-  quoteAmountSubunits : '20000',
-  claims              : ['']
+  payinSubunits : '20000',
+  claims        : ['']
 }
 
 describe('Rfq', () => {
@@ -171,7 +171,7 @@ describe('Rfq', () => {
       const alice = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
-        type    : 'YoloCredential',
+        type    : 'SanctionsCredential',
         issuer  : alice,
         subject : alice.did,
         data    : {
@@ -198,12 +198,12 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          quoteAmountSubunits : '20000',
-          claims              : [signedCredential]
+          payinSubunits : '20000',
+          claims        : [signedCredential]
         }
       })
 
-      rfq.verifyClaims(offering)
+      await rfq.verifyClaims(offering)
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
@@ -237,13 +237,13 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          quoteAmountSubunits : '20000',
-          claims              : [signedCredential]
+          payinSubunits : '20000',
+          claims        : [signedCredential]
         }
       })
 
       try {
-        rfq.verifyClaims(offering)
+        await rfq.verifyClaims(offering)
       } catch(e) {
         expect(e.message).to.include(`claims do not fulfill the offering's requirements`)
       }

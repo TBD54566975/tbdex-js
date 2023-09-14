@@ -1,5 +1,7 @@
 import type { MessageKind, MessageKindModel, MessageMetadata, ResourceModel } from '../types.js'
+
 import { Offering } from '../resource-kinds/index.js'
+import { VerifiableCredential } from '@web5/credentials'
 import { Message } from '../message.js'
 import { PEXv2 } from '@sphereon/pex'
 
@@ -39,7 +41,7 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link offeringId} doesn't match the provided offering's id
    */
-  verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
+  async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
@@ -52,7 +54,7 @@ export class Rfq extends Message<'rfq'> {
     // TODO: validate rfq's payoutMethod.kind against offering's payoutMethods
     // TODO: validate rfq's payoutMethod.paymentDetails against offering's respective requiredPaymentDetails json schema
 
-    this.verifyClaims(offering)
+    await this.verifyClaims(offering)
   }
 
   /**
@@ -60,14 +62,16 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to check against
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
-  verifyClaims(offering: Offering | ResourceModel<'offering'>) {
+  async verifyClaims(offering: Offering | ResourceModel<'offering'>) {
     const { areRequiredCredentialsPresent } = pex.evaluateCredentials(offering.data.requiredClaims, this.claims)
 
     if (areRequiredCredentialsPresent === 'error') {
       throw new Error(`claims do not fulfill the offering's requirements`)
     }
 
-    // TODO: verify integrity
+    for (let claim of this.claims) {
+      await VerifiableCredential.verify(claim)
+    }
   }
 
   /** Offering which Alice would like to get a quote for */
@@ -75,22 +79,22 @@ export class Rfq extends Message<'rfq'> {
     return this.data.offeringId
   }
 
-  /** Amount of quote currency you want to spend in order to receive base currency */
-  get quoteAmountSubunits() {
-    return this.data.quoteAmountSubunits
+  /** Amount of payin currency you want to spend in order to receive payout currency */
+  get payinSubunits() {
+    return this.data.payinSubunits
   }
 
-  /** Presentation Submission VP that fulfills the requirements included in the respective Offering */
+  /** Array of claims that satisfy the respective offering's requiredClaims */
   get claims() {
     return this.data.claims
   }
 
-  /** Selected payment method that Alice will use to send the listed quote currency to the PFI. */
+  /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   get payinMethod() {
     return this.data.payinMethod
   }
 
-  /** Selected payment method that the PFI will use to send the listed base currency to Alice */
+  /** Selected payment method that the PFI will use to send the listed payout currency to Alice */
   get payoutMethod() {
     return this.data.payoutMethod
   }

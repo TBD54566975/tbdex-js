@@ -42,15 +42,15 @@ export type ResourceKinds = {
 export type OfferingData = {
   /** Brief description of what is being offered. */
   description: string
-  /** Number of quote currency units for one base currency unit (i.e 290000 USD for 1 BTC) */
-  quoteUnitsPerBaseUnit: string
+  /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
+  payoutUnitsPerPayinUnit: string
   /** Details about the currency that the PFI is selling. */
-  baseCurrency: CurrencyDetails
-  /** Details about the currency that the PFI is buying in exchange for baseCurrency. */
-  quoteCurrency: CurrencyDetails
-  /** A list of accepted payment methods that Alice can use to send quoteCurrency to a PFI */
+  payoutCurrency: CurrencyDetails
+  /** Details about the currency that the PFI is buying in exchange for payout currency. */
+  payinCurrency: CurrencyDetails
+  /** A list of accepted payment methods that Alice can use to a _pay_ a PFI */
   payinMethods: PaymentMethod[]
-  /** A list of accepted payment methods that Alice can use to receive baseCurrency from a PFI */
+  /** A list of accepted payment methods that Alice can use to receive the _payout_ currency from a PFI */
   payoutMethods: PaymentMethod[]
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
   requiredClaims: PresentationDefinitionV2
@@ -110,9 +110,9 @@ export type MessageKinds = {
 export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
-  /** Amount of quote currency you want to spend in order to receive base currency */
-  quoteAmountSubunits: string
-  /** Selected payment method that Alice will use to send the listed quote currency to the PFI. */
+  /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */
+  payinSubunits: string
+  /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   payinMethod: SelectedPaymentMethod
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
   payoutMethod: SelectedPaymentMethod
@@ -134,10 +134,10 @@ export type SelectedPaymentMethod = {
 export type QuoteData = {
   /** When this quote expires. Expressed as ISO8601 */
   expiresAt: string
-  /** the amount of base currency that Alice will receive */
-  base: QuoteDetails
-  /** the amount of quote currency that the PFI will receive */
-  quote: QuoteDetails
+  /** the amount of payin currency that the PFI will receive */
+  payin: QuoteDetails
+  /** the amount of payout currency that Alice will receive */
+  payout: QuoteDetails
   /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
   paymentInstructions?: PaymentInstructions
 }
@@ -152,9 +152,9 @@ export type QuoteDetails = {
 }
 
 export type PaymentInstructions = {
-  /** link or instruction describing how to send quote currency to the PFI. */
+  /** link or instruction describing how to send payin currency to the PFI. */
   payin?: PaymentInstruction
-  /** link or Instruction describing how to get recieve base currency from the PFI */
+  /** link or Instruction describing how to get recieve payout currency from the PFI */
   payout?: PaymentInstruction
 }
 
