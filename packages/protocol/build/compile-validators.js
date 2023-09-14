@@ -25,7 +25,7 @@ import message from './../json-schemas/message.schema.json' assert { type: 'json
 import rfq from './../json-schemas/rfq.schema.json' assert { type: 'json' }
 import quote from './../json-schemas/quote.schema.json' assert { type: 'json' }
 import order from './../json-schemas/order.schema.json' assert { type: 'json' }
-import orderStatus from './../json-schemas/order-status.schema.json' assert { type: 'json' }
+import orderstatus from './../json-schemas/order-status.schema.json' assert { type: 'json' }
 import close from './../json-schemas/close.schema.json' assert { type: 'json' }
 
 const schemas = {
@@ -36,7 +36,7 @@ const schemas = {
   rfq,
   quote,
   order,
-  orderStatus,
+  orderstatus,
   close,
 }
 
