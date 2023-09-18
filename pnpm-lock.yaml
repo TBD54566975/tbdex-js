@@ -264,8 +264,6 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
-  packages/protocol/dist/cjs: {}
-
 packages:
 
   /@aashutoshrathi/word-wrap@1.2.6:
