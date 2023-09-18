@@ -37,12 +37,12 @@
     "undici": "^5.23.0"
   },
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "pnpm run clean && tsc",
     "clean": "rimraf dist tests/compiled",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "lint:fix": "eslint . --ext .ts --fix",
     "test:node": "rimraf tests/compiled && tsc -p tests/tsconfig.json && mocha",
-    "try": "npm run build && node dist/try.js"
+    "try": "pnpm run build && node dist/try.js"
   },
   "keywords": ["tbdex"]
 }

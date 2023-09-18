@@ -85,14 +85,14 @@
     "clean": "rimraf generated dist tests/compiled",
     "compile-validators": "rimraf generated && node build/compile-validators.js",
     "build:esm": "rimraf dist/esm dist/types && tsc",
-    "build:cjs": "rimraf dist/cjs && npx tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:browser": "rimraf dist/browser.mjs dist/browser.js && node build/bundles.js",
-    "test:node": "rimraf tests/compiled && npm run compile-validators && tsc -p tests/tsconfig.json && mocha",
-    "test:browser": "npm run compile-validators && karma start karma.conf.cjs",
-    "build": "npm run clean && npm run compile-validators && npm run build:esm && npm run build:cjs && npm run build:browser",
+    "test:node": "rimraf tests/compiled && pnpm run compile-validators && tsc -p tests/tsconfig.json && mocha",
+    "test:browser": "pnpm run compile-validators && karma start karma.conf.cjs",
+    "build": "pnpm run clean && pnpm run compile-validators && pnpm run build:esm && pnpm run build:cjs && pnpm run build:browser",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "lint:fix": "eslint . --ext .ts --fix",
-    "docs": "npm run build:esm && typedoc --plugin typedoc-plugin-markdown --out docs src/main.ts",
-    "try": "npm run compile-validators && npm run build:esm && node dist/esm/src/try.js"
+    "docs": "pnpm run build:esm && typedoc --plugin typedoc-plugin-markdown --out docs src/main.ts",
+    "try": "pnpm run compile-validators && pnpm run build:esm && node dist/esm/src/try.js"
   }
 }

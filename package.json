@@ -2,16 +2,11 @@
   "name": "tbdex-js",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "packages/protocol",
-    "packages/http-client",
-    "packages/http-server"
-  ],
   "scripts": {
-    "clean": "npx npkill -d $(pwd) -t node_modules && npx npkill -d $(pwd)/packages -t dist",
-    "build": "npm run build --ws",
-    "test:node": "npm run test:node -w packages/protocol -w packages/http-client -w packages/http-server",
-    "test:browser": "npm run test:browser -w packages/protocol -w packages/http-client"
+    "clean": "npkill -d $(pwd) -t node_modules && npkill -d $(pwd)/packages -t dist",
+    "build": "pnpm recursive run build",
+    "test:node": "pnpm recursive run test:node --color",
+    "test:browser": "pnpm recursive run test:browser"
   },
   "repository": {
     "type": "git",

@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@tbdex/protocol": "0.14.0",
+    "@web5/crypto": "0.2.0",
     "@web5/dids": "0.2.0",
     "query-string": "8.1.0"
   },
@@ -82,14 +83,14 @@
   "scripts": {
     "clean": "rimraf generated dist tests/compiled",
     "build:esm": "rimraf dist/esm dist/types && tsc",
-    "build:cjs": "rimraf dist/cjs && npx tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:browser": "rimraf dist/browser.mjs dist/browser.js && node build/bundles.js",
     "test:node": "rimraf tests/compiled && tsc -p tests/tsconfig.json && mocha",
     "test:browser": "karma start karma.conf.cjs",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:browser",
+    "build": "pnpm run clean && pnpm run build:esm && pnpm run build:cjs && pnpm run build:browser",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "lint:fix": "eslint . --ext .ts --fix",
-    "docs": "npm run build:esm && typedoc --plugin typedoc-plugin-markdown --out docs src/main.ts",
-    "try": "npm run build:esm && node dist/esm/src/try.js"
+    "docs": "pnpm run build:esm && typedoc --plugin typedoc-plugin-markdown --out docs src/main.ts",
+    "try": "pnpm run build:esm && node dist/esm/src/try.js"
   }
 }
