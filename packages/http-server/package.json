@@ -18,8 +18,8 @@
     "import": "./dist/main.js"
   },
   "dependencies": {
-    "@tbdex/protocol": "0.14.0",
-    "@tbdex/http-client": "0.7.0",
+    "@tbdex/protocol": "workspace:*",
+    "@tbdex/http-client": "workspace:*",
     "@web5/dids": "0.2.0",
     "cors": "2.8.5",
     "express": "4.18.2"
