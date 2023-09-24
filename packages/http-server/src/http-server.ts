@@ -47,6 +47,15 @@ export class TbdexHttpServer {
 
     this.exchangesApi = exchangesApi
     this.offeringsApi = offeringsApi
+
+    // initialize api here so that consumers can attach custom endpoints
+    const api = express()
+
+    api.use(cors())
+    api.use(jsonBodyParser())
+
+    this.api = api
+
   }
 
   submit<T extends SubmitKind>(messageKind: T, callback: SubmitCallbacks[T]) {
@@ -58,34 +67,28 @@ export class TbdexHttpServer {
   }
 
   listen(port: number | string, callback?: () => void) {
-    const api = express()
-
-    api.use(cors())
-    api.use(jsonBodyParser())
-
     const { offeringsApi, exchangesApi } = this
 
-    api.post('/exchanges/:exchangeId/rfq', submitRfq({
+    this.api.post('/exchanges/:exchangeId/rfq', submitRfq({
       callback: this.callbacks['rfq'], offeringsApi, exchangesApi,
     }))
 
-    api.post('/exchanges/:exchangeId/order', submitOrder({
+    this.api.post('/exchanges/:exchangeId/order', submitOrder({
       callback: this.callbacks['order'], exchangesApi
     }))
 
-    api.post('/exchanges/:exchangeId/close', submitClose({
+    this.api.post('/exchanges/:exchangeId/close', submitClose({
       callback: this.callbacks['close'], exchangesApi
     }))
 
-    api.get('/exchanges', getExchanges({
+    this.api.get('/exchanges', getExchanges({
       callback: this.callbacks['exchanges'], exchangesApi
     }))
 
-    api.get('/offerings', getOfferings({
+    this.api.get('/offerings', getOfferings({
       callback: this.callbacks['offerings'], offeringsApi
     }))
 
-    this.api = api
     // TODO: support hostname and backlog arguments
     return this.api.listen(port, callback)
   }
