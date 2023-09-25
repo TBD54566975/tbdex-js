@@ -11,6 +11,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+env:
+  CI: true
+  PNPM_CACHE_FOLDER: .pnpm-store
+
 jobs:
   security-audit:
     runs-on: ubuntu-latest
@@ -22,6 +26,9 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      - name: setup pnpm config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
       - name: Set up Node.js
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -42,6 +49,9 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      - name: setup pnpm config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
       - name: Set up Node.js
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -73,6 +83,9 @@ jobs:
         uses: pnpm/action-setup@v2
         with:
           version: 8
+
+      - name: setup pnpm config
+        run: pnpm config set store-dir $PNPM_CACHE_FOLDER
 
       - name: Set up Node.js
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
