@@ -42,7 +42,7 @@ importers:
   packages/http-client:
     dependencies:
       '@tbdex/protocol':
-        specifier: 0.14.0
+        specifier: workspace:*
         version: link:../protocol
       '@web5/crypto':
         specifier: 0.2.0
@@ -130,10 +130,10 @@ importers:
   packages/http-server:
     dependencies:
       '@tbdex/http-client':
-        specifier: 0.7.0
+        specifier: workspace:*
         version: link:../http-client
       '@tbdex/protocol':
-        specifier: 0.14.0
+        specifier: workspace:*
         version: link:../protocol
       '@web5/dids':
         specifier: 0.2.0
