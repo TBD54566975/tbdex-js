@@ -56,13 +56,13 @@ jobs:
         run: pnpm install
 
       - name: Build all workspace packages
-        run: pnpm run build
+        run: pnpm build
 
       - name: Run linter for all packages
-        run: pnpm run lint
+        run: pnpm lint
 
       - name: Run tests for all packages
-        run: pnpm run test:node
+        run: pnpm test:node
 
   test-with-browsers:
     # Run browser tests using macOS so that WebKit tests don't fail under a Linux environment
@@ -70,7 +70,7 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-      
+
       - name: install pnpm
         uses: pnpm/action-setup@v2
         with:
@@ -89,4 +89,4 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run tests for all packages
-        run: pnpm run test:browser
+        run: pnpm test:browser
