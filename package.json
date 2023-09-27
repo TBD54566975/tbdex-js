@@ -6,6 +6,7 @@
     "clean": "npkill -d $(pwd) -t node_modules && npkill -d $(pwd)/packages -t dist",
     "build": "pnpm recursive run build",
     "lint": "pnpm recursive run lint",
+    "lint:fix": "pnpm recursive run lint:fix",
     "test:node": "pnpm recursive run test:node --color",
     "test:browser": "pnpm recursive run test:browser"
   },
