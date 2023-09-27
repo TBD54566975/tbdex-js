@@ -3,7 +3,7 @@
   "compilerOptions": {
     "lib": [
       "DOM",
-      "ES5",
+      "ES2015",
     ],
     "target": "ES5",
     "outDir": "dist/cjs",
