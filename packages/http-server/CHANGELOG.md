@@ -1,5 +1,14 @@
 # @tbdex/http-server
 
+## 0.15.1
+
+### Patch Changes
+
+- 3daa119: Patch get-func-name audit failure
+- Updated dependencies [3daa119]
+  - @tbdex/http-client@0.15.1
+  - @tbdex/protocol@0.15.1
+
 ## 0.15.0
 
 ### Minor Changes
