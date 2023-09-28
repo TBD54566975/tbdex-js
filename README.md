@@ -61,3 +61,15 @@ If you don't have `pnpm` installed, choose whichever approach you feel most comf
 | `pnpm lint`         | runs linter without auto-fixing                           |
 | `pnpm lint:fix`     | runs linter and applies automatic fixes wherever possible |
 | `pnpm build`        | builds all distributions and dumps them into `dist`       |
+
+## Changesets
+
+This project uses [Changesets](https://github.com/changesets/changesets) for semver management. For motivations, see [PR description here](https://github.com/TBD54566975/tbdex-js/pull/30#issue-1910447620).
+
+Upon opening a Pull Request, the `changeset-bot` will automatically comment ([example](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942)) on the PR with a reminder & recommendations for managing the changeset for the given changes.
+
+Prior to merging your branch into main, and given you have relevant semantic versioning changes, then you should run `pnpm changeset` locally. The CLI tool will walk you through a set of steps for you to define the semantic changes. This will create a randomly-named (and funnily-named) markdown file within the `.changeset/` directory. For example, see the `.changeset/sixty-tables-cheat.md` file on [this PR](https://github.com/TBD54566975/tbdex-js/pull/35/files). There is an analogy to staging a commit (using `git add`) for these markdown files, in that, they exist so that the developer can codify the semantic changes made but they don't actually update the semantic version.
+
+Whereafter, a `pnpm changeset version` command must be executed. This command will do two things: update the version numbers in the relevant `package.json` files & also aggregate Summary notes into the relevant `CHANGELOG.md` files. In keeping with the staged commit analogy, this is akin to the actual commit. You **do not need to execute this** prior to merging your changes into the main branch. We have a GitHub Actions workflow (which uses the [Action offered by Changesets](https://github.com/changesets/action)) to automate this process.
+
+It is recommended to merge your branch into main with the `.changet/*.md` files, at which point, the Changeset GitHub Action will automatically pick up those changes and open a PR to automate the `pnpm changeset version` execution. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36).
