@@ -1,9 +1,18 @@
-name: Publish Packages to NPM
+name: Publish Packages to NPM and TBDocs
 
 on:
   release:
     types: [created]
   workflow_dispatch:
+    inputs:
+      jobSelector:
+        type: choice
+        description: 'Select publishing options'
+        required: true
+        options:
+          - 'all'
+          - 'docs'
+          - 'npm'
 
 # Allow only one concurrent deployment,but do NOT cancel in-progress runs as
 # we want to allow these release deployments to complete.
@@ -16,7 +25,50 @@ permissions:
   id-token: write # necessary for NPM provenance
 
 jobs:
+  tbdocs-publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.jobSelector == 'all' || github.event.inputs.jobSelector == 'docs' }}
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+
+      - name: install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build all workspace packages
+        run: pnpm build
+
+      - name: TBDocs Reporter and Generator
+        id: tbdocs-reporter-generator
+        uses: TBD54566975/tbdocs@main
+        with:
+          bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
+          bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
+          bot_app_installation_id: ${{ secrets.TBDOCS_BOT_APP_INSTALLATION_ID }}
+          project_path: "./packages/protocol"
+          docs_reporter: api-extractor
+          fail_on_error: true
+          fail_on_warnings: false
+          docs_generator: 'typedoc-markdown'
+          docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
+          docs_target_branch: 'tbdocs-bot/tbdex-js/protocol'
+          docs_target_pr_base_branch: 'main'
+          docs_target_repo_path: 'site/docs/tbdex/tbdex-js/protocol'
+
   publish-npm:
+    needs: tbdocs-publish
+    if: ${{ (github.event.inputs.jobSelector == 'all' && needs.tbdocs-publish.result == 'success') || (github.event.inputs.jobSelector == 'npm' && always())}}
     name: NPM Publish
     runs-on: ubuntu-latest
 

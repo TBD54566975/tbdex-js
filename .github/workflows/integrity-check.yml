@@ -90,3 +90,35 @@ jobs:
 
       - name: Run tests for all packages
         run: pnpm test:browser
+
+  tbdocs-reporter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+
+      - name: install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build all workspace packages
+        run: pnpm build
+
+      - name: TBDocs Reporter
+        id: tbdocs-reporter-protocol
+        uses: TBD54566975/tbdocs@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          project_path: "./packages/protocol"
+          docs_reporter: "api-extractor"
+          fail_on_error: false
