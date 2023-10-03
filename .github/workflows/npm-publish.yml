@@ -64,7 +64,7 @@ jobs:
           docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
           docs_target_branch: 'tbdocs-bot/tbdex-js/protocol'
           docs_target_pr_base_branch: 'main'
-          docs_target_repo_path: 'site/docs/tbdex/tbdex-js/protocol'
+          docs_target_repo_path: 'site/docs/tbdex/api-reference/tbdex-js/protocol'
 
   publish-npm:
     needs: tbdocs-publish
