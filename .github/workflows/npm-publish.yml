@@ -32,43 +32,46 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
 
-      - name: install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - name: test
+        run: echo "success"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
+      # - name: install pnpm
+      #   uses: pnpm/action-setup@v2
+      #   with:
+      #     version: 8
 
-      - name: Install dependencies
-        run: pnpm install
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+      #   with:
+      #     node-version: 20
+      #     registry-url: https://registry.npmjs.org/
 
-      - name: Build all workspace packages
-        run: pnpm build
+      # - name: Install dependencies
+      #   run: pnpm install
 
-      - name: TBDocs Reporter and Generator
-        id: tbdocs-reporter-generator
-        uses: TBD54566975/tbdocs@main
-        with:
-          bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
-          bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
-          bot_app_installation_id: ${{ secrets.TBDOCS_BOT_APP_INSTALLATION_ID }}
-          project_path: "./packages/protocol"
-          docs_reporter: api-extractor
-          fail_on_error: true
-          fail_on_warnings: false
-          docs_generator: 'typedoc-markdown'
-          docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
-          docs_target_branch: 'tbdocs-bot/tbdex-js/protocol'
-          docs_target_pr_base_branch: 'main'
-          docs_target_repo_path: 'site/docs/tbdex/tbdex-js/protocol'
+      # - name: Build all workspace packages
+      #   run: pnpm build
+
+      # - name: TBDocs Reporter and Generator
+      #   id: tbdocs-reporter-generator
+      #   uses: TBD54566975/tbdocs@main
+      #   with:
+      #     bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
+      #     bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
+      #     bot_app_installation_id: ${{ secrets.TBDOCS_BOT_APP_INSTALLATION_ID }}
+      #     project_path: "./packages/protocol"
+      #     docs_reporter: api-extractor
+      #     fail_on_error: true
+      #     fail_on_warnings: false
+      #     docs_generator: 'typedoc-markdown'
+      #     docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
+      #     docs_target_branch: 'tbdocs-bot/tbdex-js/protocol'
+      #     docs_target_pr_base_branch: 'main'
+      #     docs_target_repo_path: 'site/docs/tbdex/tbdex-js/protocol'
 
   publish-npm:
     needs: tbdocs-publish
-    if: ${{ (github.event.inputs.jobSelector == 'all' && needs.tbdocs-publish.result == 'success') || (github.event.inputs.jobSelector == 'npm' && always())}}
+    if: ${{ (github.event.inputs.jobSelector == 'all' && needs.tbdocs-publish.result == 'success') || (github.event.inputs.jobSelector == 'npm')}}
     name: NPM Publish
     runs-on: ubuntu-latest
 
@@ -86,63 +89,66 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
 
-      - name: Set up Node.js
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
+      - name: test
+        run: echo "test"
 
-      - name: Install latest npm
-        run: npm install -g npm@latest
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+      #   with:
+      #     node-version: 20
+      #     registry-url: https://registry.npmjs.org/
 
-      - name: Install semver utility
-        run: npm install -g semver@7.5.1
+      # - name: Install latest npm
+      #   run: npm install -g npm@latest
 
-      # Note - this is not required but it gives a clean failure prior to attempting a release if the GH workflow runner is not authenticated with NPMjs.com
-      - name: Verify NPM token is authenticated with NPMjs.com
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-        run: npm whoami
+      # - name: Install semver utility
+      #   run: npm install -g semver@7.5.1
 
-      - name: Check if GitHub repo package version is latest
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-        run: |
-          cd packages/${{ matrix.package }}
+      # # Note - this is not required but it gives a clean failure prior to attempting a release if the GH workflow runner is not authenticated with NPMjs.com
+      # - name: Verify NPM token is authenticated with NPMjs.com
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      #   run: npm whoami
 
-          # Fetch the published version on NPMjs.com.
-          PUBLISHED_VERSION=$(npm view @tbdex/${{ matrix.package }} version 2>/dev/null || echo "0.0.0")
-          echo "Published Version: $PUBLISHED_VERSION"
+      # - name: Check if GitHub repo package version is latest
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      #   run: |
+      #     cd packages/${{ matrix.package }}
 
-          # Fetch the version in the GitHub repo's package.json file.
-          REPO_VERSION=$(node -p "require('./package.json').version")
-          echo "REPO_VERSION=$REPO_VERSION" >> $GITHUB_ENV
-          echo "Repo Version: $REPO_VERSION"
+      #     # Fetch the published version on NPMjs.com.
+      #     PUBLISHED_VERSION=$(npm view @tbdex/${{ matrix.package }} version 2>/dev/null || echo "0.0.0")
+      #     echo "Published Version: $PUBLISHED_VERSION"
 
-          # Compare the repo and NPMjs.com package versions.
-          IS_GREATER=$(semver --range ">$PUBLISHED_VERSION" $REPO_VERSION || true)
-          if [ -n "$IS_GREATER" ] ; then
-            echo "@tbdex/${{ matrix.package }}@$REPO_VERSION is latest"
-            echo "IS_LATEST=true" >> $GITHUB_ENV
-          else
-            echo "@tbdex/${{ matrix.package }}@$REPO_VERSION is already published or repo version is lower"
-            echo "IS_LATEST=false" >> $GITHUB_ENV
-          fi
-        shell: bash
+      #     # Fetch the version in the GitHub repo's package.json file.
+      #     REPO_VERSION=$(node -p "require('./package.json').version")
+      #     echo "REPO_VERSION=$REPO_VERSION" >> $GITHUB_ENV
+      #     echo "Repo Version: $REPO_VERSION"
 
-      - name: Install dependencies
-        if: env.IS_LATEST == 'true'
-        run: npm ci
+      #     # Compare the repo and NPMjs.com package versions.
+      #     IS_GREATER=$(semver --range ">$PUBLISHED_VERSION" $REPO_VERSION || true)
+      #     if [ -n "$IS_GREATER" ] ; then
+      #       echo "@tbdex/${{ matrix.package }}@$REPO_VERSION is latest"
+      #       echo "IS_LATEST=true" >> $GITHUB_ENV
+      #     else
+      #       echo "@tbdex/${{ matrix.package }}@$REPO_VERSION is already published or repo version is lower"
+      #       echo "IS_LATEST=false" >> $GITHUB_ENV
+      #     fi
+      #   shell: bash
 
-      - name: Build all workspace packages
-        if: env.IS_LATEST == 'true'
-        run: npm run build
+      # - name: Install dependencies
+      #   if: env.IS_LATEST == 'true'
+      #   run: npm ci
 
-      - name: Publish @tbdex/${{ matrix.package }}@${{ env.REPO_VERSION }}
-        if: env.IS_LATEST == 'true'
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-        run: |
-          cd packages/${{ matrix.package }}
-          npm publish --access public --provenance
-        shell: bash
+      # - name: Build all workspace packages
+      #   if: env.IS_LATEST == 'true'
+      #   run: npm run build
+
+      # - name: Publish @tbdex/${{ matrix.package }}@${{ env.REPO_VERSION }}
+      #   if: env.IS_LATEST == 'true'
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+      #   run: |
+      #     cd packages/${{ matrix.package }}
+      #     npm publish --access public --provenance
+      #   shell: bash
