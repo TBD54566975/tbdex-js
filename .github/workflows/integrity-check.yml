@@ -121,4 +121,5 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           project_path: "./packages/protocol"
           docs_reporter: "api-extractor"
+          report_changed_scope_only: true
           fail_on_error: false
