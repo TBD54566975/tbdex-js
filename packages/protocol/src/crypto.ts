@@ -61,7 +61,7 @@ export class Crypto {
    *  )
    * )
    * TODO: add link to tbdex protocol hash section
-   * @param payload the payload to hash
+   * @param payload - the payload to hash
    */
   static hash(payload: any) {
     const cborEncodedPayloadBuffer = cbor.encode(payload)
