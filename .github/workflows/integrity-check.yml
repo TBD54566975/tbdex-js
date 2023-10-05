@@ -116,7 +116,7 @@ jobs:
 
       - name: TBDocs Reporter
         id: tbdocs-reporter-protocol
-        uses: TBD54566975/tbdocs@leordev/issue-25.report-changed-scope
+        uses: TBD54566975/tbdocs@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           project_path: "./packages/protocol"
