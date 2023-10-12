@@ -51,20 +51,29 @@ jobs:
 
       - name: TBDocs Reporter and Generator
         id: tbdocs-reporter-generator
-        uses: TBD54566975/tbdocs@main
+        uses: TBD54566975/tbdocs@leordev/issue-11.multiple-packages
         with:
           bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
           bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
           bot_app_installation_id: ${{ secrets.TBDOCS_BOT_APP_INSTALLATION_ID }}
-          project_path: "./packages/protocol"
-          docs_reporter: api-extractor
           fail_on_error: true
           fail_on_warnings: false
-          docs_generator: 'typedoc-markdown'
           docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
-          docs_target_branch: 'tbdocs-bot/tbdex-js/protocol'
+          docs_target_branch: 'tbdocs-bot/tbdex-js/packages'
           docs_target_pr_base_branch: 'main'
-          docs_target_repo_path: 'site/docs/tbdex/api-reference/tbdex-js/protocol'
+          entry_points: |
+            - file: packages/protocol/src/main.ts
+              docsReporter: api-extractor
+              docsGenerator: typedoc-markdown
+              targetRepoPath: site/docs/tbdex/api-reference/tbdex-js/protocol
+            - file: packages/http-client/src/main.ts
+              docsReporter: api-extractor
+              docsGenerator: typedoc-markdown
+              targetRepoPath: site/docs/tbdex/api-reference/tbdex-js/http-client
+            - file: packages/http-server/src/main.ts
+              docsReporter: api-extractor
+              docsGenerator: typedoc-markdown
+              targetRepoPath: site/docs/tbdex/api-reference/tbdex-js/http-server
 
   publish-npm:
     needs: tbdocs-publish
