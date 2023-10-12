@@ -51,7 +51,7 @@ jobs:
 
       - name: TBDocs Reporter and Generator
         id: tbdocs-reporter-generator
-        uses: TBD54566975/tbdocs@leordev/issue-11.multiple-packages
+        uses: TBD54566975/tbdocs@main
         with:
           bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
           bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
