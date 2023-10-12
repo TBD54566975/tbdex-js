@@ -7,12 +7,12 @@ on:
     inputs:
       jobSelector:
         type: choice
-        description: 'Select publishing options'
+        description: "Select publishing options"
         required: true
         options:
-          - 'all'
-          - 'docs'
-          - 'npm'
+          - "all"
+          - "docs"
+          - "npm"
 
 # Allow only one concurrent deployment,but do NOT cancel in-progress runs as
 # we want to allow these release deployments to complete.
@@ -51,16 +51,16 @@ jobs:
 
       - name: TBDocs Reporter and Generator
         id: tbdocs-reporter-generator
-        uses: TBD54566975/tbdocs@leordev/issue-11.multiple-packages
+        uses: TBD54566975/tbdocs@main
         with:
           bot_app_id: ${{ secrets.TBDOCS_BOT_APP_ID }}
           bot_app_private_key: ${{ secrets.TBDOCS_BOT_APP_PRIVATE_KEY }}
           bot_app_installation_id: ${{ secrets.TBDOCS_BOT_APP_INSTALLATION_ID }}
           fail_on_error: true
           fail_on_warnings: false
-          docs_target_owner_repo: 'TBD54566975/developer.tbd.website'
-          docs_target_branch: 'tbdocs-bot/tbdex-js/packages'
-          docs_target_pr_base_branch: 'main'
+          docs_target_owner_repo: "TBD54566975/developer.tbd.website"
+          docs_target_branch: "tbdocs-bot/tbdex-js/packages"
+          docs_target_pr_base_branch: "main"
           entry_points: |
             - file: packages/protocol/src/main.ts
               docsReporter: api-extractor
@@ -84,12 +84,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        package:
-          [
-            "protocol",
-            "http-client",
-            "http-server"
-          ]
+        package: ["protocol", "http-client", "http-server"]
 
     steps:
       - name: Checkout source
