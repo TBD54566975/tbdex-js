@@ -33,7 +33,7 @@ export abstract class Message<T extends MessageKind> {
   /**
    * parses the json message into a message instance. performs format validation and an integrity check on the signature
    * @param message - the message to parse. can either be an object or a string
-   * @returns {Message}
+   * @returns {@link Message}
    */
   static async parse<T extends MessageKind>(message: MessageModel<T> | string): Promise<MessageKindClass> {
     let jsonMessage: MessageModel<T>
@@ -82,7 +82,7 @@ export abstract class Message<T extends MessageKind> {
    * validates `data` based on the value of `metadata.kind`
    * @param jsonMessage - the message to validate
    *
-   * @throws {Error} if validation fails
+   * @throws `Error` if validation fails
    */
   static validate(jsonMessage: any): void {
     // validate the message structure
@@ -94,7 +94,7 @@ export abstract class Message<T extends MessageKind> {
 
   /**
    * returns an instance of the appropriate MessageKind class based on the value of `jsonMessage.metadata.kind`
-   * @param jsonMessage
+   * @param jsonMessage - the message to parse
    */
   static fromJson<T extends MessageKind>(jsonMessage: MessageModel<T>) {
     return Message.factory(jsonMessage)
@@ -142,7 +142,7 @@ export abstract class Message<T extends MessageKind> {
     return this.metadata.id
   }
 
-  /** ID for an "exchange" of messages between Alice <-> PFI. Uses the id of the RFQ that initiated the exchange */
+  /** ID for an "exchange" of messages between Alice - PFI. Uses the id of the RFQ that initiated the exchange */
   get exchangeId() {
     return this.metadata.exchangeId
   }
@@ -193,7 +193,7 @@ export abstract class Message<T extends MessageKind> {
   }
 
   /**
-   * returns the message as a json object. Automatically used by {@link JSON.stringify} method.
+   * returns the message as a json object. Automatically used by `JSON.stringify` method.
    */
   toJSON() {
     const message: MessageModel<T> = {

@@ -15,6 +15,10 @@ export type NewMessage<T extends MessageKind> = Omit<MessageModel<T>, 'signature
  */
 export type NewResource<T extends ResourceKind> = Omit<ResourceModel<T>, 'signature'> & { signature?: string }
 
+/**
+ * Represents the full resource object: metadata + resource kind data + signature
+ * @beta
+ */
 export type ResourceModel<T extends ResourceKind> = {
   /** The metadata object contains fields about the resource and is present in every tbdex resources of all types. */
   metadata: ResourceMetadata<T>
@@ -24,6 +28,10 @@ export type ResourceModel<T extends ResourceKind> = {
   signature: string
 }
 
+/**
+ * Resource's metadata
+ * @beta
+ */
 export type ResourceMetadata<T extends ResourceKind> = {
   /** The author's DID */
   from: string
@@ -37,8 +45,22 @@ export type ResourceMetadata<T extends ResourceKind> = {
   updatedAt?: string
 }
 
+/**
+ * Type alias to represent a set of resource kind string keys
+ * @beta
+ */
 export type ResourceKind = keyof ResourceKinds
+
+/**
+ * Type alias to represent the data content of a resource kind
+ * @beta
+ */
 export type ResourceKindModel<T extends ResourceKind> = ResourceKinds[T]
+
+/**
+ * Type alias to map a resource kind to its key string value
+ * @beta
+ */
 export type ResourceKinds = {
   'offering': OfferingData
 }
@@ -66,6 +88,10 @@ export type OfferingData = {
   requiredClaims: PresentationDefinitionV2
 }
 
+/**
+ * Currency details object
+ * @beta
+ */
 export type CurrencyDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
@@ -75,6 +101,10 @@ export type CurrencyDetails = {
   maxSubunits?: string
 }
 
+/**
+ * The payment method specified by the resource pay in and pay out
+ * @beta
+ */
 export type PaymentMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
@@ -82,6 +112,10 @@ export type PaymentMethod = {
   requiredPaymentDetails: JsonSchema
 }
 
+/**
+ * Represents the full message object: metadata + message kind data + signature
+ * @beta
+ */
 export type MessageModel<T extends MessageKind> = {
   /** The metadata object contains fields about the message and is present in every tbdex message. */
   metadata: MessageMetadata<T>
@@ -104,7 +138,7 @@ export type MessageMetadata<T extends MessageKind> = {
   kind: T
   /** the message id */
   id: string
-  /** ID for an "exchange" of messages between Alice <-> PFI. Uses the id of the RFQ that initiated the exchange */
+  /** ID for an "exchange" of messages between Alice - PFI. Uses the id of the RFQ that initiated the exchange */
   exchangeId: string
   /** Message creation time. Expressed as ISO8601 */
   createdAt: string
@@ -116,9 +150,22 @@ export type MessageMetadata<T extends MessageKind> = {
  */
 export type Private = Record<string, any>
 
-
+/**
+ * Type alias to represent the data content of a message kind
+ * @beta
+ */
 export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
+
+/**
+ * Type alias to represent a set of message kind string keys
+ * @beta
+ */
 export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderstatus' | 'close'
+
+/**
+ * Type alias to map a message kind to its key string value
+ * @beta
+ */
 export type MessageKinds = {
   'rfq': RfqData
   'quote': QuoteData
@@ -145,7 +192,7 @@ export type RfqData = {
 }
 
 /**
- * A payment method that Alice can use to pay a PFI, or be paid by a PFI (pay in, or pay out)
+ * The payment methods selected by Alice in the RFQ
  * @beta
  */
 export type SelectedPaymentMethod = {

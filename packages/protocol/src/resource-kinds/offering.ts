@@ -1,7 +1,10 @@
 import type { ResourceKindModel, ResourceMetadata } from '../types.js'
 import { Resource } from '../resource.js'
 
-/** options passed to {@link Offering.create} */
+/**
+ * Options passed to {@link Offering.create}
+ * @beta
+ */
 export type CreateOfferingOptions = {
   data: ResourceKindModel<'offering'>
   metadata: Omit<ResourceMetadata<'offering'>, 'id' |'kind' | 'createdAt' | 'updatedAt'>
@@ -11,8 +14,13 @@ export type CreateOfferingOptions = {
  * An Offering is used by the PFI to describe a currency pair they have to offer
  * including the requirements, conditions, and constraints in
  * order to fulfill that offer.
+ * @beta
  */
 export class Offering extends Resource<'offering'> {
+  /**
+   * Creates an Offering with the given options
+   * @param opts - options to create an offering
+   */
   static create(opts: CreateOfferingOptions) {
     const metadata: ResourceMetadata<'offering'> = {
       ...opts.metadata,
@@ -44,7 +52,6 @@ export class Offering extends Resource<'offering'> {
   get payoutCurrency() {
     return this.data.payoutCurrency
   }
-
 
   /** A list of accepted payment methods that Alice can use to send payinCurrency to a PFI */
   get payinMethods() {
