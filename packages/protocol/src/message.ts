@@ -7,6 +7,11 @@ import { validate } from './validator.js'
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
 
+/**
+ * Representation of the protocol messages.
+ * It also provides helper functions to manipulate raw messages, JSON and parsing.
+ * @beta
+ */
 export abstract class Message<T extends MessageKind> {
   private _metadata: MessageMetadata<T>
   private _data: MessageKindModel<T>
@@ -66,6 +71,7 @@ export abstract class Message<T extends MessageKind> {
     return signer
   }
 
+  /** Generates a unique id with the message kind's prefix */
   static generateId(messageKind: MessageKind) {
     return typeid(messageKind).toString()
   }

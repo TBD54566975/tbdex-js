@@ -3,7 +3,16 @@ import type { PresentationDefinitionV2 } from '@sphereon/pex-models'
 
 export { JsonSchema }
 
+/**
+ * Type alias to represent a brand new message (signature is optional)
+ * @beta
+ */
 export type NewMessage<T extends MessageKind> = Omit<MessageModel<T>, 'signature'> & { signature?: string }
+
+/**
+ * Type alias to represent a brand new resource (signature is optional)
+ * @beta
+ */
 export type NewResource<T extends ResourceKind> = Omit<ResourceModel<T>, 'signature'> & { signature?: string }
 
 export type ResourceModel<T extends ResourceKind> = {
@@ -38,6 +47,7 @@ export type ResourceKinds = {
  * An Offering is used by the PFI to describe a currency pair they have to offer
  * including the requirements, conditions, and constraints in
  * order to fulfill that offer.
+ * @beta
  */
 export type OfferingData = {
   /** Brief description of what is being offered. */
@@ -81,6 +91,10 @@ export type MessageModel<T extends MessageKind> = {
   signature: string
 }
 
+/**
+ * Message's metadata
+ * @beta
+ */
 export type MessageMetadata<T extends MessageKind> = {
   /** The sender's DID */
   from: string
@@ -96,7 +110,13 @@ export type MessageMetadata<T extends MessageKind> = {
   createdAt: string
 }
 
+/**
+ * Holds private data: PII, PCI, etc.
+ * @beta
+ */
 export type Private = Record<string, any>
+
+
 export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
 export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderstatus' | 'close'
 export type MessageKinds = {
@@ -107,6 +127,10 @@ export type MessageKinds = {
   'close': CloseData
 }
 
+/**
+ * Data contained in a RFQ message
+ * @beta
+ */
 export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
@@ -120,6 +144,10 @@ export type RfqData = {
   claims: string[]
 }
 
+/**
+ * A payment method that Alice can use to pay a PFI, or be paid by a PFI (pay in, or pay out)
+ * @beta
+ */
 export type SelectedPaymentMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
   kind: string
@@ -130,6 +158,7 @@ export type SelectedPaymentMethod = {
 /**
  * Message sent by the PFI in response to an RFQ. Includes a locked-in price that the PFI is willing to honor until
  * the quote expires
+ * @beta
  */
 export type QuoteData = {
   /** When this quote expires. Expressed as ISO8601 */
@@ -142,6 +171,10 @@ export type QuoteData = {
   paymentInstructions?: PaymentInstructions
 }
 
+/**
+ * A QuoteDetails object describes the amount of a currency that is being sent or received
+ * @beta
+ */
 export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
@@ -151,6 +184,10 @@ export type QuoteDetails = {
   feeSubunits?: string
 }
 
+/**
+ * Payment Instructions payin and payout pairs
+ * @beta
+ */
 export type PaymentInstructions = {
   /** link or instruction describing how to send payin currency to the PFI. */
   payin?: PaymentInstruction
@@ -158,6 +195,10 @@ export type PaymentInstructions = {
   payout?: PaymentInstruction
 }
 
+/**
+ * Describes the payment instructions with plain text and/or a link
+ * @beta
+ */
 export type PaymentInstruction = {
   /** Link to allow Alice to pay PFI, or be paid by the PFI */
   link?: string
@@ -167,6 +208,7 @@ export type PaymentInstruction = {
 
 /**
  * Message sent by Alice to the PFI to accept a Quote. Order is currently an empty object
+ * @beta
  */
 export type OrderData = {
   [key: string]: never
@@ -175,6 +217,7 @@ export type OrderData = {
 /**
  * Message sent by the PFI to Alice to convey the current status of an order. There can be many OrderStatus
  * messages in a given Exchange
+ * @beta
  */
 export type OrderStatusData = {
   /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */
@@ -182,7 +225,8 @@ export type OrderStatusData = {
 }
 
 /**
- * a Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * @beta
  */
 export type CloseData = {
   /** an explanation of why the exchange is being closed */

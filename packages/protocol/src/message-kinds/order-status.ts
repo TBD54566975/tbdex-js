@@ -1,7 +1,10 @@
 import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
 import { Message } from '../message.js'
 
-/** options passed to {@link OrderStatus.create} */
+/**
+ * Options passed to {@link OrderStatus.create}
+ * @beta
+ */
 export type CreateOrderStatusOptions = {
   data: MessageKindModel<'orderstatus'>
   metadata: Omit<MessageMetadata<'orderstatus'>, 'id' |'kind' | 'createdAt'>
@@ -10,10 +13,16 @@ export type CreateOrderStatusOptions = {
 /**
  * Sent by the PFI to Alice to convey the current status of an order. There can be many OrderStatus
  * messages in a given Exchange
+ * @beta
  */
 export class OrderStatus extends Message<'orderstatus'> {
+  /** a set of valid Message kinds that can come after an order status */
   readonly validNext = new Set<MessageKind>([])
 
+  /**
+   * Creates an order status with the given options
+   * @param opts - options to create an order status
+   */
   static create(opts: CreateOrderStatusOptions) {
     const metadata: MessageMetadata<'orderstatus'> = {
       ...opts.metadata,

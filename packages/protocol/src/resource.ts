@@ -9,6 +9,7 @@ import { validate } from './validator.js'
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
  * They are not part of the message exchange, i.e Alice cannot reply to a Resource.
+ * @beta
  */
 export abstract class Resource<T extends ResourceKind> {
   private _metadata: ResourceMetadata<T>
@@ -81,7 +82,7 @@ export abstract class Resource<T extends ResourceKind> {
    * validates `data` based on the value of `metadata.kind`
    * @param jsonResource - the resource to validate
    *
-   * @throws {Error} if validation fails
+   * @throws `Error` if validation fails
    */
   static validate(jsonResource: any): void {
     validate(jsonResource, 'resource')
@@ -90,6 +91,7 @@ export abstract class Resource<T extends ResourceKind> {
     validate(jsonResource['data'], jsonResource['metadata']['kind'])
   }
 
+  /** Generates a unique id with the resource kind's prefix */
   static generateId(resourceKind: ResourceKind) {
     return typeid(resourceKind).toString()
   }
@@ -117,7 +119,7 @@ export abstract class Resource<T extends ResourceKind> {
   }
 
   /**
-   * returns the message as a json object. Automatically used by {@link JSON.stringify} method.
+   * returns the message as a json object. Automatically used by `JSON.stringify` method.
    */
   toJSON(): ResourceModel<T> {
     return {
@@ -127,10 +129,12 @@ export abstract class Resource<T extends ResourceKind> {
     }
   }
 
+  /** The metadata object contains fields about the resource and is present in every tbdex resource. */
   get metadata() {
     return this._metadata
   }
 
+  /** the actual resource kind's content data */
   get data() {
     return this._data
   }
@@ -145,18 +149,22 @@ export abstract class Resource<T extends ResourceKind> {
     return this.metadata.id
   }
 
+  /** the resource kind (e.g. offering) */
   get kind() {
     return this.metadata.kind
   }
 
+  /** The sender's DID */
   get from() {
     return this.metadata.from
   }
 
+  /** Resource creation time. Expressed as ISO8601 */
   get createdAt() {
     return this.metadata.createdAt
   }
 
+  /** Resource last updated time. Expressed as ISO8601 */
   get updatedAt() {
     return this.metadata.updatedAt
   }

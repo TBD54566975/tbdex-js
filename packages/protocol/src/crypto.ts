@@ -11,7 +11,10 @@ import { Convert } from '@web5/common'
 import { EcdsaAlgorithm, EdDsaAlgorithm, Jose } from '@web5/crypto'
 import { deferenceDidUrl, isVerificationMethod } from './did-resolver.js'
 
-/** options passed to {@link Crypto.sign} */
+/**
+ * Options passed to {@link Crypto.sign}
+ * @beta
+ */
 export type SignOptions = {
   detachedPayload?: string,
   payload?: object,
@@ -20,7 +23,8 @@ export type SignOptions = {
 }
 
 /**
- * options passed to {@link Crypto.verify}
+ * Options passed to {@link Crypto.verify}
+ * @beta
  */
 export type VerifyOptions = {
   /** the message or resource to verify the signature of */
@@ -28,12 +32,19 @@ export type VerifyOptions = {
   signature: string
 }
 
-/** used as value for each supported named curved listed in {@link Crypto.signers} */
+/**
+ * Used as value for each supported named curved listed in {@link Crypto.signers}
+ * @beta
+ */
 type SignerValue<T extends Web5Crypto.Algorithm> = {
   signer: CryptoAlgorithm,
   options?: T
 }
 
+/**
+ * Cryptographic utility functions, such as hashing, signing, and verifying
+ * @beta
+ */
 export class Crypto {
   /** supported cryptographic algorithms */
   static signers: { [alg: string]: SignerValue<Web5Crypto.EcdsaOptions | Web5Crypto.EdDsaOptions> } = {
