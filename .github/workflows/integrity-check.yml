@@ -116,7 +116,7 @@ jobs:
 
       - name: TBDocs Reporter
         id: tbdocs-reporter-protocol
-        uses: TBD54566975/tbdocs@main
+        uses: TBD54566975/tbdocs@leordev/issue-11.multiple-packages
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           report_changed_scope_only: true
