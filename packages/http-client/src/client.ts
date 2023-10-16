@@ -6,8 +6,10 @@ import queryString from 'query-string'
 
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
+
 /**
  * options passed to {@link TbdexHttpClient.sendMessage} method
+ * @beta
  */
 export type SendMessageOptions<T extends MessageKind> = {
   /** the message you want to send */
@@ -16,6 +18,7 @@ export type SendMessageOptions<T extends MessageKind> = {
 
 /**
  * options passed to {@link TbdexHttpClient.getOfferings} method
+ * @beta
  */
 export type GetOfferingsOptions = {
   /** the DID of the PFI from whom you want to get offerings */
@@ -31,6 +34,7 @@ export type GetOfferingsOptions = {
 
 /**
  * options passed to {@link TbdexHttpClient.getExchange} method
+ * @beta
  */
 export type GetExchangeOptions = {
   /** the DID of the PFI from whom you want to get offerings */
@@ -44,6 +48,7 @@ export type GetExchangeOptions = {
 
 /**
  * options passed to {@link TbdexHttpClient.getExchanges} method
+ * @beta
  */
 export type GetExchangesOptions = {
   /** the DID of the PFI from whom you want to get offerings */
@@ -55,6 +60,10 @@ export type GetExchangesOptions = {
   }
 }
 
+/**
+ * HTTP client for interacting with TBDex PFIs
+ * @beta
+ */
 export class TbdexHttpClient {
   /**
    * sends the message provided to the intended recipient
@@ -319,7 +328,7 @@ export class TbdexHttpClient {
   /**
    * validates the bearer token and verifies the cryptographic signature
    * @throws if the token is invalid
-   * @throws see {@link Crypto.verify}
+   * @throws see {@link @tbdex/protocol#Crypto.verify}
    */
   static async verify(requestToken: string): Promise<string> {
     return Crypto.verify({ signature: requestToken })

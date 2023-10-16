@@ -1,3 +1,7 @@
+/**
+ * Error received from the PFI server response
+ * @beta
+ */
 export type ErrorDetail = {
   /** A unique identifier for this particular occurrence of the problem. */
   id?: string
@@ -22,16 +26,28 @@ export type ErrorDetail = {
   meta?: Record<string, any>
 }
 
+/**
+ * HTTP Response
+ * @beta
+ */
 export type HttpResponse = {
   status: number
   headers: Headers
 }
 
+/**
+ * HTTP Response with data
+ * @beta
+ */
 export type DataResponse<T> = HttpResponse & {
   data: T
   errors?: never
 }
 
+/**
+ * HTTP Response with errors
+ * @beta
+ */
 export type ErrorResponse = HttpResponse & {
   data?: never
   errors: ErrorDetail[]
