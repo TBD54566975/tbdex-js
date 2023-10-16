@@ -8,7 +8,6 @@
  * - to reduce the browser bundle size - Ajv is not included in the bundle
  * - to reduce the start-up time - the validation and compilation of schemas will happen during build time.
  */
-
 import fs from 'node:fs'
 import path from 'node:path'
 import url from 'node:url'
@@ -18,26 +17,33 @@ import standaloneCode from 'ajv/dist/standalone/index.js'
 
 import { mkdirp } from 'mkdirp'
 
-import definitions from './../json-schemas/definitions.json' assert { type: 'json' }
-import resource from './../json-schemas/resource.schema.json' assert { type: 'json' }
-import offering from './../json-schemas/offering.schema.json' assert { type: 'json' }
-import message from './../json-schemas/message.schema.json' assert { type: 'json' }
-import rfq from './../json-schemas/rfq.schema.json' assert { type: 'json' }
-import quote from './../json-schemas/quote.schema.json' assert { type: 'json' }
-import order from './../json-schemas/order.schema.json' assert { type: 'json' }
-import orderstatus from './../json-schemas/order-status.schema.json' assert { type: 'json' }
-import close from './../json-schemas/close.schema.json' assert { type: 'json' }
+const schemaHostUrl = 'https://tbdex.dev'
+const schemaUrls = {
+  definitions : `${schemaHostUrl}/definitions.json`,
+  resource    : `${schemaHostUrl}/resource.schema.json`,
+  offering    : `${schemaHostUrl}/offering.schema.json`,
+  message     : `${schemaHostUrl}/message.schema.json`,
+  rfq         : `${schemaHostUrl}/rfq.schema.json`,
+  quote       : `${schemaHostUrl}/quote.schema.json`,
+  order       : `${schemaHostUrl}/order.schema.json`,
+  orderstatus : `${schemaHostUrl}/orderstatus.schema.json`,
+  close       : `${schemaHostUrl}/close.schema.json`,
+}
 
-const schemas = {
-  definitions,
-  resource,
-  offering,
-  message,
-  rfq,
-  quote,
-  order,
-  orderstatus,
-  close,
+// fetch schemas from https://tbdex.dev which pulls directly from
+// https://github.com/TBD54566975/tbdex/tree/main/json-schemas
+// TODO: cache schemas on disk
+const schemas = {}
+for (let schemaName in schemaUrls) {
+  const schemaUrl = schemaUrls[schemaName]
+  const response = await fetch(schemaUrl)
+
+  if (!response.ok) {
+    throw new Error(`failed to fetch ${schemaName} schema from ${schemaUrl}`)
+  }
+
+  const schema = await response.json()
+  schemas[schemaName] = schema
 }
 
 const validator = new Ajv({ code: { source: true, esm: true } })
