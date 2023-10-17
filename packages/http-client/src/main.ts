@@ -1,5 +1,5 @@
 /**
- * An HTTP client that can be used to send tbdex messages to PFIs
+ * A client that can be used to interface with tbDEX PFIs over an HTTP transport
  *
  * [Link to GitHub Repo](https://github.com/TBD54566975/tbdex-js/tree/main/packages/http-client)
  *
