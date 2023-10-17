@@ -10,7 +10,16 @@ export * from './order.js'
 export * from './order-status.js'
 export * from './close.js'
 
+/**
+ * Type alias for all message kinds classes
+ * @beta
+ */
 export type MessageKindClass = Rfq | Quote | Order | OrderStatus | Close
+
+/**
+ * Type alias for all message kinds classes mapped by string keys
+ * @beta
+ */
 export type MessageKindClasses = {
   'rfq': Rfq
   'quote': Quote

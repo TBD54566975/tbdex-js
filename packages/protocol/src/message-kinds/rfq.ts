@@ -7,18 +7,32 @@ import { PEXv2 } from '@sphereon/pex'
 
 const pex = new PEXv2()
 
-/** options passed to {@link Rfq.create} */
+/**
+ * Options passed to {@link Rfq.create}
+ * @beta
+ */
 export type CreateRfqOptions = {
   data: MessageKindModel<'rfq'>
   metadata: Omit<MessageMetadata<'rfq'>, 'id' |'kind' | 'createdAt' | 'exchangeId'>
   private?: Record<string, any>
 }
 
+/**
+ * Message sent by Alice to PFI to requesting for a quote (RFQ)
+ * @beta
+ */
 export class Rfq extends Message<'rfq'> {
   /** a set of valid Message kinds that can come after an rfq */
   readonly validNext = new Set<MessageKind>(['quote', 'close'])
+
+  /** private data (PII or PCI) */
   _private: Record<string, any>
 
+  /**
+   * Creates an rfq with the given options
+   * @param opts - options to create an rfq
+   * @returns {@link Rfq}
+   */
   static create(opts: CreateRfqOptions) {
     const id = Message.generateId('rfq')
     const metadata: MessageMetadata<'rfq'> = {
@@ -39,7 +53,7 @@ export class Rfq extends Message<'rfq'> {
   /**
    * evaluates this rfq against the provided offering
    * @param offering - the offering to evaluate this rfq against
-   * @throws if {@link offeringId} doesn't match the provided offering's id
+   * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
@@ -99,6 +113,9 @@ export class Rfq extends Message<'rfq'> {
     return this.data.payoutMethod
   }
 
+  /**
+   * Converts this rfq message to a json object
+   */
   toJSON() {
     const jsonMessage = super.toJSON()
     jsonMessage['private'] = this._private

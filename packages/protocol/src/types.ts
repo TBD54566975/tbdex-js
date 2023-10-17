@@ -3,9 +3,22 @@ import type { PresentationDefinitionV2 } from '@sphereon/pex-models'
 
 export { JsonSchema }
 
+/**
+ * Type alias to represent a brand new message (signature is optional)
+ * @beta
+ */
 export type NewMessage<T extends MessageKind> = Omit<MessageModel<T>, 'signature'> & { signature?: string }
+
+/**
+ * Type alias to represent a brand new resource (signature is optional)
+ * @beta
+ */
 export type NewResource<T extends ResourceKind> = Omit<ResourceModel<T>, 'signature'> & { signature?: string }
 
+/**
+ * Represents the full resource object: metadata + resource kind data + signature
+ * @beta
+ */
 export type ResourceModel<T extends ResourceKind> = {
   /** The metadata object contains fields about the resource and is present in every tbdex resources of all types. */
   metadata: ResourceMetadata<T>
@@ -15,6 +28,10 @@ export type ResourceModel<T extends ResourceKind> = {
   signature: string
 }
 
+/**
+ * Resource's metadata
+ * @beta
+ */
 export type ResourceMetadata<T extends ResourceKind> = {
   /** The author's DID */
   from: string
@@ -28,8 +45,22 @@ export type ResourceMetadata<T extends ResourceKind> = {
   updatedAt?: string
 }
 
+/**
+ * Type alias to represent a set of resource kind string keys
+ * @beta
+ */
 export type ResourceKind = keyof ResourceKinds
+
+/**
+ * Type alias to represent the data content of a resource kind
+ * @beta
+ */
 export type ResourceKindModel<T extends ResourceKind> = ResourceKinds[T]
+
+/**
+ * Type alias to map a resource kind to its key string value
+ * @beta
+ */
 export type ResourceKinds = {
   'offering': OfferingData
 }
@@ -38,6 +69,7 @@ export type ResourceKinds = {
  * An Offering is used by the PFI to describe a currency pair they have to offer
  * including the requirements, conditions, and constraints in
  * order to fulfill that offer.
+ * @beta
  */
 export type OfferingData = {
   /** Brief description of what is being offered. */
@@ -56,6 +88,10 @@ export type OfferingData = {
   requiredClaims: PresentationDefinitionV2
 }
 
+/**
+ * Currency details object
+ * @beta
+ */
 export type CurrencyDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
@@ -65,6 +101,10 @@ export type CurrencyDetails = {
   maxSubunits?: string
 }
 
+/**
+ * The payment method specified by the resource pay in and pay out
+ * @beta
+ */
 export type PaymentMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
@@ -72,6 +112,10 @@ export type PaymentMethod = {
   requiredPaymentDetails: JsonSchema
 }
 
+/**
+ * Represents the full message object: metadata + message kind data + signature
+ * @beta
+ */
 export type MessageModel<T extends MessageKind> = {
   /** The metadata object contains fields about the message and is present in every tbdex message. */
   metadata: MessageMetadata<T>
@@ -81,6 +125,10 @@ export type MessageModel<T extends MessageKind> = {
   signature: string
 }
 
+/**
+ * Message's metadata
+ * @beta
+ */
 export type MessageMetadata<T extends MessageKind> = {
   /** The sender's DID */
   from: string
@@ -90,15 +138,34 @@ export type MessageMetadata<T extends MessageKind> = {
   kind: T
   /** the message id */
   id: string
-  /** ID for an "exchange" of messages between Alice <-> PFI. Uses the id of the RFQ that initiated the exchange */
+  /** ID for an "exchange" of messages between Alice - PFI. Uses the id of the RFQ that initiated the exchange */
   exchangeId: string
   /** Message creation time. Expressed as ISO8601 */
   createdAt: string
 }
 
+/**
+ * Holds private data: PII, PCI, etc.
+ * @beta
+ */
 export type Private = Record<string, any>
+
+/**
+ * Type alias to represent the data content of a message kind
+ * @beta
+ */
 export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
+
+/**
+ * Type alias to represent a set of message kind string keys
+ * @beta
+ */
 export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderstatus' | 'close'
+
+/**
+ * Type alias to map a message kind to its key string value
+ * @beta
+ */
 export type MessageKinds = {
   'rfq': RfqData
   'quote': QuoteData
@@ -107,6 +174,10 @@ export type MessageKinds = {
   'close': CloseData
 }
 
+/**
+ * Data contained in a RFQ message
+ * @beta
+ */
 export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
@@ -120,6 +191,10 @@ export type RfqData = {
   claims: string[]
 }
 
+/**
+ * The payment methods selected by Alice in the RFQ
+ * @beta
+ */
 export type SelectedPaymentMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
   kind: string
@@ -130,6 +205,7 @@ export type SelectedPaymentMethod = {
 /**
  * Message sent by the PFI in response to an RFQ. Includes a locked-in price that the PFI is willing to honor until
  * the quote expires
+ * @beta
  */
 export type QuoteData = {
   /** When this quote expires. Expressed as ISO8601 */
@@ -142,6 +218,10 @@ export type QuoteData = {
   paymentInstructions?: PaymentInstructions
 }
 
+/**
+ * A QuoteDetails object describes the amount of a currency that is being sent or received
+ * @beta
+ */
 export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
@@ -151,6 +231,10 @@ export type QuoteDetails = {
   feeSubunits?: string
 }
 
+/**
+ * Payment Instructions payin and payout pairs
+ * @beta
+ */
 export type PaymentInstructions = {
   /** link or instruction describing how to send payin currency to the PFI. */
   payin?: PaymentInstruction
@@ -158,6 +242,10 @@ export type PaymentInstructions = {
   payout?: PaymentInstruction
 }
 
+/**
+ * Describes the payment instructions with plain text and/or a link
+ * @beta
+ */
 export type PaymentInstruction = {
   /** Link to allow Alice to pay PFI, or be paid by the PFI */
   link?: string
@@ -167,6 +255,7 @@ export type PaymentInstruction = {
 
 /**
  * Message sent by Alice to the PFI to accept a Quote. Order is currently an empty object
+ * @beta
  */
 export type OrderData = {
   [key: string]: never
@@ -175,6 +264,7 @@ export type OrderData = {
 /**
  * Message sent by the PFI to Alice to convey the current status of an order. There can be many OrderStatus
  * messages in a given Exchange
+ * @beta
  */
 export type OrderStatusData = {
   /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */
@@ -182,7 +272,8 @@ export type OrderStatusData = {
 }
 
 /**
- * a Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * @beta
  */
 export type CloseData = {
   /** an explanation of why the exchange is being closed */

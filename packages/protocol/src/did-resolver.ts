@@ -2,15 +2,20 @@ import type { DidDocument, DidService, VerificationMethod } from '@web5/dids'
 
 import { DidResolver as Web5DidResolver, DidKeyMethod, DidIonMethod, utils as didUtils } from '@web5/dids'
 
-/** can be used to resolve did:ion and did:key DIDs */
+/**
+ * Can be used to resolve did:ion and did:key DIDs
+ *
+ * @beta
+ */
 export const DidResolver = new Web5DidResolver({
   didResolvers: [DidIonMethod, DidKeyMethod]
 })
 
 /**
- * resolves the DID provided
+ * Resolves the DID provided
  * @param did - the DID to resolve
- * @returns {DidDocument}
+ * @returns {@link @web5/dids#DidDocument}
+ * @beta
  */
 export async function resolveDid(did: string): Promise<DidDocument> {
   const { didResolutionMetadata, didDocument } = await DidResolver.resolve(did)
@@ -24,6 +29,10 @@ export async function resolveDid(did: string): Promise<DidDocument> {
   return didDocument
 }
 
+/**
+ * A DID Resource is either a DID Document, a DID Verification method or a DID Service
+ * @beta
+ */
 export type DidResource = DidDocument | VerificationMethod | DidService
 
 /**
@@ -36,6 +45,7 @@ export type DidResource = DidDocument | VerificationMethod | DidService
  * @returns the dereferenced resource
  * @throws if DID URL cannot be parsed
  * @throws if DID cannot be resolved
+ * @beta
  */
 export async function deferenceDidUrl(didUrl: string): Promise<DidResource> {
   const parsedDid = didUtils.parseDid({ didUrl })
@@ -71,9 +81,10 @@ export async function deferenceDidUrl(didUrl: string): Promise<DidResource> {
 }
 
 /**
- * type guard for {@link VerificationMethod}
- * @param didResource
- * @returns
+ * type guard for {@link @web5/dids#VerificationMethod}
+ * @param didResource - the resource to check
+ * @returns true if the didResource is a `VerificationMethod`
+ * @beta
  */
 export function isVerificationMethod(didResource: DidResource): didResource is VerificationMethod {
   return didResource && 'id' in didResource && 'type' in didResource && 'controller' in didResource

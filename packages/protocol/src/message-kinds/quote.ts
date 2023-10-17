@@ -1,7 +1,10 @@
 import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
 import { Message } from '../message.js'
 
-/** options passed to {@link Quote.create} */
+/**
+ * Options passed to {@link Quote.create}
+ * @beta
+ */
 export type CreateQuoteOptions = {
   data: MessageKindModel<'quote'>
   metadata: Omit<MessageMetadata<'quote'>, 'id' |'kind' | 'createdAt'>
@@ -10,10 +13,16 @@ export type CreateQuoteOptions = {
 /**
  * Sent by the PFI in response to an RFQ. Includes a locked-in price that the PFI is willing to honor until
  * the quote expires
+ * @beta
  */
 export class Quote extends Message<'quote'> {
+  /** a set of valid Message kinds that can come after a quote */
   readonly validNext = new Set<MessageKind>(['order', 'close'])
 
+  /**
+   * Creates a quote message with the given options
+   * @param opts - options to create a quote
+   */
   static create(opts: CreateQuoteOptions) {
     const metadata: MessageMetadata<'quote'> = {
       ...opts.metadata,

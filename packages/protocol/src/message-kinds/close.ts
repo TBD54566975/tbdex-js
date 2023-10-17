@@ -1,17 +1,27 @@
 import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
 import { Message } from '../message.js'
 
-/** options passed to {@link OrderStatus.create} */
+/**
+ * Options passed to {@link OrderStatus.create}
+ * @beta
+ */
 export type CreateCloseOptions = {
   data: MessageKindModel<'close'>
   metadata: Omit<MessageMetadata<'close'>, 'id' |'kind' | 'createdAt'>
 }
 
-/** a Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote */
+/**
+ * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * @beta
+ */
 export class Close extends Message<'close'> {
   /** a set of valid Message kinds that can come after a close */
   readonly validNext = new Set<MessageKind>([])
 
+  /**
+   * Creates a close message with the given options
+   * @param opts - options to create a close message
+   */
   static create(opts: CreateCloseOptions) {
     const metadata: MessageMetadata<'close'> = {
       ...opts.metadata,

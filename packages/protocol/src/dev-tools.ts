@@ -10,20 +10,29 @@ import { Crypto } from './crypto.js'
 import { Jose } from '@web5/crypto'
 import { Rfq } from './message-kinds/index.js'
 
-
+/**
+ * Supported DID Methods
+ * @beta
+ */
 export type DidMethodOptions = 'key' | 'ion'
 
-/** options passed to {@link DevTools.createRfq} */
+/**
+ * Options passed to {@link DevTools.createRfq}
+ * @beta
+ */
 export type RfqOptions = {
   /**
-   * {@link PortableDid} of the rfq sender. used to generate a random credential that fulfills the vcRequirements
+   * {@link @web5/dids#PortableDid} of the rfq sender. used to generate a random credential that fulfills the vcRequirements
    * of the offering returned by {@link DevTools.createOffering}
-  */
+   */
   sender: PortableDid
 }
 
 
-/** options passed to {@link DevTools.createCredential} */
+/**
+ * Options passed to {@link DevTools.createCredential}
+ * @beta
+ */
 export type CreateCredentialOptions = Omit<CreateJwtOptions, 'payload'> & {
   /** the credential type (e.g. UniversityDegreeCredential) */
   type: string
@@ -31,6 +40,10 @@ export type CreateCredentialOptions = Omit<CreateJwtOptions, 'payload'> & {
   data: Record<string, any>
 }
 
+/**
+ * Options passed to {@link DevTools.createJwt}
+ * @beta
+ */
 export type CreateJwtOptions = {
   /** the thing to sign */
   payload: any,
@@ -42,6 +55,7 @@ export type CreateJwtOptions = {
 
 /**
  * Utility functions for testing purposes
+ * @beta
  */
 export class DevTools {
   /**
@@ -189,7 +203,7 @@ export class DevTools {
 
   /**
    * creates a verifiable credential using the options provided. This method is intended for testing purposes
-   * @param opts
+   * @param opts - options used to create the credential
    * @returns
    */
   static async createCredential(opts: CreateCredentialOptions) {
@@ -211,6 +225,13 @@ export class DevTools {
     return { credential, signedCredential }
   }
 
+  /**
+   * Creates a JWT using the options provided.
+   * It's signed with the issuer's first verification method private key JWK
+   *
+   * @param opts - options used to create the JWT
+   * @returns a compact JWT
+   */
   static async createJwt(opts: CreateJwtOptions) {
     const { issuer, subject, payload } = opts
     const { privateKeyJwk } = issuer.keySet.verificationMethodKeys[0]
