@@ -18,13 +18,26 @@ import { getExchanges, getOfferings, submitOrder, submitClose, submitRfq } from 
 import { jsonBodyParser } from './middleware/index.js'
 import { fakeExchangesApi, fakeOfferingsApi } from './fakes.js'
 
+/**
+ * Union type alias for the RequestKind
+ * @beta
+ */
 type RequestKind = GetKind | SubmitKind
+
+/**
+ * Maps the requests to their respective callbacks handlers
+ * @beta
+ */
 type CallbackMap = {
   [Kind in RequestKind]?: Kind extends GetKind ? GetCallback<Kind>
     : Kind extends SubmitKind ? SubmitCallback<Kind>
     : never
 }
 
+/**
+ * Options for creating a new HttpServer
+ * @beta
+ */
 type NewHttpServerOptions = {
   offeringsApi?: OfferingsApi
   exchangesApi?: ExchangesApi
@@ -34,10 +47,30 @@ const defaults: NewHttpServerOptions = {
   offeringsApi : fakeOfferingsApi,
   exchangesApi : fakeExchangesApi
 }
+
+/**
+ * TBDex HTTP Server powered by Express
+ * @beta
+ */
 export class TbdexHttpServer {
+  /**
+   * Map of callbacks handlers for the available requests
+   */
   callbacks: CallbackMap
+
+  /**
+   * Express server instance
+   */
   api: Express
+
+  /**
+   * PFI Exchanges API
+   */
   exchangesApi: ExchangesApi
+
+  /**
+   * PFI Offerings API
+   */
   offeringsApi: OfferingsApi
 
   constructor(opts?: NewHttpServerOptions) {
@@ -58,14 +91,29 @@ export class TbdexHttpServer {
 
   }
 
+  /**
+   * Setup the callback for the available Submit Requests (eg. RFQ, Order, Close)
+   * @param messageKind - the kind of message to be handled
+   * @param callback - the handler for the message
+   */
   submit<T extends SubmitKind>(messageKind: T, callback: SubmitCallbacks[T]) {
     this.callbacks[messageKind] = callback
   }
 
+  /**
+   * Setup the callback for the available Get Requests (eg. offerings, exchanges)
+   * @param resourceKind - the kind of resource to be handled
+   * @param callback - the handler for the resource
+   */
   get<T extends GetKind>(resourceKind: T, callback: GetCallbacks[T]) {
     this.callbacks[resourceKind] = callback
   }
 
+  /**
+   * Setup the PFI routes and start a express server to listen for incoming requests
+   * @param port - server port number
+   * @param callback - to be called when the server is ready
+   */
   listen(port: number | string, callback?: () => void) {
     const { offeringsApi, exchangesApi } = this
 
