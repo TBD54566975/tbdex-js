@@ -7,8 +7,13 @@ A configurable implementation of the [tbdex http api draft specification](https:
 
 # Installation
 ```bash
-npm install @tbdex/http-server
+npm install @tbdex/http-server @tbdex/protocol
 ```
+
+> [!NOTE]
+>
+> `@tbdex/protocol` is a [peer dependency](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#peerdependencies) to `@tbdex/http-server`
+
 # Usage
 ```typescript
 import { TbdexHttpServer } from '@tbdex/http-server'
