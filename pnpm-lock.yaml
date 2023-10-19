@@ -132,6 +132,9 @@ importers:
 
   packages/http-server:
     dependencies:
+      '@tbdex/http-client':
+        specifier: workspace:*
+        version: link:../http-client
       '@web5/dids':
         specifier: 0.2.0
         version: 0.2.0
@@ -142,9 +145,6 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
     devDependencies:
-      '@tbdex/http-client':
-        specifier: workspace:*
-        version: link:../http-client
       '@tbdex/protocol':
         specifier: workspace:*
         version: link:../protocol

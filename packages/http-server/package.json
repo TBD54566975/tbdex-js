@@ -21,12 +21,12 @@
     "import": "./dist/main.js"
   },
   "dependencies": {
+    "@tbdex/http-client": "workspace:*",
     "@web5/dids": "0.2.0",
     "cors": "2.8.5",
     "express": "4.18.2"
   },
   "devDependencies": {
-    "@tbdex/http-client": "workspace:*",
     "@tbdex/protocol": "workspace:*",
     "@types/chai": "4.3.6",
     "@types/express": "4.17.17",
@@ -40,7 +40,6 @@
     "undici": "5.26.3"
   },
   "peerDependencies": {
-    "@tbdex/http-client": "workspace:*",
     "@tbdex/protocol": "workspace:*"
   },
   "scripts": {
