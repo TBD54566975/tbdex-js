@@ -41,9 +41,6 @@ importers:
 
   packages/http-client:
     dependencies:
-      '@tbdex/protocol':
-        specifier: workspace:*
-        version: link:../protocol
       '@web5/crypto':
         specifier: 0.2.0
         version: 0.2.0
@@ -57,6 +54,9 @@ importers:
       '@playwright/test':
         specifier: 1.34.3
         version: 1.34.3
+      '@tbdex/protocol':
+        specifier: workspace:*
+        version: link:../protocol
       '@types/chai':
         specifier: 4.3.5
         version: 4.3.5
@@ -132,12 +132,6 @@ importers:
 
   packages/http-server:
     dependencies:
-      '@tbdex/http-client':
-        specifier: workspace:*
-        version: link:../http-client
-      '@tbdex/protocol':
-        specifier: workspace:*
-        version: link:../protocol
       '@web5/dids':
         specifier: 0.2.0
         version: 0.2.0
@@ -148,6 +142,12 @@ importers:
         specifier: 4.18.2
         version: 4.18.2
     devDependencies:
+      '@tbdex/http-client':
+        specifier: workspace:*
+        version: link:../http-client
+      '@tbdex/protocol':
+        specifier: workspace:*
+        version: link:../protocol
       '@types/chai':
         specifier: 4.3.6
         version: 4.3.6
