@@ -7,6 +7,7 @@ import { validate } from './validator.js'
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
 
+
 /**
  * Representation of the protocol messages.
  * It also provides helper functions to manipulate raw messages, JSON and parsing.
@@ -60,7 +61,7 @@ export abstract class Message<T extends MessageKind> {
 
     // create the payload to sign
     const toSign = { metadata: jsonMessage.metadata, data: jsonMessage.data }
-    const hashedToSign = Crypto.hash(toSign)
+    const hashedToSign = Crypto.digest(toSign)
 
     const signer = await Crypto.verify({ detachedPayload: hashedToSign, signature: jsonMessage.signature })
 
@@ -108,7 +109,7 @@ export abstract class Message<T extends MessageKind> {
    */
   async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
     const toSign = { metadata: this.metadata, data: this.data }
-    const hashedToSign = Crypto.hash(toSign)
+    const hashedToSign = Crypto.digest(toSign)
 
     this._signature = await Crypto.sign({ privateKeyJwk, kid, detachedPayload: hashedToSign })
   }
