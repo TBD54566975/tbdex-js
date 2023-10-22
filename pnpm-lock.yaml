@@ -44,6 +44,9 @@ importers:
       '@tbdex/protocol':
         specifier: workspace:*
         version: link:../protocol
+      '@web5/common':
+        specifier: 0.2.0
+        version: 0.2.0
       '@web5/crypto':
         specifier: 0.2.0
         version: 0.2.0

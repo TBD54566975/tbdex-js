@@ -1,64 +1,19 @@
-import type { ResourceMetadata, MessageModel, OfferingData, ResourceModel, MessageKind, MessageKindClass } from '@tbdex/protocol'
 import type { DataResponse, ErrorDetail, ErrorResponse, HttpResponse } from './types.js'
 import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
-
-import queryString from 'query-string'
+import type {
+  ResourceMetadata,
+  MessageModel,
+  OfferingData,
+  ResourceModel,
+  MessageKind,
+  MessageKindClass,
+} from '@tbdex/protocol'
 
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
+import { Convert } from '@web5/common'
 
-/**
- * options passed to {@link TbdexHttpClient.sendMessage} method
- * @beta
- */
-export type SendMessageOptions<T extends MessageKind> = {
-  /** the message you want to send */
-  message: Message<T> | MessageModel<T>
-}
-
-/**
- * options passed to {@link TbdexHttpClient.getOfferings} method
- * @beta
- */
-export type GetOfferingsOptions = {
-  /** the DID of the PFI from whom you want to get offerings */
-  pfiDid: string
-  filter?: {
-    /** ISO 3166 currency code string */
-    payinCurrency?: OfferingData['payinCurrency']['currencyCode']
-    /** ISO 3166 currency code string */
-    payoutCurrency?: OfferingData['payoutCurrency']['currencyCode']
-    id?: ResourceMetadata<any>['id']
-  }
-}
-
-/**
- * options passed to {@link TbdexHttpClient.getExchange} method
- * @beta
- */
-export type GetExchangeOptions = {
-  /** the DID of the PFI from whom you want to get offerings */
-  pfiDid: string
-  /** the exchange you want to fetch */
-  exchangeId: string
-  /** the private key used to sign the bearer token */
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
-}
-
-/**
- * options passed to {@link TbdexHttpClient.getExchanges} method
- * @beta
- */
-export type GetExchangesOptions = {
-  /** the DID of the PFI from whom you want to get offerings */
-  pfiDid: string
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
-  filter?: {
-    exchangeId: string | string[]
-  }
-}
+import queryString from 'query-string'
 
 /**
  * HTTP client for interacting with TBDex PFIs
@@ -321,8 +276,10 @@ export class TbdexHttpClient {
     // TODO: include aud property. should be DID of receipient
     // TODO: include nbf property. not before current time
     // TODO: include iss property. should be requester's did
-    const tokenPayload = { timestamp: new Date().toISOString() }
-    return Crypto.sign({ privateKeyJwk, kid, payload: tokenPayload })
+    const payload = { timestamp: new Date().toISOString() }
+    const payloadBytes = Convert.object(payload).toUint8Array()
+
+    return Crypto.sign({ privateKeyJwk, kid, payload: payloadBytes, detached: false })
   }
 
   /**
@@ -332,5 +289,58 @@ export class TbdexHttpClient {
    */
   static async verify(requestToken: string): Promise<string> {
     return Crypto.verify({ signature: requestToken })
+  }
+}
+
+/**
+ * options passed to {@link TbdexHttpClient.sendMessage} method
+ * @beta
+ */
+export type SendMessageOptions<T extends MessageKind> = {
+  /** the message you want to send */
+  message: Message<T> | MessageModel<T>
+}
+
+/**
+ * options passed to {@link TbdexHttpClient.getOfferings} method
+ * @beta
+ */
+export type GetOfferingsOptions = {
+  /** the DID of the PFI from whom you want to get offerings */
+  pfiDid: string
+  filter?: {
+    /** ISO 3166 currency code string */
+    payinCurrency?: OfferingData['payinCurrency']['currencyCode']
+    /** ISO 3166 currency code string */
+    payoutCurrency?: OfferingData['payoutCurrency']['currencyCode']
+    id?: ResourceMetadata<any>['id']
+  }
+}
+
+/**
+ * options passed to {@link TbdexHttpClient.getExchange} method
+ * @beta
+ */
+export type GetExchangeOptions = {
+  /** the DID of the PFI from whom you want to get offerings */
+  pfiDid: string
+  /** the exchange you want to fetch */
+  exchangeId: string
+  /** the private key used to sign the bearer token */
+  privateKeyJwk: Web5PrivateKeyJwk
+  kid: string
+}
+
+/**
+ * options passed to {@link TbdexHttpClient.getExchanges} method
+ * @beta
+ */
+export type GetExchangesOptions = {
+  /** the DID of the PFI from whom you want to get offerings */
+  pfiDid: string
+  privateKeyJwk: Web5PrivateKeyJwk
+  kid: string
+  filter?: {
+    exchangeId: string | string[]
   }
 }
