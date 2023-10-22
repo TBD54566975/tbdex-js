@@ -99,10 +99,10 @@ export abstract class Resource<T extends ResourceKind> {
    *              when dereferencing the signer's DID
    */
   async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
-    const toSign = { metadata: this.metadata, data: this.data }
-    const hashedToSign = Crypto.digest(toSign)
+    const payload = { metadata: this.metadata, data: this.data }
+    const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, detachedPayload: hashedToSign })
+    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
   }
 
   /**

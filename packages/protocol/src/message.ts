@@ -59,11 +59,8 @@ export abstract class Message<T extends MessageKind> {
 
     Message.validate(jsonMessage)
 
-    // create the payload to sign
-    const toSign = { metadata: jsonMessage.metadata, data: jsonMessage.data }
-    const hashedToSign = Crypto.digest(toSign)
-
-    const signer = await Crypto.verify({ detachedPayload: hashedToSign, signature: jsonMessage.signature })
+    const digest = Crypto.digest({ metadata: jsonMessage.metadata, data: jsonMessage.data })
+    const signer = await Crypto.verify({ detachedPayload: digest, signature: jsonMessage.signature })
 
     if (jsonMessage.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
@@ -108,10 +105,10 @@ export abstract class Message<T extends MessageKind> {
    *               select the appropriate verificationMethod when dereferencing the signer's DID
    */
   async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
-    const toSign = { metadata: this.metadata, data: this.data }
-    const hashedToSign = Crypto.digest(toSign)
+    const payload = { metadata: this.metadata, data: this.data }
+    const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, detachedPayload: hashedToSign })
+    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
   }
 
   /**

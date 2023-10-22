@@ -17,9 +17,13 @@ import canonicalize from 'canonicalize'
  * @beta
  */
 export type SignOptions = {
-  detachedPayload?: string,
-  payload?: object,
+  /** Indicates whether the payload is detached from the JWS. If `true`, the payload is not included in the resulting JWS. */
+  detached: boolean,
+  /** The payload to be signed. */
+  payload: Uint8Array,
+  /** The private key in JWK (JSON Web Key) format used for signing. */
   privateKeyJwk: Web5PrivateKeyJwk,
+  /** A unique identifier for the key used to sign in the form of a DID URL. */
   kid: string
 }
 
@@ -28,13 +32,13 @@ export type SignOptions = {
  * @beta
  */
 export type VerifyOptions = {
-  /** the message or resource to verify the signature of */
-  detachedPayload?: string,
+  /** The payload that was signed. required only if the signature is a detached JWS */
+  detachedPayload?: Uint8Array,
   signature: string
 }
 
 /**
- * Used as value for each supported named curved listed in {@link Crypto.signers}
+ * Used as value for each supported named curved listed in {@link Crypto.algorithms}
  * @beta
  */
 type SignerValue<T extends Web5Crypto.Algorithm> = {
@@ -63,7 +67,7 @@ const ed25519Signer: SignerValue<Web5Crypto.EdDsaOptions> = {
  * @beta
  */
 export class Crypto {
-  /** supported cryptographic algorithms */
+  /** supported cryptographic algorithms. keys are `${alg}:${crv}. */
   static algorithms: { [alg: string]: SignerValue<Web5Crypto.EcdsaOptions | Web5Crypto.EdDsaOptions> } = {
     'ES256K:'          : secp256k1Signer,
     'ES256K:secp256k1' : secp256k1Signer,
@@ -72,30 +76,29 @@ export class Crypto {
   }
 
   /**
-   * hashes the payload provided in the following manner:
-   * base64url(
-   *  sha256(
-   *    cbor(payload)
-   *  )
-   * )
-   * TODO: add link to tbdex protocol hash section
-   * @param payload - the payload to hash
+   * Computes a digest of the payload by:
+   * * JSON serializing the payload as per [RFC-8785: JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785)
+   * * sha256 hashing the serialized payload
+   *
+   * @returns The SHA-256 hash of the canonicalized payload, represented as a byte array.
    */
   static digest(payload: any) {
     // @ts-ignore
     const canonicalized = canonicalize(payload)
     const canonicalizedBytes = Convert.string(canonicalized).toUint8Array()
 
-    const payloadDigest = sha256(canonicalizedBytes)
-    return Convert.uint8Array(payloadDigest).toBase64Url()
+    return sha256(canonicalizedBytes)
   }
 
   /**
-   * signs the payload provided as a compact JWS
-   * @param opts - signing options
+   * Signs the provided payload and produces a compact JSON Web Signature (JWS).
+   *
+   * @param opts - The options required for signing.
+   * @returns A promise that resolves to the generated compact JWS.
+   * @throws Will throw an error if the specified algorithm is not supported.
    */
   static async sign(opts: SignOptions) {
-    const { privateKeyJwk, kid, payload, detachedPayload } = opts
+    const { privateKeyJwk, kid, payload, detached } = opts
 
     const algorithmName = privateKeyJwk['alg'] || ''
     const namedCurve = privateKeyJwk['crv'] || ''
@@ -108,13 +111,7 @@ export class Crypto {
 
     const jwsHeader: JwsHeader = { alg: algorithm.alg, kid }
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
-
-    let base64urlEncodedJwsPayload: string
-    if (detachedPayload) {
-      base64urlEncodedJwsPayload = detachedPayload
-    } else {
-      base64urlEncodedJwsPayload = Convert.object(payload).toBase64Url()
-    }
+    const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 
     const key = await Jose.jwkToCryptoKey({ key: privateKeyJwk as Web5PrivateKeyJwk })
 
@@ -124,7 +121,7 @@ export class Crypto {
     const signatureBytes = await algorithm.signer.sign({ key, data: toSignBytes, algorithm: algorithm.options })
     const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
-    if (detachedPayload) {
+    if (detached) {
       // compact JWS with detached content: https://datatracker.ietf.org/doc/html/rfc7515#appendix-F
       return `${base64UrlEncodedJwsHeader}..${base64UrlEncodedSignature}`
     } else {
@@ -133,16 +130,11 @@ export class Crypto {
   }
 
   /**
-   * verifies the cryptographic integrity of the message or resource's signature
-   * @param opts - verification options
-   * @throws if no signature present on the message or resource
-   * @throws if the signature is not a valid compact JWS
-   * @throws if the JWS' content is not detached
-   * @throws if the JWS header does not contain alg and kid
-   * @throws if DID in kid of JWS header does not match metadata.from
-   * @throws if signer's DID cannot be resolved
-   * @throws if signer's DID Document does not have the necessary verification method
-   * @throws if the verification method does not include a publicKeyJwk
+   * Verifies the integrity of a message or resource's signature.
+   *
+   * @param opts - The options required for verification.
+   * @returns A promise that resolves to the DID of the signer if verification is successful.
+   * @throws Various errors related to invalid input or failed verification.
    */
   static async verify(opts: VerifyOptions): Promise<string> {
     const { signature, detachedPayload } = opts
@@ -162,7 +154,7 @@ export class Crypto {
       if (base64urlEncodedJwsPayload.length !== 0) { // ensure that JWS payload is empty
         throw new Error('Signature verification failed: Expected valid JWS with detached content')
       }
-      base64urlEncodedJwsPayload = detachedPayload
+      base64urlEncodedJwsPayload = Convert.uint8Array(detachedPayload).toBase64Url()
     }
 
     const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject() as JwsHeaderParams
