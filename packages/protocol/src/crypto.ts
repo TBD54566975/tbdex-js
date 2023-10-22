@@ -201,7 +201,7 @@ export class Crypto {
 }
 
 /**
- * monkey patch of {@link JwsHeaderParams} to include `EdDSA` as a valid alg
+ * monkey patch of JwsHeaderParams to include `EdDSA` as a valid alg
  * **NOTE**: Remove this once upstream `@web5/crypto` package is fixed
  * @internal
  */
