@@ -67,7 +67,7 @@ const ed25519Signer: SignerValue<Web5Crypto.EdDsaOptions> = {
  * @beta
  */
 export class Crypto {
-  /** supported cryptographic algorithms. keys are `${alg}:${crv}. */
+  /** supported cryptographic algorithms. keys are `${alg}:${crv}`. */
   static algorithms: { [alg: string]: SignerValue<Web5Crypto.EcdsaOptions | Web5Crypto.EdDsaOptions> } = {
     'ES256K:'          : secp256k1Signer,
     'ES256K:secp256k1' : secp256k1Signer,
@@ -200,5 +200,9 @@ export class Crypto {
   }
 }
 
-// TODO: remove this monkey-patch after https://github.com/TBD54566975/web5-js/pull/175 is merged
+/**
+ * monkey patch of {@link JwsHeaderParams} to include `EdDSA` as a valid alg
+ * **NOTE**: Remove this once upstream `@web5/crypto` package is fixed
+ * @internal
+ */
 type JwsHeader = Omit<JwsHeaderParams, 'alg'> & { alg: JwsHeaderParams['alg'] | 'EdDSA' }
