@@ -38,6 +38,9 @@ importers:
       npkill:
         specifier: 0.11.3
         version: 0.11.3
+      semver:
+        specifier: 7.5.4
+        version: 7.5.4
 
   packages/http-client:
     dependencies:

@@ -90,23 +90,28 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
 
+      - name: install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
       - name: Set up Node.js
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
 
-      - name: Install latest npm
-        run: npm install -g npm@latest
-
-      - name: Install semver utility
-        run: npm install -g semver@7.5.1
-
       # Note - this is not required but it gives a clean failure prior to attempting a release if the GH workflow runner is not authenticated with NPMjs.com
       - name: Verify NPM token is authenticated with NPMjs.com
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-        run: npm whoami
+        run: pnpm whoami
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build packages
+        run: pnpm build
 
       - name: Check if GitHub repo package version is latest
         env:
@@ -115,7 +120,7 @@ jobs:
           cd packages/${{ matrix.package }}
 
           # Fetch the published version on NPMjs.com.
-          PUBLISHED_VERSION=$(npm view @tbdex/${{ matrix.package }} version 2>/dev/null || echo "0.0.0")
+          PUBLISHED_VERSION=$(pnpm view @tbdex/${{ matrix.package }} version 2>/dev/null || echo "0.0.0")
           echo "Published Version: $PUBLISHED_VERSION"
 
           # Fetch the version in the GitHub repo's package.json file.
@@ -134,19 +139,12 @@ jobs:
           fi
         shell: bash
 
-      - name: Install dependencies
-        if: env.IS_LATEST == 'true'
-        run: npm ci
-
-      - name: Build all workspace packages
-        if: env.IS_LATEST == 'true'
-        run: npm run build
-
       - name: Publish @tbdex/${{ matrix.package }}@${{ env.REPO_VERSION }}
         if: env.IS_LATEST == 'true'
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          NPM_CONFIG_PROVENANCE: true
         run: |
           cd packages/${{ matrix.package }}
-          npm publish --access public --provenance
+          pnpm publish --access public
         shell: bash
