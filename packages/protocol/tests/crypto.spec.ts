@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 
 import { DevTools, Crypto } from '../src/main.js'
-import { Convert } from '@web5/common'
 import { utils as didUtils } from '@web5/dids'
+import { Convert } from '@web5/common'
 
 describe('Crypto', () => {
   describe('sign / verify', () => {
@@ -11,10 +11,14 @@ describe('Crypto', () => {
       const [ verificationMethodKey ] = alice.keySet.verificationMethodKeys
       const { privateKeyJwk } = verificationMethodKey
 
+      const payload = { timestamp: new Date().toISOString() }
+      const payloadBytes = Convert.object(payload).toUint8Array()
+
       const token = await Crypto.sign({
         privateKeyJwk,
-        kid     : `${alice.did}#${privateKeyJwk.kid}`,
-        payload : { timestamp: new Date().toISOString() }
+        kid      : `${alice.did}#${privateKeyJwk.kid}`,
+        payload  : payloadBytes,
+        detached : false
       })
 
       await Crypto.verify({ signature: token })
@@ -28,10 +32,14 @@ describe('Crypto', () => {
       const parsedDid = didUtils.parseDid({ didUrl: alice.did })
       const kid = `${alice.did}#${parsedDid.id}`
 
+      const payload = { timestamp: new Date().toISOString() }
+      const payloadBytes = Convert.object(payload).toUint8Array()
+
       const token = await Crypto.sign({
         privateKeyJwk,
         kid,
-        payload: { timestamp: new Date().toISOString() }
+        payload  : payloadBytes,
+        detached : false
       })
 
       await Crypto.verify({ signature: token })
@@ -43,15 +51,16 @@ describe('Crypto', () => {
       const { privateKeyJwk } = verificationMethodKey
 
       const payload = { timestamp: new Date().toISOString() }
-      const base64urlEncodedPayload = Convert.object(payload).toBase64Url()
+      const payloadBytes = Convert.object(payload).toUint8Array()
 
       const token = await Crypto.sign({
         privateKeyJwk,
-        kid             : `${alice.did}#${privateKeyJwk.kid}`,
-        detachedPayload : base64urlEncodedPayload
+        kid      : `${alice.did}#${privateKeyJwk.kid}`,
+        payload  : payloadBytes,
+        detached : true
       })
 
-      const did = await Crypto.verify({ signature: token, detachedPayload: base64urlEncodedPayload })
+      const did = await Crypto.verify({ signature: token, detachedPayload: payloadBytes })
       expect(alice.did).to.equal(did)
     })
   })

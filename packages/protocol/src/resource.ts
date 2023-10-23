@@ -6,6 +6,7 @@ import { typeid } from 'typeid-js'
 import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 
+
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
  * They are not part of the message exchange, i.e Alice cannot reply to a Resource.
@@ -63,17 +64,14 @@ export abstract class Resource<T extends ResourceKind> {
     let jsonResource: ResourceModel<T> = resource instanceof Resource ? resource.toJSON() : resource
     Resource.validate(jsonResource)
 
-    // create the payload to sign
-    const toSign = { metadata: jsonResource.metadata, data: jsonResource.data }
-    const hashedToSign = Crypto.hash(toSign)
+    const digest = Crypto.digest({ metadata: jsonResource.metadata, data: jsonResource.data })
+    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature })
 
-    const signer = await Crypto.verify({ detachedPayload: hashedToSign, signature: jsonResource.signature })
-
-    if (jsonResource.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
+    if (jsonResource.metadata.from !== signerDid) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
     }
 
-    return signer
+    return signerDid
   }
 
   /**
@@ -86,8 +84,6 @@ export abstract class Resource<T extends ResourceKind> {
    */
   static validate(jsonResource: any): void {
     validate(jsonResource, 'resource')
-
-    // TODO: decide whether validating the data property should go into the respective resource kind classes
     validate(jsonResource['data'], jsonResource['metadata']['kind'])
   }
 
@@ -103,10 +99,10 @@ export abstract class Resource<T extends ResourceKind> {
    *              when dereferencing the signer's DID
    */
   async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
-    const toSign = { metadata: this.metadata, data: this.data }
-    const hashedToSign = Crypto.hash(toSign)
+    const payload = { metadata: this.metadata, data: this.data }
+    const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, detachedPayload: hashedToSign })
+    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
   }
 
   /**

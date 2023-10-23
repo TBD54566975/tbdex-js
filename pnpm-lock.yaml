@@ -38,12 +38,18 @@ importers:
       npkill:
         specifier: 0.11.3
         version: 0.11.3
+      semver:
+        specifier: 7.5.4
+        version: 7.5.4
 
   packages/http-client:
     dependencies:
       '@tbdex/protocol':
         specifier: workspace:*
         version: link:../protocol
+      '@web5/common':
+        specifier: 0.2.0
+        version: 0.2.0
       '@web5/crypto':
         specifier: 0.2.0
         version: 0.2.0
@@ -205,9 +211,9 @@ importers:
       ajv:
         specifier: 8.12.0
         version: 8.12.0
-      cborg:
-        specifier: 3.0.0
-        version: 3.0.0
+      canonicalize:
+        specifier: 2.0.0
+        version: 2.0.0
       typeid-js:
         specifier: 0.3.0
         version: 0.3.0
@@ -1938,11 +1944,6 @@ packages:
   /catering@2.1.1:
     resolution: {integrity: sha512-K7Qy8O9p76sL3/3m7/zLKbRkyOlSZAgzEaLhyj2mXS8PsCud2Eo4hAb8aLtZqHh0QGqLcb9dlJSu6lHRVENm1w==}
     engines: {node: '>=6'}
-    dev: false
-
-  /cborg@3.0.0:
-    resolution: {integrity: sha512-RszZBMsc5EU0zeV+JrI2xFwsY+H13LfgI8BMmMrS3LWlyZ+dp7s5NzvrXWeVy5c31Q5DUt4bHlV+w68m3pW6+w==}
-    hasBin: true
     dev: false
 
   /chai@4.3.10:

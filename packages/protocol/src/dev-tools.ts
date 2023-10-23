@@ -237,9 +237,9 @@ export class DevTools {
     const { privateKeyJwk } = issuer.keySet.verificationMethodKeys[0]
 
     // build jwt header
-    const namedCurve = privateKeyJwk['crv']
-    const algorithmName = Crypto.crvToAlgMap[namedCurve]
-    const jwtHeader = { alg: algorithmName, kid: privateKeyJwk.kid }
+    const algorithmId = `${privateKeyJwk['alg']}:${privateKeyJwk['crv']}`
+    const algorithm = Crypto.algorithms[algorithmId]
+    const jwtHeader = { alg: algorithm.alg, kid: privateKeyJwk.kid }
     const base64urlEncodedJwtHeader = Convert.object(jwtHeader).toBase64Url()
 
     // build jwt payload
@@ -251,7 +251,7 @@ export class DevTools {
     const bytesToSign = Convert.string(toSign).toUint8Array()
 
     // select signer based on the provided key's named curve
-    const { signer, options } = Crypto.signers[namedCurve]
+    const { signer, options } = algorithm
     const signingKey = await Jose.jwkToCryptoKey({ key: privateKeyJwk })
 
     // generate signature
