@@ -1,5 +1,11 @@
 # @tbdex/http-server
 
+## 0.16.0
+
+Updated dependencies
+- `@tbdex/http-client@0.16.0`
+- `@tbdex/protocol@0.16.0`
+
 ## 0.15.1
 
 ### Patch Changes
