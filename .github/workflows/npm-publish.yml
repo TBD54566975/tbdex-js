@@ -113,6 +113,9 @@ jobs:
       - name: Build packages
         run: pnpm build
 
+      - name: Install semver
+        run: npm install -g semver
+
       - name: Check if GitHub repo package version is latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
