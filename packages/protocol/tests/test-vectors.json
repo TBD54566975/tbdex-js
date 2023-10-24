@@ -1,0 +1,215 @@
+{
+  "resources": {
+    "offering": {
+      "metadata": {
+        "kind": "offering",
+        "from": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "id": "offering_01hdgc6qfze80r000204001fpx",
+        "createdAt": "2023-10-24T08:18:18.214Z",
+        "updatedAt": "2023-10-24T08:18:18.214Z"
+      },
+      "data": {
+        "description": "A sample offering",
+        "payoutUnitsPerPayinUnit": "1",
+        "payoutCurrency": {
+          "currencyCode": "USDC"
+        },
+        "payinCurrency": {
+          "currencyCode": "AUD",
+          "minSubunits": "1",
+          "maxSubunits": "10000"
+        },
+        "payinMethods": [
+          {
+            "kind": "BTC_ADDRESS",
+            "requiredPaymentDetails": {
+              "$schema": "http://json-schema.org/draft-07/schema",
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "phoneNumber": {
+                  "minLength": 12,
+                  "pattern": "^+2547[0-9]{8}$",
+                  "description": "Mobile Money account number of the Recipient",
+                  "type": "string",
+                  "title": "Phone Number",
+                  "maxLength": 12
+                },
+                "accountHolderName": {
+                  "pattern": "^[A-Za-zs'-]+$",
+                  "description": "Name of the account holder as it appears on the Mobile Money account",
+                  "type": "string",
+                  "title": "Account Holder Name",
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "accountNumber",
+                "accountHolderName"
+              ]
+            }
+          }
+        ],
+        "payoutMethods": [
+          {
+            "kind": "MOMO",
+            "requiredPaymentDetails": {
+              "$schema": "http://json-schema.org/draft-07/schema",
+              "additionalProperties": false,
+              "type": "object",
+              "properties": {
+                "phoneNumber": {
+                  "minLength": 12,
+                  "pattern": "^+2547[0-9]{8}$",
+                  "description": "Mobile Money account number of the Recipient",
+                  "type": "string",
+                  "title": "Phone Number",
+                  "maxLength": 12
+                },
+                "accountHolderName": {
+                  "pattern": "^[A-Za-zs'-]+$",
+                  "description": "Name of the account holder as it appears on the Mobile Money account",
+                  "type": "string",
+                  "title": "Account Holder Name",
+                  "maxLength": 32
+                }
+              },
+              "required": [
+                "accountNumber",
+                "accountHolderName"
+              ]
+            }
+          }
+        ],
+        "requiredClaims": {
+          "id": "test-pd-id",
+          "name": "simple PD",
+          "purpose": "pd for testing",
+          "inputDescriptors": [
+            {
+              "id": "whatever",
+              "purpose": "id for testing",
+              "constraints": {
+                "fields": [
+                  {
+                    "path": [
+                      "$.credentialSubject.btcAddress"
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3Nod0FZTjYzUjRVSGlLc1ZnM2Yzdkc0UmFmTnhBRDRrcEJSMlB4OEpUN2REajEjelEzc2h3QVlONjNSNFVIaUtzVmczZjN2RzRSYWZOeEFENGtwQlIyUHg4SlQ3ZERqMSIsImFsZyI6IkVTMjU2SyJ9..d7JYMtV6UihYpPlbdIg5Lx6Of2ZA9kVgoUhpUckR6Xg9cg5kU7kxxO3HPkMos0cFlBV3x45Iv0YhErgFujVw5A"
+    }
+  },
+  "messages": {
+    "rfq": {
+      "metadata": {
+        "kind": "rfq",
+        "to": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "from": "did:key:zQ3shujqALzHHaiBqC8Fyq9pYudE774t3ub7zc9HtA3GZ8x5S",
+        "id": "rfq_7zzzzzzzzff0er00683m0006gn",
+        "exchangeId": "rfq_7zzzzzzzzff0er00683m0006gn",
+        "createdAt": "2023-10-24T08:18:18.570Z"
+      },
+      "data": {
+        "offeringId": "offering_7zzzzzzzyxfny8000xfg0001v7",
+        "payinSubunits": "1000",
+        "payinMethod": {
+          "kind": "BTC_ADDRESS",
+          "paymentDetails": {
+            "address": "123456"
+          }
+        },
+        "payoutMethod": {
+          "kind": "MOMO",
+          "paymentDetails": {
+            "phoneNumber": "+254712345678",
+            "accountHolderName": "Alfred Holder"
+          }
+        },
+        "claims": [
+          "presentation submission"
+        ]
+      },
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3NodWpxQUx6SEhhaUJxQzhGeXE5cFl1ZEU3NzR0M3ViN3pjOUh0QTNHWjh4NVMjelEzc2h1anFBTHpISGFpQnFDOEZ5cTlwWXVkRTc3NHQzdWI3emM5SHRBM0daOHg1UyIsImFsZyI6IkVTMjU2SyJ9..GMY9UE62e3_U5aE7ZXmW2kTvurR2HY4SePLK4hAkCsIIZ1PSOfOJzGg1qrriJ-XpccXkDjaEJXtVTd70aqdOsQ"
+    },
+    "quote": {
+      "metadata": {
+        "kind": "quote",
+        "to": "did:key:zQ3shujqALzHHaiBqC8Fyq9pYudE774t3ub7zc9HtA3GZ8x5S",
+        "from": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "id": "quote_01hdgc6zyzfwrr002f640018ha",
+        "exchangeId": "rfq_7zzzzzzqvqe81r00620c001m5x",
+        "createdAt": "2023-10-24T08:18:18.584Z"
+      },
+      "data": {
+        "expiresAt": "2023-10-25T08:18:18.583Z",
+        "payin": {
+          "currencyCode": "AUD",
+          "amountSubunits": "1000",
+          "feeSubunits": "1"
+        },
+        "payout": {
+          "currencyCode": "BTC",
+          "amountSubunits": "12",
+          "feeSubunits": "2"
+        },
+        "paymentInstructions": {
+          "payin": {
+            "link": "https://block.xyz",
+            "instruction": "payin instruction"
+          },
+          "payout": {
+            "link": "https://block.xyz",
+            "instruction": "payout instruction"
+          }
+        }
+      },
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3Nod0FZTjYzUjRVSGlLc1ZnM2Yzdkc0UmFmTnhBRDRrcEJSMlB4OEpUN2REajEjelEzc2h3QVlONjNSNFVIaUtzVmczZjN2RzRSYWZOeEFENGtwQlIyUHg4SlQ3ZERqMSIsImFsZyI6IkVTMjU2SyJ9..SPblIoetEci1Yo_BxCn_94nwaHoWNrNlb2Nh25w_zmATcZhDgQQsNS5aZhBLqvcr_ntVR-3od1LA87Z__Scwrw"
+    },
+    "order": {
+      "metadata": {
+        "kind": "order",
+        "to": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "from": "did:key:zQ3shujqALzHHaiBqC8Fyq9pYudE774t3ub7zc9HtA3GZ8x5S",
+        "id": "order_01hdgc6zzrfa7r002ahw001rn2",
+        "exchangeId": "rfq_7zzzzzzzv8ed88007ka0000vft",
+        "createdAt": "2023-10-24T08:18:18.592Z"
+      },
+      "data": {},
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3NodWpxQUx6SEhhaUJxQzhGeXE5cFl1ZEU3NzR0M3ViN3pjOUh0QTNHWjh4NVMjelEzc2h1anFBTHpISGFpQnFDOEZ5cTlwWXVkRTc3NHQzdWI3emM5SHRBM0daOHg1UyIsImFsZyI6IkVTMjU2SyJ9..PfMKeGcBqCoEMUZSein153a1_nxP7vIhpQAz95LhnzpsCstvtGGJeCYcUEFeSfyXR_pELtpzttSg4ySnu07QCQ"
+    },
+    "orderStatus": {
+      "metadata": {
+        "kind": "orderstatus",
+        "to": "did:key:zQ3shujqALzHHaiBqC8Fyq9pYudE774t3ub7zc9HtA3GZ8x5S",
+        "from": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "id": "orderstatus_7zzzzzzzv2fs0r007y84000d1z",
+        "exchangeId": "rfq_01hdgc6zv7ff3r001brw000jpn",
+        "createdAt": "2023-10-24T08:18:18.594Z"
+      },
+      "data": {
+        "orderStatus": "PENDING"
+      },
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3Nod0FZTjYzUjRVSGlLc1ZnM2Yzdkc0UmFmTnhBRDRrcEJSMlB4OEpUN2REajEjelEzc2h3QVlONjNSNFVIaUtzVmczZjN2RzRSYWZOeEFENGtwQlIyUHg4SlQ3ZERqMSIsImFsZyI6IkVTMjU2SyJ9..nkYrhJLM6SthFYTQIksv9Xa1El5g9YG0aKsz75uBU8g9iBpfhKu4iQVBNT2nkUE0CilbjkKnYW5QPB-12RHhEA"
+    },
+    "close": {
+      "metadata": {
+        "kind": "close",
+        "to": "did:key:zQ3shujqALzHHaiBqC8Fyq9pYudE774t3ub7zc9HtA3GZ8x5S",
+        "from": "did:key:zQ3shwAYN63R4UHiKsVg3f3vG4RafNxAD4kpBR2Px8JT7dDj1",
+        "id": "close_01hdgc6zvzf908006t800009v7",
+        "exchangeId": "rfq_7zzzzzzqvfe1xr007gfc001xkn",
+        "createdAt": "2023-10-24T08:18:18.597Z"
+      },
+      "data": {
+        "reason": "test reason"
+      },
+      "signature": "eyJraWQiOiJkaWQ6a2V5OnpRM3Nod0FZTjYzUjRVSGlLc1ZnM2Yzdkc0UmFmTnhBRDRrcEJSMlB4OEpUN2REajEjelEzc2h3QVlONjNSNFVIaUtzVmczZjN2RzRSYWZOeEFENGtwQlIyUHg4SlQ3ZERqMSIsImFsZyI6IkVTMjU2SyJ9..5lzums4vWjb44UxkcNw2aQPkL9RIT2cN4nNnhhBFLyIHywVGVcbPkWNh3kEKf4DQxwa0oi3zfChggQHCMTkbUg"
+    }
+  }
+}
