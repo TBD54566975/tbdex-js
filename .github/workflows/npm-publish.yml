@@ -113,9 +113,6 @@ jobs:
       - name: Build packages
         run: pnpm build
 
-      - name: Install semver
-        run: npm install -g semver
-
       - name: Check if GitHub repo package version is latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
@@ -132,11 +129,7 @@ jobs:
           echo "Repo Version: $REPO_VERSION"
 
           # Compare the repo and NPMjs.com package versions.
-          IS_GREATER=$(semver --range ">$PUBLISHED_VERSION" $REPO_VERSION || true)
-          if [ $? -ne 0 ]; then
-            echo "semver command failed"
-            exit 1
-          fi
+          IS_GREATER=$(pnpm semver --range ">$PUBLISHED_VERSION" $REPO_VERSION || true)
           if [ -n "$IS_GREATER" ] ; then
             echo "@tbdex/${{ matrix.package }}@$REPO_VERSION is latest"
             echo "IS_LATEST=true" >> $GITHUB_ENV
