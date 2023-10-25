@@ -1,5 +1,15 @@
 # @tbdex/http-client
 
+## 0.18.0
+
+### Minor Changes
+
+- Get Exchanges filter field name change from exchangeId to id
+
+### Patch Changes
+
+- @tbdex/protocol@0.18.0
+
 ## 0.17.0
 
 ### Minor Changes
