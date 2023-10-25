@@ -341,6 +341,6 @@ export type GetExchangesOptions = {
   privateKeyJwk: Web5PrivateKeyJwk
   kid: string
   filter?: {
-    exchangeId: string | string[]
+    id: string | string[]
   }
 }
