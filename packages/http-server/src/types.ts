@@ -71,7 +71,7 @@ export type GetOfferingsFilter = {
  */
 export type GetExchangesFilter = {
   /** List of exchanges ids */
-  exchangeId?: string[]
+  id?: string[]
 }
 
 /**
