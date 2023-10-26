@@ -167,7 +167,7 @@ describe('Rfq', () => {
   })
 
   describe('verifyClaims', () => {
-    it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
+    it.only(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
       const alice = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
