@@ -27,5 +27,10 @@
     "mocha": "10.2.0",
     "npkill": "0.11.3",
     "semver": "7.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "browserify-sign@>=2.6.0 <=4.2.1": ">=4.2.2"
+    }
   }
 }
