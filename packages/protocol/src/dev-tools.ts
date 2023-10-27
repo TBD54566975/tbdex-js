@@ -134,13 +134,24 @@ export class DevTools {
         }
       }],
       requiredClaims: {
-        id                : '7ce4004c-3c38-4853-968b-e411bafcd945',
-        input_descriptors : [{
+        id     : '7ce4004c-3c38-4853-968b-e411bafcd945',
+        format : {
+          'jwt_vc': {
+            'alg': [
+              'ES256K',
+              'EdDSA'
+            ]
+          }
+        },
+        input_descriptors: [{
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
           constraints : {
             fields: [{
-              path   : ['$.type[*]'],
-              filter : {
+              path: [
+                '$.vc.type[*]',
+                '$.type[*]'
+              ],
+              filter: {
                 type    : 'string',
                 pattern : '^SanctionsCredential$'
               }
