@@ -1,0 +1,59 @@
+name: Create GH Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+  workflow_dispatch:
+
+# Allow only one concurrent deployment,but do NOT cancel in-progress runs as
+# we want to allow these release deployments to complete.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  create-release:
+    # a gh release will be created in the following conditions:
+    # 1. if it is a manual trigger (workflow_dispatch)
+    # 2. if the workflow was triggered by a merged changeset PR
+    if: |
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.merged == true &&
+        (github.event.pull_request.head.ref == 'changeset-release/main' ||
+        contains(github.event.pull_request.labels.*.name, 'automated-release'))))
+    name: Create GH Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+
+      - name: Check if GitHub repo package version is latest
+        run: |
+          # get any package version from the repo
+          cd packages/protocol
+
+          # Fetch the version in the GitHub repo's package.json file.
+          REPO_VERSION=$(node -p "require('./package.json').version")
+          echo "REPO_VERSION=$REPO_VERSION" >> $GITHUB_ENV
+          echo "Repo Version: $REPO_VERSION"
+        shell: bash
+
+      # TODO: uncomment before merging
+    #   - name: Create GitHub Release
+    #     uses: softprops/action-gh-release@v1
+    #     with:
+    #       name: v${{ env.REPO_VERSION }}
+    #       tag_name: v${{ env.REPO_VERSION }}
+    #       draft: true
+    #       prerelease: true
+    #       generate_release_notes: true
