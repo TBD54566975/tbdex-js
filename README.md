@@ -1,5 +1,7 @@
 # tbdex-js
 
+- [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/TBD54566975/tbdex-js/badge)](https://securityscorecards.dev/viewer/?uri=github.com/TBD54566975/tbdex-js)
+
 This repo contains 3 npm packages:
 
 - [`@tbdex/protocol`](./packages/protocol/) - create, parse, verify, and validate the tbdex messages and resources defined in the [protocol draft specification](https://github.com/TBD54566975/tbdex-protocol/blob/main/README.md)
