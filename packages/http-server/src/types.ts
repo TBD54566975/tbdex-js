@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express'
 import type { Close, MessageKindClass, MessageKindClasses, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
+import type { ErrorDetail } from '@tbdex/http-client'
 
 /**
  * Union type for get requests
@@ -89,7 +90,7 @@ export type RequestContext = {
  * Type alias for the request handler
  * @beta
  */
-export type RequestHandler = (request: Request, response: Response) => any
+export type RequestHandler = (request: Request, response: Response<{ errors?: ErrorDetail[], data?: any }>) => any
 
 /**
  * PFI Offerings API
