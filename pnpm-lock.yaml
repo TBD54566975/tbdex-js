@@ -59,9 +59,6 @@ importers:
       '@web5/dids':
         specifier: 0.2.0
         version: 0.2.0
-      goof:
-        specifier: ^0.0.1
-        version: 0.0.1
       query-string:
         specifier: 8.1.0
         version: 8.1.0
@@ -3218,10 +3215,6 @@ packages:
       merge2: 1.4.1
       slash: 3.0.0
     dev: true
-
-  /goof@0.0.1:
-    resolution: {integrity: sha512-4iv4QYPfOX+01wQKRWS11rMQcV86Yv+kiHJIf/p/2+tagDxxAHoaqykLzNjex804QSSheg13yDwIyJ5ZBZk7xA==}
-    dev: false
 
   /gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
