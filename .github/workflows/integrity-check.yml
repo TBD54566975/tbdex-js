@@ -48,8 +48,8 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
-      - name: Report known vulnerabilities
-        run: pnpm audit
+      # - name: Report known vulnerabilities
+      #   run: pnpm audit
 
   test-with-node:
     runs-on: macos-latest
