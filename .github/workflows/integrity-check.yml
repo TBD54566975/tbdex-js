@@ -41,7 +41,7 @@ jobs:
       - name: Snyk VULN and License Check Test
         run: snyk test --all-projects --sarif-file-output=snyk.sarif
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN_REPO }}
 
       - name: Report known vulnerabilities
         run: pnpm audit
