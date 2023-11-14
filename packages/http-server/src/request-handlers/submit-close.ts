@@ -11,7 +11,7 @@ type SubmitCloseOpts = {
 }
 
 export function submitClose(opts: SubmitCloseOpts): RequestHandler {
-  const { callback } = opts
+  const { callback, exchangesApi } = opts
 
   return async function (req, res) {
     let message: Message<MessageKind>
@@ -28,10 +28,19 @@ export function submitClose(opts: SubmitCloseOpts): RequestHandler {
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    // TODO: get most recent message added to exchange. use that to see if close is allowed (issue #1)
-    // return 409 if close is not allowed given the current state of the exchange.
+    const exchange = await exchangesApi.getExchange({id: message.exchangeId})
+    if(exchange == undefined) {
+      const errorResponse: ErrorDetail = { detail: `exchangeId: ${message.exchangeId} is undefined` }
 
-    // TODO: return 404 if exchange not found (issue #2)
+      return res.status(404).json({ errors: [errorResponse] })
+    }
+
+    const last = exchange[exchange.length-1]
+    if(!last.validNext.has(message.kind)) {
+      const errorResponse: ErrorDetail = { detail: `cannot submit Close for an exchange where the last message is kind: ${last.kind}` }
+
+      return res.status(409).json({ errors: [errorResponse] })
+    }
 
     if (!callback) {
       return res.sendStatus(202)

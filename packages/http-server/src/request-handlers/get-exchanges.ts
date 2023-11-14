@@ -10,7 +10,6 @@ type GetExchangesOpts = {
 export function getExchanges(opts: GetExchangesOpts): RequestHandler {
   const { callback, exchangesApi } = opts
   return async function (request, response) {
-    // TODO: verify authz token (#issue 9)
     const authzHeader = request.headers['authorization']
     if (!authzHeader) {
       return response.status(401).json({ errors: [{ detail: 'Authorization header required' }] })
