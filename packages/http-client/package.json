@@ -52,7 +52,7 @@
     "@tbdex/protocol": "workspace:*",
     "@web5/crypto": "0.2.0",
     "@web5/dids": "0.2.0",
-    "@web5/common": "0.2.0",
+    "@web5/common": "0.2.1",
     "query-string": "8.1.0"
   },
   "devDependencies": {
