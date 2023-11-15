@@ -46,7 +46,7 @@ for (let schemaName in schemaUrls) {
   schemas[schemaName] = schema
 }
 
-const validator = new Ajv({ code: { source: true, esm: true } })
+const validator = new Ajv({ code: { source: true, esm: true }, allErrors: true })
 
 for (const schemaName in schemas) {
   validator.addSchema(schemas[schemaName], schemaName)
