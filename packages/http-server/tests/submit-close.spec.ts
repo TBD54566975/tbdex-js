@@ -3,7 +3,6 @@ import type { Server } from 'http'
 
 import { Close, DevTools, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
-import { fakeExchangesApi } from '../src/fakes.js'
 
 let api = new TbdexHttpServer()
 let server: Server
