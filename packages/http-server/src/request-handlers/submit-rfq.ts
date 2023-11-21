@@ -18,7 +18,7 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     try {
       message = await Message.parse(req.body)
     } catch(e) {
-      const errorResponse: ErrorDetail = { detail: e.message }
+      const errorResponse: ErrorDetail = { detail: `Parsing of TBDex message failed: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
@@ -31,12 +31,14 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
 
     const rfqExists = !! await exchangesApi.getRfq({ exchangeId: message.id })
     if (rfqExists) {
-      return res.status(409).json({ errors: [`rfq ${message.id} already exists`] })
+      const errorResponse: ErrorDetail = { detail: `rfq ${message.id} already exists`}
+      return res.status(409).json({ errors: [errorResponse] })
     }
 
     const offering = await offeringsApi.getOffering({ id: message.data.offeringId })
     if (!offering) {
-      return res.status(400).json({ errors: [`offering ${message.data.offeringId} does not exist`] })
+      const errorResponse: ErrorDetail = { detail: `offering ${message.data.offeringId} does not exist` }
+      return res.status(400).json({ errors: [errorResponse] })
     }
 
     try {
