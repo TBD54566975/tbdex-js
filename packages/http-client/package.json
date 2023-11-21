@@ -1,6 +1,6 @@
 {
   "name": "@tbdex/http-client",
-  "version": "0.18.0",
+  "version": "0.18.1",
   "type": "module",
   "description": "Http client that can be used to send tbdex messages",
   "license": "Apache-2.0",

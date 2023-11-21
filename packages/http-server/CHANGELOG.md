@@ -1,5 +1,13 @@
 # @tbdex/http-server
 
+## 0.18.1
+
+### Patch Changes
+
+- d582385: Restructure error messages as ErrorDetail type
+  - @tbdex/protocol@0.18.1
+  - @tbdex/http-client@0.18.1
+
 ## 0.18.0
 
 ### Minor Changes
