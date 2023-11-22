@@ -3,6 +3,7 @@ import type { ErrorDetail } from '@tbdex/http-client'
 import type { MessageKind } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
+import { CallbackError } from './index.js'
 
 type SubmitOrderOpts = {
   callback: SubmitCallback<'order'>
@@ -40,11 +41,15 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
     }
 
     try {
-      // TODO: figure out what to do with callback result, if anything. (#issue 5)
-      const _result = await callback({ request: req, response: res }, message)
+      await callback({ request: req, response: res }, message, undefined)
       return res.sendStatus(202)
     } catch(e) {
-      // TODO: handle error lewl
+      if (e instanceof CallbackError) {
+        return res.status(e.statusCode).json({ errors: e.details })
+      } else {
+        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        return res.status(500).json({ errors: [errorDetail] })
+      }
     }
   }
 }

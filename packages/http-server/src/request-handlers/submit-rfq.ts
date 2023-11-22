@@ -3,6 +3,7 @@ import type { MessageKind } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
 import { Message } from '@tbdex/protocol'
+import { CallbackError } from './index.js'
 
 type SubmitRfqOpts = {
   callback: SubmitCallback<'rfq'>
@@ -53,10 +54,14 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     try {
-      // TODO: figure out what to do with callback result, if anything. (issue #7)
-      const _result = await callback({ request: req, response: res }, message)
+      await callback({ request: req, response: res }, message, { offering })
     } catch(e) {
-      // TODO: handle error lewl (#issue 8)
+      if (e instanceof CallbackError) {
+        return res.status(e.statusCode).json({ errors: e.details })
+      } else {
+        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        return res.status(500).json({ errors: [errorDetail] })
+      }
     }
 
     return res.sendStatus(202)

@@ -17,7 +17,7 @@ import standaloneCode from 'ajv/dist/standalone/index.js'
 
 import { mkdirp } from 'mkdirp'
 
-const schemaHostUrl = 'https://tbdex.dev'
+const schemaHostUrl = 'https://tbdex.dev/json-schemas'
 const schemaUrls = {
   definitions : `${schemaHostUrl}/definitions.json`,
   resource    : `${schemaHostUrl}/resource.schema.json`,
