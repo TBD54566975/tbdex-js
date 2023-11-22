@@ -28,6 +28,9 @@ export type GetCallbacks = {
  */
 export type SubmitKind = 'rfq' | 'order' | 'close'
 
+/**
+ * Types for options provided to {@link SubmitCallback}
+ */
 export type SubmitCallbackOpts = {
   'rfq': { offering: Offering }
   'order': undefined
