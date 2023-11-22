@@ -41,7 +41,7 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
 
     try {
       // TODO: figure out what to do with callback result, if anything. (#issue 5)
-      const _result = await callback({ request: req, response: res }, message)
+      const _result = await callback({ request: req, response: res }, message, undefined)
       return res.sendStatus(202)
     } catch(e) {
       // TODO: handle error lewl

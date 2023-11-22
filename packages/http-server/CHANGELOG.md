@@ -1,5 +1,17 @@
 # @tbdex/http-server
 
+## 0.19.0
+
+### Minor Changes
+
+- Handle callback errors and pass offering to submit RFQ callback
+
+### Patch Changes
+
+- d582385: Restructure error messages as ErrorDetail type
+  - @tbdex/protocol@0.19.0
+  - @tbdex/http-client@0.19.0
+
 ## 0.18.0
 
 ### Minor Changes

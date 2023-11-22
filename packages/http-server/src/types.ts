@@ -28,11 +28,17 @@ export type GetCallbacks = {
  */
 export type SubmitKind = 'rfq' | 'order' | 'close'
 
+export type SubmitCallbackOpts = {
+  'rfq': { offering: Offering }
+  'order': undefined
+  'close': undefined
+}
+
 /**
  * Callback handler for the submit requests
  * @beta
  */
-export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T]) => any
+export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T], opts: SubmitCallbackOpts[T]) => void
 
 /**
  * Map of callbacks handlers for the submit requests

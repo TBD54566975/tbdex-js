@@ -38,7 +38,7 @@ export function submitClose(opts: SubmitCloseOpts): RequestHandler {
 
     try {
       // TODO: figure out what to do with callback result, if anything. (issue #12)
-      const _result = await callback({ request: req, response: res }, message)
+      const _result = await callback({ request: req, response: res }, message, undefined)
       return res.sendStatus(202)
     } catch(e) {
       // TODO: handle error lewl (issue #3)
