@@ -1,5 +1,9 @@
 # @tbdex/protocol
 
+## 0.19.0
+
+No changes
+
 ## 0.18.0
 
 ## 0.17.0
