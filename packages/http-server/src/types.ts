@@ -38,7 +38,7 @@ export type SubmitCallbackOpts = {
  * Callback handler for the submit requests
  * @beta
  */
-export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T], opts: SubmitCallbackOpts[T]) => void
+export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T], opts: SubmitCallbackOpts[T]) => Promise<void>
 
 /**
  * Map of callbacks handlers for the submit requests

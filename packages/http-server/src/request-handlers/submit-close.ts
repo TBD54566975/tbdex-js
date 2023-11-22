@@ -3,6 +3,7 @@ import type { ErrorDetail } from '@tbdex/http-client'
 import type { MessageKind } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
+import { CallbackError } from './index.js'
 
 type SubmitCloseOpts = {
   callback: SubmitCallback<'close'>
@@ -37,11 +38,15 @@ export function submitClose(opts: SubmitCloseOpts): RequestHandler {
     }
 
     try {
-      // TODO: figure out what to do with callback result, if anything. (issue #12)
-      const _result = await callback({ request: req, response: res }, message, undefined)
+      await callback({ request: req, response: res }, message, undefined)
       return res.sendStatus(202)
     } catch(e) {
-      // TODO: handle error lewl (issue #3)
+      if (e instanceof CallbackError) {
+        return res.status(e.statusCode).json({ errors: e.details })
+      } else {
+        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        return res.status(500).json({ errors: [errorDetail] })
+      }
     }
   }
 }

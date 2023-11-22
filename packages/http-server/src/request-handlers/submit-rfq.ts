@@ -54,8 +54,7 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     try {
-      // TODO: figure out what to do with callback result, if anything. (issue #7)
-      const _result = await callback({ request: req, response: res }, message, { offering })
+      await callback({ request: req, response: res }, message, { offering })
     } catch(e) {
       if (e instanceof CallbackError) {
         return res.status(e.statusCode).json({ errors: e.details })
@@ -63,7 +62,6 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
         const errorDetail: ErrorDetail = { detail: 'umm idk' }
         return res.status(500).json({ errors: [errorDetail] })
       }
-      // TODO: handle error lewl (#issue 8)
     }
 
     return res.sendStatus(202)
