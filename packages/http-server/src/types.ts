@@ -30,6 +30,7 @@ export type SubmitKind = 'rfq' | 'order' | 'close'
 
 /**
  * Types for options provided to {@link SubmitCallback}
+ * @beta
  */
 export type SubmitCallbackOpts = {
   'rfq': { offering: Offering }
