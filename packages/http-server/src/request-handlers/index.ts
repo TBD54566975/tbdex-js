@@ -1,4 +1,3 @@
-export * from './callback-error.js'
 export * from './get-exchanges.js'
 export * from './get-offerings.js'
 export * from './submit-close.js'

@@ -1,5 +1,10 @@
 import type { ErrorDetail } from '@tbdex/http-client'
 
+
+/**
+ * Error thrown by handler callbacks
+ * @beta
+ */
 export class CallbackError extends Error {
   public readonly statusCode: number
   public readonly details: ErrorDetail[]

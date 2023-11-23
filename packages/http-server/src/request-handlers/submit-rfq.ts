@@ -3,7 +3,7 @@ import type { MessageKind } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
 import { Message } from '@tbdex/protocol'
-import { CallbackError } from './index.js'
+import { CallbackError } from '../callback-error.js'
 
 type SubmitRfqOpts = {
   callback: SubmitCallback<'rfq'>
