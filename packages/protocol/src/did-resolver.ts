@@ -18,7 +18,9 @@ export const DidResolver = new Web5DidResolver({
  * @beta
  */
 export async function resolveDid(did: string): Promise<DidDocument> {
+  console.log(`resolving did ${did}`)
   const { didResolutionMetadata, didDocument } = await DidResolver.resolve(did)
+  console.log(`yayy we resolved`)
 
   // TODO: remove the '?' after we ask OSE peeps about why DID ION resolution doesn't return didResolutionMetadata
   // despite being required as per the did-core spec
