@@ -1,5 +1,11 @@
 # @tbdex/http-client
 
+## 0.20.0
+
+### Patch Changes
+
+- @tbdex/protocol@0.20.0
+
 ## 0.19.0
 
 ### Patch Changes

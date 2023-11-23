@@ -1,5 +1,16 @@
 # @tbdex/http-server
 
+## 0.20.0
+
+### Minor Changes
+
+- 563e036: export `CallbackError`
+
+### Patch Changes
+
+- @tbdex/protocol@0.20.0
+- @tbdex/http-client@0.20.0
+
 ## 0.19.0
 
 ### Minor Changes
