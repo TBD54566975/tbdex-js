@@ -1,5 +1,13 @@
 # @tbdex/protocol
 
+## 0.21.0
+
+### Minor Changes
+
+- 415b234: - Added requester DID in filter passed to `ExchangesApi.getExchanges`. Prior to this change, there was no way to prevent returning exchanges that the requester wasn't a participant of
+  - Added `did:dht` resolution
+  - Fixed `DevTools.createJwt`
+
 ## 0.20.0
 
 No changes
