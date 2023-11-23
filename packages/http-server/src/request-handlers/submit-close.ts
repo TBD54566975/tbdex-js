@@ -3,7 +3,7 @@ import type { ErrorDetail } from '@tbdex/http-client'
 import type { MessageKind } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
-import { CallbackError } from './index.js'
+import { CallbackError } from '../callback-error.js'
 
 type SubmitCloseOpts = {
   callback: SubmitCallback<'close'>
