@@ -22,21 +22,21 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
       return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
     }
 
-    let _requesterDid
+    let requesterDid
     try {
-      _requesterDid = await TbdexHttpClient.verify(requestToken)
+      requesterDid = await TbdexHttpClient.verify(requestToken)
     } catch(e) {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }
 
-    const queryParams = {}
+    const queryParams: GetExchangesFilter = { from: requesterDid }
     for (let param in request.query) {
       const val = request.query[param]
       queryParams[param] = Array.isArray(val) ? val : [val]
     }
 
     // check exchanges exist - what to do if some exist but others don't?
-    const exchanges = await exchangesApi.getExchanges({ filter: queryParams as GetExchangesFilter || {} })
+    const exchanges = await exchangesApi.getExchanges({ filter: queryParams })
 
     if (callback) {
       // TODO: figure out what to do with callback result. should we pass through the exchanges we've fetched

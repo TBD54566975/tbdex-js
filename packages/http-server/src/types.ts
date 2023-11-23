@@ -83,6 +83,8 @@ export type GetOfferingsFilter = {
 export type GetExchangesFilter = {
   /** List of exchanges ids */
   id?: string[]
+  /** the rfq author's DID */
+  from: string
 }
 
 /**

@@ -250,7 +250,7 @@ export class DevTools {
     // build jwt header
     const algorithmId = `${privateKeyJwk['alg']}:${privateKeyJwk['crv']}`
     const algorithm = Crypto.algorithms[algorithmId]
-    const jwtHeader = { alg: algorithm.alg, kid: privateKeyJwk.kid }
+    const jwtHeader = { alg: algorithm.alg, kid: issuer.document.verificationMethod[0].id }
     const base64urlEncodedJwtHeader = Convert.object(jwtHeader).toBase64Url()
 
     // build jwt payload
