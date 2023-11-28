@@ -1,11 +1,11 @@
 import type { MessageKind, MessageKindModel, MessageModel, MessageMetadata, NewMessage } from './types.js'
 import type { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
-import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
 import type { MessageKindClass } from './message-kinds/index.js'
 
 import { validate } from './validator.js'
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
+import { PortableDid } from '@web5/dids'
 
 
 /**
@@ -100,15 +100,13 @@ export abstract class Message<T extends MessageKind> {
 
   /**
    * signs the message as a jws with detached content and sets the signature property
-   * @param privateKeyJwk - the key to sign with
-   * @param kid - the verification method id to include in the jws header. used by the verifier to
-   *               select the appropriate verificationMethod when dereferencing the signer's DID
+   * @param did - the signer's DID
    */
-  async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
+  async sign(did: PortableDid): Promise<void> {
     const payload = { metadata: this.metadata, data: this.data }
     const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
+    this._signature = await Crypto.sign({ did: did, payload: payloadDigest, detached: true })
   }
 
   /**

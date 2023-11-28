@@ -66,51 +66,44 @@ describe('Rfq', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
-      const { privateKeyJwk } = alice.keySet.verificationMethodKeys[0]
-      const kid = alice.document.verificationMethod[0].id
-      await rfq.sign(privateKeyJwk, kid)
+      await rfq.sign(did)
 
       expect(rfq.signature).to.not.be.undefined
       expect(typeof rfq.signature).to.equal('string')
     })
 
     it('includes alg and kid in jws header', async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
-      const { privateKeyJwk } = alice.keySet.verificationMethodKeys[0]
-      const kid = alice.document.verificationMethod[0].id
-      await rfq.sign(privateKeyJwk, kid)
+      await rfq.sign(did)
 
       const [base64UrlEncodedJwsHeader] = rfq.signature.split('.')
       const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(kid)
+      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod[0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })
 
   describe('verify', () => {
     it('does not throw an exception if message integrity is intact', async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
-      const { privateKeyJwk } = alice.keySet.verificationMethodKeys[0]
-      const kid = alice.document.verificationMethod[0].id
-      await rfq.sign(privateKeyJwk, kid)
-
+      await rfq.sign(did)
       await rfq.verify()
     })
 
@@ -149,15 +142,14 @@ describe('Rfq', () => {
     })
 
     it('returns an instance of Message if parsing is successful', async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
-      const { privateKeyJwk } = alice.keySet.verificationMethodKeys[0]
-      const kid = alice.document.verificationMethod[0].id
-      await rfq.sign(privateKeyJwk, kid)
+
+      await rfq.sign(did)
 
       const jsonMessage = JSON.stringify(rfq)
       const parsedMessage = await Rfq.parse(jsonMessage)
@@ -168,19 +160,19 @@ describe('Rfq', () => {
 
   describe('verifyClaims', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : alice,
-        subject : alice.did,
+        issuer  : did,
+        subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
 
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : {
           offeringId  : 'abcd123',
           payinMethod : {
@@ -207,19 +199,19 @@ describe('Rfq', () => {
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
-      const alice = await DevTools.createDid()
+      const did = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const { signedCredential } = await DevTools.createCredential({
         type    : 'PuupuuCredential',
-        issuer  : alice,
-        subject : alice.did,
+        issuer  : did,
+        subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
 
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : {
           offeringId  : 'abcd123',
           payinMethod : {

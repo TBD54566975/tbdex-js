@@ -1,5 +1,5 @@
 import type { DataResponse, ErrorDetail, ErrorResponse, HttpResponse } from './types.js'
-import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
+import type { PortableDid } from '@web5/dids'
 import type {
   ResourceMetadata,
   MessageModel,
@@ -158,11 +158,11 @@ export class TbdexHttpClient {
    * @param _opts - options
    */
   static async getExchange(opts: GetExchangeOptions): Promise<DataResponse<MessageKindClass[]> | ErrorResponse> {
-    const { pfiDid, exchangeId, privateKeyJwk } = opts
+    const { pfiDid, exchangeId, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, privateKeyJwk.kid)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did)
 
     let response: Response
     try {
@@ -203,12 +203,12 @@ export class TbdexHttpClient {
    * @param _opts - options
    */
   static async getExchanges(opts: GetExchangesOptions): Promise<DataResponse<MessageKindClass[][]> | ErrorResponse> {
-    const { pfiDid, filter, privateKeyJwk, kid } = opts
+    const { pfiDid, filter, did } = opts
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
 
     const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
     const apiRoute = `${pfiServiceEndpoint}/exchanges${queryParams}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, kid)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did)
 
     let response: Response
     try {
@@ -267,11 +267,9 @@ export class TbdexHttpClient {
 
   /**
    * generates a jws to be used to authenticate GET requests
-   * @param privateKeyJwk - the key to sign with
-   * @param kid - the kid to include in the jws header. used by the verifier to select the appropriate verificationMethod
-   *              when dereferencing the signer's DID
+   * @param did - the requester's did
    */
-  static async generateRequestToken(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<string> {
+  static async generateRequestToken(did: PortableDid): Promise<string> {
     // TODO: include exp property. expires 1 minute from generation time
     // TODO: include aud property. should be DID of receipient
     // TODO: include nbf property. not before current time
@@ -279,7 +277,7 @@ export class TbdexHttpClient {
     const payload = { timestamp: new Date().toISOString() }
     const payloadBytes = Convert.object(payload).toUint8Array()
 
-    return Crypto.sign({ privateKeyJwk, kid, payload: payloadBytes, detached: false })
+    return Crypto.sign({ did: did, payload: payloadBytes, detached: false })
   }
 
   /**
@@ -326,9 +324,9 @@ export type GetExchangeOptions = {
   pfiDid: string
   /** the exchange you want to fetch */
   exchangeId: string
-  /** the private key used to sign the bearer token */
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
+
+  /** the message author's DID */
+  did: PortableDid
 }
 
 /**
@@ -338,8 +336,7 @@ export type GetExchangeOptions = {
 export type GetExchangesOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
+  did: PortableDid,
   filter?: {
     id: string | string[]
   }
