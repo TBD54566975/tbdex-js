@@ -1,5 +1,11 @@
 # @tbdex/protocol
 
+## 0.22.1
+
+### Patch Changes
+
+- 2f4c096: bump @web5/credentials dependency
+
 ## 0.22.0
 
 ### Minor Changes
