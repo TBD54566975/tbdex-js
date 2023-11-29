@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- bef3ae7: Refactored `sign` to take `PortableDid` as an argument instead of `privateKeyJwk` and `kid`
+- bef3ae7: Refactored `generateRequestToken` to take `PortableDid` as an argument instead of `privateKeyJwk` and `kid`
 
 ### Patch Changes
 

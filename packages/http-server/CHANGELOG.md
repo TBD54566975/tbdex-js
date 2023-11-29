@@ -2,10 +2,6 @@
 
 ## 0.22.0
 
-### Minor Changes
-
-- bef3ae7: Refactored `sign` to take `PortableDid` as an argument instead of `privateKeyJwk` and `kid`
-
 ### Patch Changes
 
 - Updated dependencies [bef3ae7]
