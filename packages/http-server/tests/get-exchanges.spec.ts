@@ -65,7 +65,7 @@ describe('GET /exchanges', () => {
     const testApi = new TbdexHttpServer({ exchangesApi })
     const server = testApi.listen(8001)
 
-    const requestToken = await TbdexHttpClient.generateRequestToken(alice.keySet.verificationMethodKeys[0].privateKeyJwk, alice.document.verificationMethod[0].id)
+    const requestToken = await TbdexHttpClient.generateRequestToken(alice)
     const resp = await fetch('http://localhost:8001/exchanges', {
       headers: {
         'Authorization': `Bearer ${requestToken}`

@@ -11,6 +11,7 @@ import { EcdsaAlgorithm, EdDsaAlgorithm, Jose } from '@web5/crypto'
 import { deferenceDidUrl, isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
+import { PortableDid } from '@web5/dids'
 
 /**
  * Options passed to {@link Crypto.sign}
@@ -21,10 +22,8 @@ export type SignOptions = {
   detached: boolean,
   /** The payload to be signed. */
   payload: Uint8Array,
-  /** The private key in JWK (JSON Web Key) format used for signing. */
-  privateKeyJwk: Web5PrivateKeyJwk,
-  /** A unique identifier for the key used to sign in the form of a DID URL. */
-  kid: string
+  /** the DID to sign with */
+  did: PortableDid,
 }
 
 /**
@@ -98,7 +97,9 @@ export class Crypto {
    * @throws Will throw an error if the specified algorithm is not supported.
    */
   static async sign(opts: SignOptions) {
-    const { privateKeyJwk, kid, payload, detached } = opts
+    const { did, payload, detached } = opts
+
+    const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
 
     const algorithmName = privateKeyJwk['alg'] || ''
     const namedCurve = privateKeyJwk['crv'] || ''
@@ -109,7 +110,12 @@ export class Crypto {
       throw new Error(`${algorithmId} not supported`)
     }
 
-    const jwsHeader: JwsHeader = { alg: algorithm.alg, kid }
+    let verificationMethodId = did.document.verificationMethod[0].id
+    if (verificationMethodId.startsWith('#')) {
+      verificationMethodId = `${did.did}#${verificationMethodId}`
+    }
+
+    const jwsHeader: JwsHeader = { alg: algorithm.alg, kid: verificationMethodId }
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
     const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 

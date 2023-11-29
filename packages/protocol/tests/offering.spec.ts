@@ -124,9 +124,8 @@ describe('Offering', () => {
         data     : offeringData
       })
 
-      const { privateKeyJwk } = pfi.keySet.verificationMethodKeys[0]
-      const kid = pfi.document.verificationMethod[0].id
-      await offering.sign(privateKeyJwk, kid)
+
+      await offering.sign(pfi)
 
       expect(offering.signature).to.not.be.undefined
       expect(typeof offering.signature).to.equal('string')
@@ -139,14 +138,13 @@ describe('Offering', () => {
         data     : offeringData
       })
 
-      const { privateKeyJwk } = pfi.keySet.verificationMethodKeys[0]
-      const kid = pfi.document.verificationMethod[0].id
-      await offering.sign(privateKeyJwk, kid)
+
+      await offering.sign(pfi)
 
       const [base64UrlEncodedJwsHeader] = offering.signature.split('.')
       const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(kid)
+      expect(jwsHeader['kid']).to.equal(pfi.document.verificationMethod[0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })
@@ -159,10 +157,7 @@ describe('Offering', () => {
         data     : offeringData
       })
 
-      const { privateKeyJwk } = pfi.keySet.verificationMethodKeys[0]
-      const kid = pfi.document.verificationMethod[0].id
-      await offering.sign(privateKeyJwk, kid)
-
+      await offering.sign(pfi)
       await offering.verify()
     })
 
@@ -207,9 +202,7 @@ describe('Offering', () => {
         data     : offeringData
       })
 
-      const { privateKeyJwk } = pfi.keySet.verificationMethodKeys[0]
-      const kid = pfi.document.verificationMethod[0].id
-      await offering.sign(privateKeyJwk, kid)
+      await offering.sign(pfi)
 
       const jsonResource = JSON.stringify(offering)
       const parsedResource = await Offering.parse(jsonResource)
