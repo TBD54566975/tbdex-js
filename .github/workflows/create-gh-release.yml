@@ -40,7 +40,7 @@ jobs:
       - name: Check if GitHub repo package version is latest
         run: |
           # get any package version from the repo
-          cd packages/protocol
+          cd packages/protocol # assumption that all packages have the same version
 
           # Fetch the version in the GitHub repo's package.json file.
           REPO_VERSION=$(node -p "require('./package.json').version")
