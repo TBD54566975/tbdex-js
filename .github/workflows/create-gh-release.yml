@@ -48,12 +48,11 @@ jobs:
           echo "Repo Version: $REPO_VERSION"
         shell: bash
 
-      # TODO: uncomment before merging
-    #   - name: Create GitHub Release
-    #     uses: softprops/action-gh-release@v1
-    #     with:
-    #       name: v${{ env.REPO_VERSION }}
-    #       tag_name: v${{ env.REPO_VERSION }}
-    #       draft: true
-    #       prerelease: true
-    #       generate_release_notes: true
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ env.REPO_VERSION }}
+          tag_name: v${{ env.REPO_VERSION }}
+          draft: true
+          prerelease: true
+          generate_release_notes: true
