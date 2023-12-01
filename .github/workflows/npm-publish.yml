@@ -84,7 +84,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        package: ["protocol", "http-client", "http-server"]
+        package: ["protocol", "http-client", "http-server", "sdk"]
 
     steps:
       - name: Checkout source

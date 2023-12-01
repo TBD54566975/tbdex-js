@@ -7,7 +7,7 @@ import { DidResolver as Web5DidResolver, DidKeyMethod, DidIonMethod, DidDhtMetho
  *
  * @beta
  */
-export const DidResolver = new Web5DidResolver({
+const DidResolver = new Web5DidResolver({
   didResolvers: [DidIonMethod, DidKeyMethod, DidDhtMethod]
 })
 

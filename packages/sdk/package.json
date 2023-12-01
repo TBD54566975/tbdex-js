@@ -1,0 +1,74 @@
+{
+  "name": "@tbdex/sdk",
+  "version": "0.22.1",
+  "type": "module",
+  "description": "Library that includes type definitions for tbdex messages",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/TBD54566975/tbdex-js/tree/main/packages/sdk#readme",
+  "bugs": "https://github.com/TBD54566975/tbdex-js/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TBD54566975/tbdex-js",
+    "directory": "packages/sdk"
+  },
+  "contributors": [
+    {
+      "name": "Jiyoon Koo",
+      "url": "https://github.com/jiyoontbd"
+    },
+    {
+      "name": "Moe Jangda",
+      "url": "https://github.com/mistermoe"
+    },
+    {
+      "name": "Phoebe Lew",
+      "url": "https://github.com/phoebe-lew"
+    },
+    {
+      "name": "Ethan Lee",
+      "url": "https://github.com/ethan-tbd"
+    }
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./dist/cjs/src/main.js",
+  "module": "./dist/esm/src/main.js",
+  "types": "./dist/types/src/main.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/src/main.js",
+      "require": "./dist/cjs/src/main.js",
+      "types": "./dist/types/src/main.d.ts"
+    },
+    "./browser": {
+      "import": "./dist/browser.mjs",
+      "require": "./dist/browser.js",
+      "types": "./dist/types/src/main.d.ts"
+    }
+  },
+  "dependencies": {
+    "@tbdex/http-client": "workspace:*",
+    "@web5/common": "0.2.1",
+    "@web5/credentials": "0.3.2",
+    "@web5/crypto": "0.2.2",
+    "@web5/dids": "0.2.2"
+  },
+  "devDependencies": {
+    "rimraf": "5.0.5",
+    "typescript": "5.2.2",
+    "esbuild": "0.16.17"
+  },
+  "scripts": {
+    "clean": "rimraf generated dist",
+    "build:esm": "rimraf dist/esm dist/types && tsc",
+    "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
+    "build:browser": "rimraf dist/browser.mjs dist/browser.js && node build/bundles.js",
+    "build": "pnpm clean && pnpm build:esm && pnpm build:cjs && pnpm build:browser",
+    "lint": "eslint . --ext .ts --max-warnings 0",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "docs": "pnpm build:esm && typedoc --plugin typedoc-plugin-markdown --out docs src/main.ts",
+    "try": "pnpm compile-validators && pnpm build:esm && node dist/esm/src/try.js"
+  }
+}
