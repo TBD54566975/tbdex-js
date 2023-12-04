@@ -1,4 +1,4 @@
-name: Publish Packages to NPM and TBDocs
+name: Publish Packages to NPM
 
 on:
   workflow_run:
