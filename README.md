@@ -70,6 +70,26 @@ Upon opening a Pull Request, the `changeset-bot` will automatically comment ([ex
 
 Prior to merging your branch into main, and given you have relevant semantic versioning changes, then you should run `pnpm changeset` locally. The CLI tool will walk you through a set of steps for you to define the semantic changes. This will create a randomly-named (and funnily-named) markdown file within the `.changeset/` directory. For example, see the `.changeset/sixty-tables-cheat.md` file on [this PR](https://github.com/TBD54566975/tbdex-js/pull/35/files). There is an analogy to staging a commit (using `git add`) for these markdown files, in that, they exist so that the developer can codify the semantic changes made but they don't actually update the semantic version.
 
-Whereafter, a `pnpm changeset version` command must be executed. This command will do two things: update the version numbers in the relevant `package.json` files & also aggregate Summary notes into the relevant `CHANGELOG.md` files. In keeping with the staged commit analogy, this is akin to the actual commit. You **do not need to execute this** prior to merging your changes into the main branch. We have a GitHub Actions workflow (which uses the [Action offered by Changesets](https://github.com/changesets/action)) to automate this process.
+**You can stop here!** It is recommended to merge your branch into main with the `.changeset/*.md` files, at which point, the Changeset GitHub Action will automatically pick up those changes and open a PR to automate the `pnpm changeset version` execution. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36). This command will do two things: update the version numbers in the relevant `package.json` files & also aggregate Summary notes into the relevant `CHANGELOG.md` files. In keeping with the staged commit analogy, this is akin to the actual commit.
 
-It is recommended to merge your branch into main with the `.changet/*.md` files, at which point, the Changeset GitHub Action will automatically pick up those changes and open a PR to automate the `pnpm changeset version` execution. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36).
+## Cutting Releases
+
+When a changeset PR is merged to main we will automatically create a GitHub release using the workflow [Create GH Release](./.github/workflows/create-gh-release.yml).
+
+> [!NOTE]
+>
+> This is done by detecting the merged PR branch name: `changeset-release/main`.
+
+Also, by creating the GH release, the packages will be automatically published to npm. So this way the engineer can simply just merge the changeset PR and the new GH Release and packages version will be automagically published to npm!
+
+## Steps for a new release publish
+
+Recap of the above changesets, plus the release process:
+
+1. Open a PR
+2. `changeset-bot` will automatically [comment on the PR](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942) with a reminder & recommendations for semver
+3. Run `pnpm changeset` locally and push changes (`.changet/*.md`)
+4. Merge PR into `main`
+5. Profit from the release automation:
+   - [Create GH Release Workflow](./.github/workflows/create-gh-release.yml) will automatically create a new [GitHub Release](https://github.com/TBD54566975/tbdex-js/releases)
+   - [NPM Publish Workflow](./.github/workflows/npm-publish.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions)
