@@ -1,5 +1,6 @@
 import type { ResourceKindModel, ResourceMetadata } from '../types.js'
 import { Resource } from '../resource.js'
+import type { PresentationDefinitionV2 } from '@web5/credentials'
 
 /**
  * Options passed to {@link Offering.create}
@@ -64,7 +65,7 @@ export class Offering extends Resource<'offering'> {
   }
 
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
-  get requiredClaims() {
+  get requiredClaims(): PresentationDefinitionV2 {
     return this.data.requiredClaims
   }
 }
