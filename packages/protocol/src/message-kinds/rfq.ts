@@ -1,11 +1,8 @@
 import type { MessageKind, MessageKindModel, MessageMetadata, ResourceModel } from '../types.js'
 
 import { Offering } from '../resource-kinds/index.js'
-import { VerifiableCredential } from '@web5/credentials'
+import { VerifiableCredential, PresentationExchange } from '@web5/credentials'
 import { Message } from '../message.js'
-import { PEXv2 } from '@sphereon/pex'
-
-const pex = new PEXv2()
 
 /**
  * Options passed to {@link Rfq.create}
@@ -77,9 +74,9 @@ export class Rfq extends Message<'rfq'> {
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
   async verifyClaims(offering: Offering | ResourceModel<'offering'>) {
-    const { areRequiredCredentialsPresent } = pex.evaluateCredentials(offering.data.requiredClaims, this.claims)
+    const requiredCredentialsPresent = PresentationExchange.selectCredentials(this.claims, offering.data.requiredClaims)
 
-    if (areRequiredCredentialsPresent === 'error') {
+    if (!requiredCredentialsPresent.length) {
       throw new Error(`claims do not fulfill the offering's requirements`)
     }
 
