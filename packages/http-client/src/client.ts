@@ -12,6 +12,7 @@ import type {
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { Convert } from '@web5/common'
+import { RequestError, ResponseError } from './errors/index.js'
 
 import queryString from 'query-string'
 
@@ -114,12 +115,20 @@ export class TbdexHttpClient {
 
   /**
    * gets offerings from the pfi provided
-   * @param _opts - options
+   * @param opts - options
+   * @beta
    */
-  static async getOfferings(opts: GetOfferingsOptions): Promise<DataResponse<Offering[]> | ErrorResponse> {
+  static async getOfferings(opts: GetOfferingsOptions): Promise<Offering[]> {
     const { pfiDid , filter } = opts
 
-    const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
+    let pfiServiceEndpoint
+
+    try {
+      pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
+    } catch(e) {
+      throw new RequestError({ message: e['message'], recipientDid: pfiDid, cause: e })
+    }
+
     const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
     const apiRoute = `${pfiServiceEndpoint}/offerings${queryParams}`
 
@@ -127,30 +136,24 @@ export class TbdexHttpClient {
     try {
       response = await fetch(apiRoute)
     } catch(e) {
-      throw new Error(`Failed to get offerings from ${pfiDid}. Error: ${e.message}`)
+      throw new RequestError({ message: `Failed to get offerings from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
     const data: Offering[] = []
 
-    if (response.status === 200) {
-      const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
-      for (let jsonResource of responseBody.data) {
-        const resource = await Resource.parse(jsonResource)
-        data.push(resource)
-      }
-
-      return {
-        status  : response.status,
-        headers : response.headers,
-        data    : data
-      }
-    } else {
-      return {
-        status  : response.status,
-        headers : response.headers,
-        errors  : await response.json() as ErrorDetail[]
-      } as ErrorResponse
+    console.log(response)
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
+
+    const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
+    for (let jsonResource of responseBody.data) {
+      const resource = await Resource.parse(jsonResource)
+      data.push(resource)
+    }
+
+    return data
   }
 
   /**
