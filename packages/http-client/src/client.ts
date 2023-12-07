@@ -141,7 +141,6 @@ export class TbdexHttpClient {
 
     const data: Offering[] = []
 
-    console.log(response)
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
