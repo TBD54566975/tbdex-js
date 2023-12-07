@@ -1,5 +1,5 @@
 import type { Schema as JsonSchema } from 'ajv'
-import type { PresentationDefinitionV2 } from '@sphereon/pex-models'
+import type { PresentationDefinitionV2 } from '@web5/credentials'
 
 export { JsonSchema }
 
