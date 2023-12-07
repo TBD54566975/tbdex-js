@@ -80,8 +80,8 @@ export class Rfq extends Message<'rfq'> {
       throw new Error(`claims do not fulfill the offering's requirements`)
     }
 
-    for (let claim of this.claims) {
-      await VerifiableCredential.verify(claim)
+    for (let credential of credentials) {
+      await VerifiableCredential.verify(credential)
     }
   }
 
