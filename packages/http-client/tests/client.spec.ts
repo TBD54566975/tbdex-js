@@ -7,6 +7,7 @@ import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { ResponseError } from '../src/errors/response-error.js'
 
+// TODO: Introduce setupWorker for browser tests
 describe('client', () => {
   describe('getOfferings', async () => {
     it('throws RequestError if did is pewpew', async () => {
