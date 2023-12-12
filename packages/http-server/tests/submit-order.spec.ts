@@ -72,7 +72,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
-    expect(error.detail).to.include('is undefined')
+    expect(error.detail).to.include('No exchange found for')
   })
 
   xit(`returns a 409 if order is not allowed based on the exchange's current state`)

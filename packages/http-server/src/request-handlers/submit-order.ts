@@ -30,12 +30,10 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
 
     const exchange = await exchangesApi.getExchange({id: message.exchangeId})
     if(exchange == undefined) {
-      const errorResponse: ErrorDetail = { detail: `exchangeId: ${message.exchangeId} is undefined` }
+      const errorResponse: ErrorDetail = { detail: `No exchange found for ${message.exchangeId}` }
 
       return res.status(404).json({ errors: [errorResponse] })
     }
-
-    console.log('hiiiii')
 
     const last = exchange[exchange.length-1]
     if(!last.validNext.has('order')) {
