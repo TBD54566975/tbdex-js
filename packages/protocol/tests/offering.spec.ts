@@ -12,9 +12,9 @@ const offeringData: OfferingData = {
   },
   payoutCurrency: {
     currencyCode : 'BTC',
-    maxSubunits  : '99952611'
+    maxAmount    : '999526.11'
   },
-  payoutUnitsPerPayinUnit : '0.00003826',
+  rate : '0.00003826',
   payinMethods            : [{
     kind                   : 'DEBIT_CARD',
     requiredPaymentDetails : {

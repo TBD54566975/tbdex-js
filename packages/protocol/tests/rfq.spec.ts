@@ -21,7 +21,7 @@ const rfqData: RfqData = {
       btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
     }
   },
-  payinSubunits : '20000',
+  payinAmount : '20000',
   claims        : ['']
 }
 
@@ -190,7 +190,7 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinSubunits : '20000',
+          payinAmount : '20000',
           claims        : [signedCredential]
         }
       })
@@ -229,7 +229,7 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinSubunits : '20000',
+          payinAmount : '20000',
           claims        : [signedCredential]
         }
       })

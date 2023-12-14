@@ -40,8 +40,8 @@ export class Offering extends Resource<'offering'> {
   }
 
   /** Number of payout currency units for one payin currency unit (i.e 290000 USD for 1 BTC) */
-  get payoutUnitsPerPayinUnit() {
-    return this.data.payoutUnitsPerPayinUnit
+  get rate() {
+    return this.data.rate
   }
 
   /** Details about the currency that the PFI is buying in exchange for payoutCurrency. */

@@ -57,7 +57,7 @@ export class Rfq extends Message<'rfq'> {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
-    // TODO: validate rfq's quoteAmountSubunits against offering's quoteCurrency min/max
+    // TODO: validate rfq's payinAmount against offering's quoteCurrency min/max
 
     // TODO: validate rfq's payinMethod.kind against offering's payinMethods
     // TODO: validate rfq's payinMethod.paymentDetails against offering's respective requiredPaymentDetails json schema
@@ -91,8 +91,8 @@ export class Rfq extends Message<'rfq'> {
   }
 
   /** Amount of payin currency you want to spend in order to receive payout currency */
-  get payinSubunits() {
-    return this.data.payinSubunits
+  get payinAmount() {
+    return this.data.payinAmount
   }
 
   /** Array of claims that satisfy the respective offering's requiredClaims */

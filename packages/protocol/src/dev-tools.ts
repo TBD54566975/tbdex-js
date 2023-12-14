@@ -83,10 +83,10 @@ export class DevTools {
       },
       payoutCurrency: {
         currencyCode : 'BTC',
-        maxSubunits  : '99952611'
+        maxAmount    : '999526.11'
       },
-      payoutUnitsPerPayinUnit : '0.00003826',
-      payinMethods            : [{
+      rate         : '0.00003826',
+      payinMethods : [{
         kind                   : 'DEBIT_CARD',
         requiredPaymentDetails : {
           $schema    : 'http://json-schema.org/draft-07/schema',
@@ -202,8 +202,8 @@ export class DevTools {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinSubunits : '20000',
-      claims        : [signedCredential]
+      payinAmount : '20000',
+      claims      : [signedCredential]
     }
 
     return Rfq.create({
