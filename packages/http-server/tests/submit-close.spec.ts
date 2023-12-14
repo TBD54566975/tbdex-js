@@ -3,6 +3,7 @@ import type { Server } from 'http'
 
 import { Close, DevTools, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
+import { FakeExchangesApi } from '../src/fakes.js'
 
 let api = new TbdexHttpServer()
 let server: Server
@@ -76,7 +77,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     expect(error.detail).to.include('No exchange found for')
   })
 
-  xit(`returns a 409 if close is not allowed based on the exchange's current state`, async () => {
+  it(`returns a 409 if close is not allowed based on the exchange's current state`, async () => {
     // add a close message
     const close = Close.create({
       metadata: {

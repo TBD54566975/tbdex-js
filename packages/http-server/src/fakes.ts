@@ -83,7 +83,7 @@ export const fakeOfferingsApi: OfferingsApi = {
   async getOfferings() { return [offering] }
 }
 
-interface FakeExchangesApi extends ExchangesApi {
+export interface FakeExchangesApi extends ExchangesApi {
   exchangeMessagesMap: Map<string, MessageKindClass[]>,
   addMessage(message: MessageKindClass): void
 }
