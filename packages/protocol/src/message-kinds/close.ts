@@ -22,7 +22,7 @@ export class Close extends Message<'close'> {
    * Creates a close message with the given options
    * @param opts - options to create a close message
    */
-  static create(opts: CreateCloseOptions) {
+  static async create(opts: CreateCloseOptions) {
     const metadata: MessageMetadata<'close'> = {
       ...opts.metadata,
       kind      : 'close' as const,
@@ -31,7 +31,9 @@ export class Close extends Message<'close'> {
     }
 
     const message = { metadata, data: opts.data }
-    return new Close(message)
+    const close = new Close(message)
+    await Message.validate(close)
+    return close
   }
 
   /** an explanation of why the exchange is being closed */

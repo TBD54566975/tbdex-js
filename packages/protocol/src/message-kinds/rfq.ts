@@ -30,7 +30,7 @@ export class Rfq extends Message<'rfq'> {
    * @param opts - options to create an rfq
    * @returns {@link Rfq}
    */
-  static create(opts: CreateRfqOptions) {
+  static async create(opts: CreateRfqOptions) {
     const id = Message.generateId('rfq')
     const metadata: MessageMetadata<'rfq'> = {
       ...opts.metadata,
@@ -44,7 +44,9 @@ export class Rfq extends Message<'rfq'> {
     // TODO: hash `data.payoutMethod.paymentDetails` and set `private`
 
     const message = { metadata, data: opts.data }
-    return new Rfq(message)
+    const rfq = new Rfq(message)
+    await Message.validate(rfq)
+    return rfq
   }
 
   /**
