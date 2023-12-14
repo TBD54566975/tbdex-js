@@ -7,8 +7,6 @@ import { expect } from 'chai'
 let api = new TbdexHttpServer()
 let server: Server
 const did = await DevTools.createDid()
-const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
-const kid = did.document.verificationMethod[0].id
 
 describe('POST /exchanges/:exchangeId/order', () => {
   before(() => {
@@ -59,7 +57,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
         exchangeId : '123'
       }
     })
-    await order.sign(privateKeyJwk, kid)
+    await order.sign(did)
     const resp = await fetch('http://localhost:8000/exchanges/123/order', {
       method : 'POST',
       body   : JSON.stringify(order)

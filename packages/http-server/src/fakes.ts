@@ -86,6 +86,7 @@ export const fakeOfferingsApi: OfferingsApi = {
 export interface FakeExchangesApi extends ExchangesApi {
   exchangeMessagesMap: Map<string, MessageKindClass[]>,
   addMessage(message: MessageKindClass): void
+  clearMessages(): void
 }
 
 export const fakeExchangesApi: FakeExchangesApi = {
@@ -124,5 +125,9 @@ export const fakeExchangesApi: FakeExchangesApi = {
     const messages = this.exchangeMessagesMap.get(message.exchangeId) || []
     messages.push(message)
     this.exchangeMessagesMap.set(message.exchangeId, messages)
+  },
+
+  clearMessages: function (): void {
+    this.exchangeMessagesMap = new Map<string, MessageKindClass[]>()
   }
 }

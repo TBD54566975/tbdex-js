@@ -8,12 +8,14 @@ import { FakeExchangesApi } from '../src/fakes.js'
 let api = new TbdexHttpServer()
 let server: Server
 const did = await DevTools.createDid()
-const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
-const kid = did.document.verificationMethod[0].id
 
 describe('POST /exchanges/:exchangeId/close', () => {
   before(() => {
     server = api.listen(8000)
+  })
+
+  afterEach(() => {
+    (api.exchangesApi as FakeExchangesApi).clearMessages()
   })
 
   after(() => {
@@ -61,7 +63,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       },
       data: {}
     })
-    await close.sign(privateKeyJwk, kid)
+    await close.sign(did)
     const resp = await fetch('http://localhost:8000/exchanges/123/close', {
       method : 'POST',
       body   : JSON.stringify(close)
@@ -78,7 +80,6 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it(`returns a 409 if close is not allowed based on the exchange's current state`, async () => {
-    // add a close message
     const close = Close.create({
       metadata: {
         from       : did.did,
@@ -87,13 +88,33 @@ describe('POST /exchanges/:exchangeId/close', () => {
       },
       data: {}
     })
-    await close.sign(privateKeyJwk, kid)
+    await close.sign(did)
+
+    const exchangesApi = api.exchangesApi as FakeExchangesApi
+    exchangesApi.addMessage(close)
+
+    const close2 = Close.create({
+      metadata: {
+        from       : did.did,
+        to         : did.did,
+        exchangeId : '123'
+      },
+      data: {}
+    })
+    await close2.sign(did)
     const resp = await fetch('http://localhost:8000/exchanges/123/close', {
       method : 'POST',
-      body   : JSON.stringify(close)
+      body   : JSON.stringify(close2)
     })
 
     expect(resp.status).to.equal(409)
+
+    const responseBody = await resp.json() as ErrorResponse
+    expect(responseBody.errors.length).to.equal(1)
+
+    const [ error ] = responseBody.errors
+    expect(error.detail).to.exist
+    expect(error.detail).to.include('cannot submit Close for an exchange where the last message is kind: close')
   })
 
   xit('returns a 400 if request body is not a valid Close')
