@@ -12,8 +12,8 @@ const offering = Offering.create({
       currencyCode : 'BTC',
       maxAmount    : '999526.11'
     },
-    rate : '0.000038',
-    payinMethods            : [{
+    rate         : '0.000038',
+    payinMethods : [{
       kind                   : 'DEBIT_CARD',
       requiredPaymentDetails : {
         $schema    : 'http://json-schema.org/draft-07/schema',

@@ -22,7 +22,7 @@ const rfqData: RfqData = {
     }
   },
   payinAmount : '20000',
-  claims        : ['']
+  claims      : ['']
 }
 
 describe('Rfq', () => {
@@ -191,7 +191,7 @@ describe('Rfq', () => {
             }
           },
           payinAmount : '20000',
-          claims        : [signedCredential]
+          claims      : [signedCredential]
         }
       })
 
@@ -230,7 +230,7 @@ describe('Rfq', () => {
             }
           },
           payinAmount : '20000',
-          claims        : [signedCredential]
+          claims      : [signedCredential]
         }
       })
 

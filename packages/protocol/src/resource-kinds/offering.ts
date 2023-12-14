@@ -22,7 +22,7 @@ export class Offering extends Resource<'offering'> {
    * Creates an Offering with the given options
    * @param opts - options to create an offering
    */
-  static create(opts: CreateOfferingOptions) {
+  static async create(opts: CreateOfferingOptions) {
     const metadata: ResourceMetadata<'offering'> = {
       ...opts.metadata,
       kind      : 'offering',
@@ -31,7 +31,9 @@ export class Offering extends Resource<'offering'> {
     }
 
     const message = { metadata, data: opts.data }
-    return new Offering(message)
+    const offering = new Offering(message)
+    await Resource.validate(offering)
+    return offering
   }
 
   /** Brief description of what is being offered. */

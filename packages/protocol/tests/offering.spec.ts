@@ -14,8 +14,8 @@ const offeringData: OfferingData = {
     currencyCode : 'BTC',
     maxAmount    : '999526.11'
   },
-  rate : '0.00003826',
-  payinMethods            : [{
+  rate         : '0.00003826',
+  payinMethods : [{
     kind                   : 'DEBIT_CARD',
     requiredPaymentDetails : {
       $schema    : 'http://json-schema.org/draft-07/schema',
