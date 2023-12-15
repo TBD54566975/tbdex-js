@@ -41,7 +41,7 @@ jobs:
 
       - name: TBDocs Reporter
         id: tbdocs-reporter-protocol
-        uses: TBD54566975/tbdocs@leordev/gh-pages-html
+        uses: TBD54566975/tbdocs@main
         with:
           group_docs: true
           entry_points: |
