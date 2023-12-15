@@ -2,6 +2,10 @@
 name: Publish Docs to GH Pages
 
 on:
+  # TODO: remove test
+  push:
+    branches:
+      - leordev/*
   workflow_run:
     workflows: ["Create GH Release"]
     types:
