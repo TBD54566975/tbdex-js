@@ -48,8 +48,8 @@ const rfq = Rfq.create({
         btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
       }
     },
-    quoteAmountSubunits : '20000',
-    vcs                 : ''
+    amount      : '200.00',
+    vcs         : ''
   }
 })
 

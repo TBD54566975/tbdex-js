@@ -22,7 +22,7 @@ export class Order extends Message<'order'> {
    * Creates an order with the given options
    * @param opts - options to create an order
    */
-  static create(opts: CreateOrderOptions) {
+  static async create(opts: CreateOrderOptions) {
     const metadata: MessageMetadata<'order'> = {
       ...opts.metadata,
       kind      : 'order' as const,
@@ -31,6 +31,8 @@ export class Order extends Message<'order'> {
     }
 
     const message = { metadata, data: {} }
-    return new Order(message)
+    const order = new Order(message)
+    await Message.validate(order)
+    return order
   }
 }

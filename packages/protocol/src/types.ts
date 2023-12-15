@@ -75,7 +75,7 @@ export type OfferingData = {
   /** Brief description of what is being offered. */
   description: string
   /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
-  payoutUnitsPerPayinUnit: string
+  rate: string
   /** Details about the currency that the PFI is selling. */
   payoutCurrency: CurrencyDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */
@@ -96,9 +96,9 @@ export type CurrencyDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
   /** Minimum amount of currency that can be requested */
-  minSubunits?: string
+  minAmount?: string
   /** Maximum amount of currency that can be requested */
-  maxSubunits?: string
+  maxAmount?: string
 }
 
 /**
@@ -182,7 +182,7 @@ export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
   /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */
-  payinSubunits: string
+  payinAmount: string
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   payinMethod: SelectedPaymentMethod
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
@@ -226,9 +226,9 @@ export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
   /** The amount of currency expressed in the smallest respective unit */
-  amountSubunits: string
+  amount: string
   /** the amount paid in fees */
-  feeSubunits?: string
+  fee?: string
 }
 
 /**

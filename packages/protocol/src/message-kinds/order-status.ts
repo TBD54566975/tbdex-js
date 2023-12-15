@@ -1,5 +1,6 @@
 import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
 import { Message } from '../message.js'
+import { order } from '../../generated/compiled-validators.js'
 
 /**
  * Options passed to {@link OrderStatus.create}
@@ -23,7 +24,7 @@ export class OrderStatus extends Message<'orderstatus'> {
    * Creates an order status with the given options
    * @param opts - options to create an order status
    */
-  static create(opts: CreateOrderStatusOptions) {
+  static async create(opts: CreateOrderStatusOptions) {
     const metadata: MessageMetadata<'orderstatus'> = {
       ...opts.metadata,
       kind      : 'orderstatus' as const,
@@ -32,7 +33,9 @@ export class OrderStatus extends Message<'orderstatus'> {
     }
 
     const message = { metadata, data: opts.data }
-    return new OrderStatus(message)
+    const orderStatus = new OrderStatus(message)
+    await Message.validate(order)
+    return orderStatus
   }
 
   /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */

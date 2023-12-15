@@ -1,7 +1,7 @@
 import { MessageKindClass, Offering, Rfq, Quote, Order, OrderStatus, Close } from '@tbdex/protocol'
 import { OfferingsApi, ExchangesApi } from './main.js'
 
-const offering = Offering.create({
+const offering = await Offering.create({
   metadata : { from: 'did:ex:pfi' },
   data     : {
     description   : 'Selling BTC for USD',
@@ -10,10 +10,10 @@ const offering = Offering.create({
     },
     payoutCurrency: {
       currencyCode : 'BTC',
-      maxSubunits  : '99952611'
+      maxAmount    : '999526.11'
     },
-    payoutUnitsPerPayinUnit : '0.000038',
-    payinMethods            : [{
+    rate         : '0.000038',
+    payinMethods : [{
       kind                   : 'DEBIT_CARD',
       requiredPaymentDetails : {
         $schema    : 'http://json-schema.org/draft-07/schema',
