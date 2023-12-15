@@ -21,18 +21,17 @@ export function validate(payload: any, schemaName: string): void {
 }
 
 function handleValidationError(errors: ErrorObject[]) {
-  let combinedMessage = ''
+  // TODO modify default, return all errors
+  // AJV is configured by default to stop validating after the 1st error is encountered which means
+  // there will only ever be one error;
+  const [errorObj]: ErrorObject[] = errors
+  let { instancePath, message, params } = errorObj
 
-  errors.forEach((errorObj, index) => {
-    let { instancePath, message, params } = errorObj
+  instancePath ||= 'message'
 
-    instancePath ||= 'message'
+  // if an error occurs for a property with an enum type, the default error is "must have one of the allowed types."
+  // which is... unhelpful. `params.allowedValues` includes the allowed values. add this to the message if it exists
+  message = params.allowedValues ? `${message} - ${params.allowedValues.join(', ')}` : message
 
-    // If an error occurs for a property with an enum type, add allowedValues to the message
-    message = params.allowedValues ? `${message} - ${params.allowedValues.join(', ')}` : message
-
-    combinedMessage += `${index + 1}. ${instancePath}: ${message}\n`
-  })
-
-  throw new Error(combinedMessage)
+  throw new Error(`${instancePath}: ${message}`)
 }
