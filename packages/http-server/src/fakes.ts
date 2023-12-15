@@ -1,7 +1,7 @@
 import { MessageKindClass, Offering, Rfq, Quote, Order, OrderStatus, Close } from '@tbdex/protocol'
 import { OfferingsApi, ExchangesApi } from './main.js'
 
-const offering = Offering.create({
+const offering = await Offering.create({
   metadata : { from: 'did:ex:pfi' },
   data     : {
     description   : 'Selling BTC for USD',
