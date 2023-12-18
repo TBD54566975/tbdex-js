@@ -1,13 +1,11 @@
 import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
 import { TbdexHttpClient } from '../src/client.js'
-import { RequestError } from '../src/errors/request-error.js'
+import { RequestError,ResponseError, InvalidDidError, InvalidServiceEndpointError } from '../src/errors/index.js'
 import { http, HttpResponse as MswHttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
-import { ResponseError } from '../src/errors/response-error.js'
 import { Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
-import { InvalidDidError, InvalidServiceEndpointError } from '../src/errors/validation-error.js'
 
 // TODO: Introduce setupWorker for browser tests
 

@@ -12,10 +12,9 @@ import type {
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { Convert } from '@web5/common'
-import { RequestError, ResponseError } from './errors/index.js'
+import { RequestError, ResponseError, InvalidDidError, InvalidServiceEndpointError } from './errors/index.js'
 
 import queryString from 'query-string'
-import { InvalidDidError, InvalidServiceEndpointError } from './errors/validation-error.js'
 
 /**
  * HTTP client for interacting with TBDex PFIs
