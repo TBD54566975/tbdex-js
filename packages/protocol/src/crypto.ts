@@ -17,7 +17,7 @@ import { PortableDid } from '@web5/dids'
  * Options passed to {@link Crypto.sign}
  * @beta
  */
-export type SignOptions = {
+export type TbdexSignOptions = {
   /** Indicates whether the payload is detached from the JWS. If `true`, the payload is not included in the resulting JWS. */
   detached: boolean,
   /** The payload to be signed. */
@@ -96,7 +96,7 @@ export class Crypto {
    * @returns A promise that resolves to the generated compact JWS.
    * @throws Will throw an error if the specified algorithm is not supported.
    */
-  static async sign(opts: SignOptions) {
+  static async sign(opts: TbdexSignOptions) {
     const { did, payload, detached } = opts
 
     const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
