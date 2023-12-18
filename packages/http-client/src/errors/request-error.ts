@@ -6,7 +6,7 @@ export type RequestErrorParams = {
 }
 
 /**
- * Error thrown by handler callbacks
+ * Error thrown when making HTTP requests
  * @beta
  */
 export class RequestError extends Error {

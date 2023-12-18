@@ -8,7 +8,7 @@ export type ResponseErrorParams = {
 }
 
 /**
- * Error thrown by handler callbacks
+ * Error thrown when getting HTTP responses
  * @beta
  */
 export class ResponseError extends Error {
