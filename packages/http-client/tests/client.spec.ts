@@ -20,12 +20,12 @@ const dhtDid = await DidDhtMethod.create({
   }]
 })
 const getPfiServiceEndpointStub = sinon.stub(TbdexHttpClient, 'getPfiServiceEndpoint').resolves('https://localhost:9000')
+sinon.stub(Message, 'verify').resolves('123')
 
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('sendMessage', async () => {
-    sinon.stub(Message, 'verify').resolves('123')
     const mockMessage = new Rfq({
       data: {
         offeringId    : '123',
@@ -91,14 +91,14 @@ describe('client', () => {
       const server = setupServer(
         http.post('https://localhost:9000/exchanges/123/rfq', () => {
           return MswHttpResponse.json({}, {
-            status: 200
+            status: 202
           })
         }),
       )
       server.listen()
 
       const response = await TbdexHttpClient.sendMessage({message: mockMessage})
-      expect(response.status).to.equal(200)
+      expect(response.status).to.equal(202)
       expect(response.headers).to.exist
 
       server.resetHandlers()
@@ -177,10 +177,144 @@ describe('client', () => {
   })
 
   describe('getExchange', async () => {
+    it('throws RequestError if service endpoint url is garbage', async () => {
+      getPfiServiceEndpointStub.resolves('garbage')
+      const server = setupServer(
+        http.get('garbage/exchanges/123', () => {
+          return MswHttpResponse.json({}, {
+            status: 404
+          })
+        }),
+      )
+      server.listen()
 
+      try {
+        await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.message).to.include('Failed to get exchange')
+        expect(e.cause).to.exist
+        expect(e.cause.message).to.include('URL')
+      }
+      server.resetHandlers()
+      server.close()
+    })
+
+    it('throws ResponseError if response status is not ok', async () => {
+      const server = setupServer(
+        http.get('https://localhost:9000/exchanges/123', () => {
+          return MswHttpResponse.json({}, {
+            status: 400
+          })
+        }),
+      )
+      server.listen()
+
+      try {
+        await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('ResponseError')
+        expect(e).to.be.instanceof(ResponseError)
+        expect(e.statusCode).to.exist
+        expect(e.details).to.exist
+        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.url).to.equal('https://localhost:9000/exchanges/123')
+      }
+      server.resetHandlers()
+      server.close()
+    })
+
+    it('returns exchange array if response is ok', async () => {
+      const server = setupServer(
+        http.get('https://localhost:9000/exchanges/123', () => {
+          return MswHttpResponse.json({
+            data: []
+          }, {
+            status: 202
+          })
+        }),
+      )
+      server.listen()
+
+      const exchanges = await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+      expect(exchanges).to.have.length(0)
+
+      server.resetHandlers()
+      server.close()
+    })
   })
   describe('getExchanges', async () => {
+    it('throws RequestError if service endpoint url is garbage', async () => {
+      getPfiServiceEndpointStub.resolves('garbage')
+      const server = setupServer(
+        http.get('garbage/exchanges', () => {
+          return MswHttpResponse.json({}, {
+            status: 404
+          })
+        }),
+      )
+      server.listen()
 
+      try {
+        await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.message).to.include('Failed to get exchanges')
+        expect(e.cause).to.exist
+        expect(e.cause.message).to.include('URL')
+      }
+      server.resetHandlers()
+      server.close()
+    })
+
+    it('throws ResponseError if response status is not ok', async () => {
+      const server = setupServer(
+        http.get('https://localhost:9000/exchanges', () => {
+          return MswHttpResponse.json({}, {
+            status: 400
+          })
+        }),
+      )
+      server.listen()
+
+      try {
+        await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('ResponseError')
+        expect(e).to.be.instanceof(ResponseError)
+        expect(e.statusCode).to.exist
+        expect(e.details).to.exist
+        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.url).to.equal('https://localhost:9000/exchanges')
+      }
+      server.resetHandlers()
+      server.close()
+    })
+
+    it('returns exchanges array if response is ok', async () => {
+      const server = setupServer(
+        http.get('https://localhost:9000/exchanges', () => {
+          return MswHttpResponse.json({
+            data: []
+          }, {
+            status: 202
+          })
+        }),
+      )
+      server.listen()
+
+      const exchanges = await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+      expect(exchanges).to.have.length(0)
+
+      server.resetHandlers()
+      server.close()
+    })
   })
 
   describe('getPfiServiceEndpoint', async () => {
