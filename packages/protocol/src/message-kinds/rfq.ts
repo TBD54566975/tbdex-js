@@ -53,10 +53,10 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
    * @throws if {@link Rfq.payinSubunits} exceeds the provided offering's max subunits allowed
-   * @throws if {@link Rfq.payinMethod.kind} cannot be validated against the provided offering's payinMethod kinds
-   * @throws if {@link Rfq.payinMethod.paymentDetails} cannot be validated against the provided offering's payinMethod requiredPaymentDetails
-   * @throws if {@link Rfq.payoutMethod.kind} cannot be validated against the provided offering's payoutMethod kinds
-   * @throws if {@link Rfq.payoutMethod.paymentDetails} cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
+   * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
+   * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
+   * @throws if {@link Rfq.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
+   * @throws if {@link Rfq.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
