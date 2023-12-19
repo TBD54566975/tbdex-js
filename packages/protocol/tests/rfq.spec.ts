@@ -1,4 +1,4 @@
-import type { RfqData } from '../src/main.js'
+import type { CreateRfqOptions, Offering, RfqData } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
@@ -155,6 +155,139 @@ describe('Rfq', () => {
       const parsedMessage = await Rfq.parse(jsonMessage)
 
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
+    })
+  })
+
+  describe('verifyOfferingRequirements', () => {
+    const offering: Offering = DevTools.createOffering()
+    const rfqOptions: CreateRfqOptions = {
+      metadata: {
+        from : '',
+        to   : 'did:ex:pfi'
+      },
+      data: {
+        ...rfqData,
+        offeringId: offering.id,
+      }
+    }
+    before(async () => {
+      const did = await DevTools.createDid()
+      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+        type    : 'SanctionsCredential',
+        issuer  : did,
+        subject : did.did,
+        data    : {
+          'beep': 'boop'
+        }
+      })
+      rfqOptions.metadata.from = did.did
+      rfqOptions.data.claims = [signedCredential]
+    })
+    it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          offeringId: 'ABC123456',
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering id mismatch')
+      }
+    })
+    it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinSubunits: '99999999999999999'
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
+      }
+    })
+    it('throws an error if payinMethod kind cannot be validated against the provided offering\'s payinMethod kinds', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod,
+            kind: 'POKEMON'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
+      }
+    })
+    it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod,
+            paymentDetails: {
+              beep: 'boop'
+            }
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq payinMethod paymentDetails could not be validated against offering requiredPaymentDetails')
+      }
+    })
+    it('throws an error if payoutMethod kind cannot be validated against the provided offering\'s payoutMethod kinds', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payoutMethod: {
+            ...rfqOptions.data.payoutMethod,
+            kind: 'POKEMON'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering does not support rfq\'s payoutMethod kind')
+      }
+    })
+    it('throws an error if payoutMethod paymentDetails cannot be validated against the provided offering\'s payoutMethod requiredPaymentDetails', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payoutMethod: {
+            ...rfqOptions.data.payoutMethod,
+            paymentDetails: {
+              beep: 'boop'
+            }
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails')
+      }
     })
   })
 
