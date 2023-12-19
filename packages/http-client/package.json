@@ -77,7 +77,6 @@
     "karma-webkit-launcher": "2.1.0",
     "mkdirp": "3.0.1",
     "mocha": "10.2.0",
-    "msw": "^2.0.10",
     "rimraf": "4.4.0",
     "sinon": "15.0.2",
     "typedoc": "0.25.0",
