@@ -230,7 +230,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
       }
     })
-    it('throws an error if cannot be validated against the provided offering\'s payinMethod kinds', async () => {
+    it('throws an error if payinMethod kind cannot be validated against the provided offering\'s payinMethod kinds', async () => {
       const rfq = Rfq.create({
         ...rfqData,
         data: {
@@ -246,6 +246,44 @@ describe('Rfq', () => {
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
+      }
+    })
+    it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
+      const rfq = Rfq.create({
+        ...rfqData,
+        data: {
+          ...rfqData.data,
+          payinMethod: {
+            ...rfqData.data.payinMethod,
+            paymentDetails: {
+              beep: 'boop'
+            }
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq paymentDetails could not be validated against offering requiredPaymentDetails')
+      }
+    })
+    it('throws an error if payoutMethod kind cannot be validated against the provided offering\'s payoutMethod kinds', async () => {
+      const rfq = Rfq.create({
+        ...rfqData,
+        data: {
+          ...rfqData.data,
+          payoutMethod: {
+            ...rfqData.data.payinMethod,
+            kind: 'POKEMON'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering does not support rfq\'s payoutMethod kind')
       }
     })
   })
