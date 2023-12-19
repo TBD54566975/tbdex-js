@@ -1,4 +1,4 @@
-import type { RfqData } from '../src/main.js'
+import type { CreateRfqOptions, Offering, RfqData } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
@@ -159,52 +159,35 @@ describe('Rfq', () => {
   })
 
   describe('verifyOfferingRequirements', () => {
-    let offering
-    let rfqData
-    before(() => {
-      async function initMocks() {
-        const did = await DevTools.createDid()
-        const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
-          type    : 'SanctionsCredential',
-          issuer  : did,
-          subject : did.did,
-          data    : {
-            'beep': 'boop'
-          }
-        })
-        offering = DevTools.createOffering()
-        rfqData = {
-          metadata : { from: did.did, to: 'did:ex:pfi' },
-          data     : {
-            offeringId  : offering.id,
-            payinMethod : {
-              kind           : 'DEBIT_CARD',
-              paymentDetails : {
-                'cardNumber'     : '1234567890123456',
-                'expiryDate'     : '12/22',
-                'cardHolderName' : 'Ephraim Bartholomew Winthrop',
-                'cvv'            : '123'
-              }
-            },
-            payoutMethod: {
-              kind           : 'BTC_ADDRESS',
-              paymentDetails : {
-                btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-              }
-            },
-            payinSubunits : '20000',
-            claims        : [signedCredential]
-          }
-        }
+    const offering: Offering = DevTools.createOffering()
+    const rfqOptions: CreateRfqOptions = {
+      metadata: {
+        from : '',
+        to   : 'did:ex:pfi'
+      },
+      data: {
+        ...rfqData,
+        offeringId: offering.id,
       }
-
-      initMocks()
+    }
+    before(async () => {
+      const did = await DevTools.createDid()
+      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+        type    : 'SanctionsCredential',
+        issuer  : did,
+        subject : did.did,
+        data    : {
+          'beep': 'boop'
+        }
+      })
+      rfqOptions.metadata.from = did.did
+      rfqOptions.data.claims = [signedCredential]
     })
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           offeringId: 'ABC123456',
         }
       })
@@ -217,9 +200,9 @@ describe('Rfq', () => {
     })
     it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           payinSubunits: '99999999999999999'
         }
       })
@@ -232,11 +215,11 @@ describe('Rfq', () => {
     })
     it('throws an error if payinMethod kind cannot be validated against the provided offering\'s payinMethod kinds', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           payinMethod: {
-            ...rfqData.data.payinMethod,
+            ...rfqOptions.data.payinMethod,
             kind: 'POKEMON'
           }
         }
@@ -250,11 +233,11 @@ describe('Rfq', () => {
     })
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           payinMethod: {
-            ...rfqData.data.payinMethod,
+            ...rfqOptions.data.payinMethod,
             paymentDetails: {
               beep: 'boop'
             }
@@ -270,11 +253,11 @@ describe('Rfq', () => {
     })
     it('throws an error if payoutMethod kind cannot be validated against the provided offering\'s payoutMethod kinds', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           payoutMethod: {
-            ...rfqData.data.payoutMethod,
+            ...rfqOptions.data.payoutMethod,
             kind: 'POKEMON'
           }
         }
@@ -288,11 +271,11 @@ describe('Rfq', () => {
     })
     it('throws an error if payoutMethod paymentDetails cannot be validated against the provided offering\'s payoutMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
-        ...rfqData,
+        ...rfqOptions,
         data: {
-          ...rfqData.data,
+          ...rfqOptions.data,
           payoutMethod: {
-            ...rfqData.data.payoutMethod,
+            ...rfqOptions.data.payoutMethod,
             paymentDetails: {
               beep: 'boop'
             }
