@@ -52,6 +52,7 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
    * @throws if {@link Rfq.payinSubunits} exceeds the provided offering's max subunits allowed
+   * @throws if {@link Rfq.payinMethod.kind} cannot be validated against the provided offering's payinMethod kinds
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
@@ -62,7 +63,11 @@ export class Rfq extends Message<'rfq'> {
       throw new Error(`rfq payinSubunits exceeds offering's maxSubunits. (rfq) ${this.payinSubunits} > ${offering.data.payinCurrency.maxSubunits} (offering)`)
     }
 
-    // TODO: validate rfq's payinMethod.kind against offering's payinMethods
+    const payinMethodMatches = offering.data.payinMethods.filter(payinMethod => payinMethod.kind === this.payinMethod.kind)
+
+    if (!payinMethodMatches.length) {
+      throw new Error(`offering does not support rfq's payinMethod kind. (rfq) ${this.payinMethod.kind} was not found in: ${offering.data.payinMethods.map(payinMethod => payinMethod.kind).join()} (offering)`)
+    }
     // TODO: validate rfq's payinMethod.paymentDetails against offering's respective requiredPaymentDetails json schema
 
     // TODO: validate rfq's payoutMethod.kind against offering's payoutMethods

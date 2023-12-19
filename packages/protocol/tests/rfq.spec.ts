@@ -161,7 +161,6 @@ describe('Rfq', () => {
   describe('verifyOfferingRequirements', () => {
     let offering
     let rfqData
-    let rfq
     before(() => {
       async function initMocks() {
         const did = await DevTools.createDid()
@@ -177,7 +176,7 @@ describe('Rfq', () => {
         rfqData = {
           metadata : { from: did.did, to: 'did:ex:pfi' },
           data     : {
-            offeringId  : 'abcd123',
+            offeringId  : offering.id,
             payinMethod : {
               kind           : 'DEBIT_CARD',
               paymentDetails : {
@@ -197,12 +196,18 @@ describe('Rfq', () => {
             claims        : [signedCredential]
           }
         }
-        rfq = Rfq.create(rfqData)
       }
 
       initMocks()
     })
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
+      const rfq = Rfq.create({
+        ...rfqData,
+        data: {
+          ...rfqData.data,
+          offeringId: 'ABC123456',
+        }
+      })
       try {
         await rfq.verifyOfferingRequirements(offering)
         expect.fail()
@@ -211,12 +216,11 @@ describe('Rfq', () => {
       }
     })
     it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
-      rfq = Rfq.create({
+      const rfq = Rfq.create({
         ...rfqData,
         data: {
           ...rfqData.data,
-          offeringId    : offering.id,
-          payinSubunits : '99999999999999999'
+          payinSubunits: '99999999999999999'
         }
       })
       try {
@@ -224,6 +228,24 @@ describe('Rfq', () => {
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
+      }
+    })
+    it('throws an error if cannot be validated against the provided offering\'s payinMethod kinds', async () => {
+      const rfq = Rfq.create({
+        ...rfqData,
+        data: {
+          ...rfqData.data,
+          payinMethod: {
+            ...rfqData.data.payinMethod,
+            kind: 'POKEMON'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
       }
     })
   })
