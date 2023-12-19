@@ -1,4 +1,4 @@
-import type { ErrorDetail, HttpResponse } from './types.js'
+import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
 import type {
   ResourceMetadata,
@@ -28,7 +28,7 @@ export class TbdexHttpClient {
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<HttpResponse> {
+  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
     const { message } = opts
     const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
 
@@ -53,8 +53,6 @@ export class TbdexHttpClient {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
-
-    return response
   }
 
   /**

@@ -85,7 +85,7 @@ describe('client', () => {
       server.resetHandlers()
       server.close()
     })
-    it('returns HttpResponse if all is well', async () => {
+    it('should not throw errors if all is well', async () => {
       const server = setupServer(
         http.post('https://localhost:9000/exchanges/123/rfq', () => {
           return MswHttpResponse.json({}, {
@@ -95,9 +95,11 @@ describe('client', () => {
       )
       server.listen()
 
-      const response = await TbdexHttpClient.sendMessage({message: mockMessage})
-      expect(response.status).to.equal(202)
-      expect(response.headers).to.exist
+      try {
+        await TbdexHttpClient.sendMessage({message: mockMessage})
+      } catch (e) {
+        expect.fail()
+      }
 
       server.resetHandlers()
       server.close()
