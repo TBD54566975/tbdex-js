@@ -36,15 +36,6 @@ export type HttpResponse = {
 }
 
 /**
- * HTTP Response with data
- * @beta
- */
-export type DataResponse<T> = HttpResponse & {
-  data: T
-  errors?: never
-}
-
-/**
  * HTTP Response with errors
  * @beta
  */
