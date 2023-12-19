@@ -160,6 +160,7 @@ describe('Rfq', () => {
 
   describe('verifyOfferingRequirements', () => {
     let offering
+    let rfqData
     let rfq
     before(() => {
       async function initMocks() {
@@ -173,7 +174,7 @@ describe('Rfq', () => {
           }
         })
         offering = DevTools.createOffering()
-        rfq = Rfq.create({
+        rfqData = {
           metadata : { from: did.did, to: 'did:ex:pfi' },
           data     : {
             offeringId  : 'abcd123',
@@ -192,10 +193,11 @@ describe('Rfq', () => {
                 btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
               }
             },
-            payinSubunits : '9999999999999',
+            payinSubunits : '20000',
             claims        : [signedCredential]
           }
-        })
+        }
+        rfq = Rfq.create(rfqData)
       }
 
       initMocks()
@@ -206,6 +208,22 @@ describe('Rfq', () => {
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('offering id mismatch')
+      }
+    })
+    it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
+      rfq = Rfq.create({
+        ...rfqData,
+        data: {
+          ...rfqData.data,
+          offeringId    : offering.id,
+          payinSubunits : '99999999999999999'
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
       }
     })
   })

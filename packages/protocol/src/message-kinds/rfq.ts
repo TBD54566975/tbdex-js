@@ -51,13 +51,16 @@ export class Rfq extends Message<'rfq'> {
    * evaluates this rfq against the provided offering
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
+   * @throws if {@link Rfq.payinSubunits} exceeds the provided offering's max subunits allowed
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
-    // TODO: validate rfq's quoteAmountSubunits against offering's quoteCurrency min/max
+    if (this.payinSubunits > offering.data.payinCurrency.maxSubunits) {
+      throw new Error(`rfq payinSubunits exceeds offering's maxSubunits. (rfq) ${this.payinSubunits} > ${offering.data.payinCurrency.maxSubunits} (offering)`)
+    }
 
     // TODO: validate rfq's payinMethod.kind against offering's payinMethods
     // TODO: validate rfq's payinMethod.paymentDetails against offering's respective requiredPaymentDetails json schema
