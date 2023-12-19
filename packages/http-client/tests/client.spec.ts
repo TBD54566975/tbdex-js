@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
 import { TbdexHttpClient } from '../src/client.js'
-import { RequestError,ResponseError, InvalidDidError, InvalidServiceEndpointError } from '../src/errors/index.js'
+import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError } from '../src/errors/index.js'
 import { http, HttpResponse as MswHttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { Message, Rfq } from '@tbdex/protocol'
@@ -330,14 +330,14 @@ describe('client', () => {
         expect(e.message).to.exist
       }
     })
-    it('throws InvalidServiceEndpointError if did has no PFI service endpoint', async () => {
+    it('throws MissingServiceEndpointError if did has no PFI service endpoint', async () => {
       const keyDid = await DidKeyMethod.create()
       try {
         await TbdexHttpClient.getPfiServiceEndpoint(keyDid.did)
         expect.fail()
       } catch(e) {
-        expect(e.name).to.equal('InvalidServiceEndpointError')
-        expect(e).to.be.instanceof(InvalidServiceEndpointError)
+        expect(e.name).to.equal('MissingServiceEndpointError')
+        expect(e).to.be.instanceof(MissingServiceEndpointError)
         expect(e.message).to.include('has no PFI service entry')
       }
     })

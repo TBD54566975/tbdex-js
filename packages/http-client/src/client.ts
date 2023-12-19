@@ -12,8 +12,7 @@ import type {
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { Convert } from '@web5/common'
-import { RequestError, ResponseError, InvalidDidError, InvalidServiceEndpointError } from './errors/index.js'
-
+import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
 import queryString from 'query-string'
 
 /**
@@ -234,12 +233,12 @@ export class TbdexHttpClient {
       const [ didService ] = didUtils.getServices({ didDocument, type: 'PFI' })
 
       if (!didService?.serviceEndpoint) {
-        throw new InvalidServiceEndpointError(`${did} has no PFI service entry`)
+        throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
       }
 
       return didService.serviceEndpoint
     } catch (e) {
-      if (e instanceof InvalidServiceEndpointError) {
+      if (e instanceof MissingServiceEndpointError) {
         throw e
       }
       throw new InvalidDidError(e)

@@ -16,6 +16,10 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * Error thrown when a DID is invalid
+ * @beta
+ */
 export class InvalidDidError extends ValidationError {
   constructor(message: string) {
     super(message)
@@ -24,10 +28,14 @@ export class InvalidDidError extends ValidationError {
   }
 }
 
-export class InvalidServiceEndpointError extends ValidationError {
+/**
+ * Error thrown when a PFI's service endpoint can't be found
+ * @beta
+ */
+export class MissingServiceEndpointError extends ValidationError {
   constructor(message: string) {
     super(message)
 
-    Object.setPrototypeOf(this, InvalidServiceEndpointError.prototype)
+    Object.setPrototypeOf(this, MissingServiceEndpointError.prototype)
   }
 }
