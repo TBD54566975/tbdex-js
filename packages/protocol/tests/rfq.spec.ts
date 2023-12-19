@@ -158,6 +158,58 @@ describe('Rfq', () => {
     })
   })
 
+  describe('verifyOfferingRequirements', () => {
+    let offering
+    let rfq
+    before(() => {
+      async function initMocks() {
+        const did = await DevTools.createDid()
+        const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+          type    : 'SanctionsCredential',
+          issuer  : did,
+          subject : did.did,
+          data    : {
+            'beep': 'boop'
+          }
+        })
+        offering = DevTools.createOffering()
+        rfq = Rfq.create({
+          metadata : { from: did.did, to: 'did:ex:pfi' },
+          data     : {
+            offeringId  : 'abcd123',
+            payinMethod : {
+              kind           : 'DEBIT_CARD',
+              paymentDetails : {
+                'cardNumber'     : '1234567890123456',
+                'expiryDate'     : '12/22',
+                'cardHolderName' : 'Ephraim Bartholomew Winthrop',
+                'cvv'            : '123'
+              }
+            },
+            payoutMethod: {
+              kind           : 'BTC_ADDRESS',
+              paymentDetails : {
+                btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+              }
+            },
+            payinSubunits : '9999999999999',
+            claims        : [signedCredential]
+          }
+        })
+      }
+
+      initMocks()
+    })
+    it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('offering id mismatch')
+      }
+    })
+  })
+
   describe('verifyClaims', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
       const did = await DevTools.createDid()
