@@ -56,6 +56,7 @@ export class Rfq extends Message<'rfq'> {
    * @throws if {@link Rfq.payinMethod.kind} cannot be validated against the provided offering's payinMethod kinds
    * @throws if {@link Rfq.payinMethod.paymentDetails} cannot be validated against the provided offering's payinMethod requiredPaymentDetails
    * @throws if {@link Rfq.payoutMethod.kind} cannot be validated against the provided offering's payoutMethod kinds
+   * @throws if {@link Rfq.payoutMethod.paymentDetails} cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
     if (offering.metadata.id !== this.offeringId)  {
@@ -85,7 +86,7 @@ export class Rfq extends Message<'rfq'> {
     }
 
     if (invalidPayinDetailsErrors.size > 0) {
-      throw new Error(`rfq paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPayinDetailsErrors).join()}`)
+      throw new Error(`rfq payinMethod paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPayinDetailsErrors).join()}`)
     }
 
     const payoutMethodMatches = offering.data.payoutMethods.filter(payoutMethod => payoutMethod.kind === this.payoutMethod.kind)
@@ -93,7 +94,20 @@ export class Rfq extends Message<'rfq'> {
     if (!payoutMethodMatches.length) {
       throw new Error(`offering does not support rfq's payoutMethod kind. (rfq) ${this.payoutMethod.kind} was not found in: ${offering.data.payoutMethods.map(payoutMethod => payoutMethod.kind).join()} (offering)`)
     }
-    // TODO: validate rfq's payoutMethod.paymentDetails against offering's respective requiredPaymentDetails json schema
+
+    const invalidPayoutDetailsErrors = new Set()
+
+    for (const payoutMethodMatch of payoutMethodMatches) {
+      const validate = ajv.compile(payoutMethodMatch.requiredPaymentDetails)
+      const isValid = validate(this.payoutMethod.paymentDetails)
+      if (isValid) {
+        break
+      }
+      invalidPayoutDetailsErrors.add(validate.errors)
+    }
+    if (invalidPayoutDetailsErrors.size > 0) {
+      throw new Error(`rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPayoutDetailsErrors).join()}`)
+    }
 
     await this.verifyClaims(offering)
   }
