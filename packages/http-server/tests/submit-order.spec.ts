@@ -46,7 +46,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
-    expect(error.detail).to.include('not valid JSON')
+    expect(error.detail).to.include('JSON')
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {

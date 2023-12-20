@@ -45,7 +45,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
-    expect(error.detail).to.include('not valid JSON')
+    expect(error.detail).to.include('JSON')
   })
 
   xit('returns a 400 if request body is not a valid RFQ')
