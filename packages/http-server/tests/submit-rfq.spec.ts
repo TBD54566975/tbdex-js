@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '@tbdex/http-client'
+import type { ErrorDetail } from '@tbdex/http-client'
 import type { Server } from 'http'
 
 import { TbdexHttpServer } from '../src/main.js'
@@ -24,7 +24,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     expect(resp.status).to.equal(400)
 
-    const responseBody = await resp.json() as ErrorResponse
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
     expect(responseBody.errors.length).to.equal(1)
 
     const [ error ] = responseBody.errors
@@ -40,7 +40,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     expect(resp.status).to.equal(400)
 
-    const responseBody = await resp.json() as ErrorResponse
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
     expect(responseBody.errors.length).to.equal(1)
 
     const [ error ] = responseBody.errors
