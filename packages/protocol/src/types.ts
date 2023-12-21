@@ -45,6 +45,10 @@ export type ResourceMetadata<T extends ResourceKind> = {
   updatedAt?: string
 }
 
+export enum ResourceKindName {
+  offering = 'offering'
+}
+
 /**
  * Type alias to represent a set of resource kind string keys
  * @beta
@@ -155,6 +159,14 @@ export type Private = Record<string, any>
  * @beta
  */
 export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
+
+export enum MessageKindName {
+  Rfq = 'rfq',
+  Quote = 'quote',
+  Order = 'order',
+  OrderStatus = 'orderstatus',
+  Close = 'close'
+}
 
 /**
  * Type alias to represent a set of message kind string keys
