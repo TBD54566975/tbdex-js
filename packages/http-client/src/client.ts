@@ -1,3 +1,4 @@
+import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
 import type {
@@ -9,12 +10,15 @@ import type {
   MessageKindClass,
 } from '@tbdex/protocol'
 
+import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
-import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
-import queryString from 'query-string'
+import { typeid } from 'typeid-js'
 import { Jwt } from '@web5/credentials'
-import type { JwtPayload } from '@web5/crypto'
+
+import queryString from 'query-string'
+import ms from 'ms'
+
 
 /**
  * HTTP client for interacting with TBDex PFIs
@@ -251,15 +255,15 @@ export class TbdexHttpClient {
    * @param myDid - the requester's did
    */
   static async generateRequestToken(myDid: PortableDid, pfiDid: string): Promise<string> {
-    const currentTime = new Date()
-    const exp = currentTime.setMinutes(currentTime.getMinutes() + 1)
+    const now = Date.now()
+    const exp = (now + ms('1m')) / 1000
 
     const jwtPayload: JwtPayload = {
       aud : pfiDid,
       iss : myDid.did,
       exp : exp,
-      iat : currentTime.getTime(),
-      jti : currentTime.getTime().toString() // TODO: should we us something other than timestamp?
+      iat : now,
+      jti : typeid().getSuffix()
     }
 
     return await Jwt.sign({ signerDid: myDid, payload: jwtPayload })
