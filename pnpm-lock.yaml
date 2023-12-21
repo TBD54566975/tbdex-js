@@ -51,14 +51,17 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/common':
-        specifier: 0.2.1
-        version: 0.2.1
+        specifier: 0.2.2
+        version: 0.2.2
+      '@web5/credentials':
+        specifier: 0.4.1
+        version: 0.4.1
       '@web5/crypto':
-        specifier: 0.2.2
-        version: 0.2.2
+        specifier: 0.2.4
+        version: 0.2.4
       '@web5/dids':
-        specifier: 0.2.2
-        version: 0.2.2
+        specifier: 0.2.4
+        version: 0.2.4
       query-string:
         specifier: 8.1.0
         version: 8.1.0
