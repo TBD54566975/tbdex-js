@@ -1,6 +1,8 @@
-import type { CreateRfqOptions, Offering, RfqData } from '../src/main.js'
+import type { CreateRfqOptions, OfferingData, RfqData } from '../src/main.js'
 
-import { Rfq, DevTools } from '../src/main.js'
+import { VerifiableCredential } from '@web5/credentials'
+import { DidKeyMethod } from '@web5/dids'
+import { Rfq, Offering } from '../src/main.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
 
@@ -28,7 +30,7 @@ const rfqData: RfqData = {
 describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
-      const alice = await DevTools.createDid()
+      const alice = await DidKeyMethod.create()
       const message = Rfq.create({
         metadata : { from: alice.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -66,7 +68,7 @@ describe('Rfq', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const did = await DevTools.createDid()
+      const did = await DidKeyMethod.create()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -79,7 +81,7 @@ describe('Rfq', () => {
     })
 
     it('includes alg and kid in jws header', async () => {
-      const did = await DevTools.createDid()
+      const did = await DidKeyMethod.create()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -97,7 +99,7 @@ describe('Rfq', () => {
 
   describe('verify', () => {
     it('does not throw an exception if message integrity is intact', async () => {
-      const did = await DevTools.createDid()
+      const did = await DidKeyMethod.create()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -108,7 +110,7 @@ describe('Rfq', () => {
     })
 
     it('throws an error if no signature is present on the message provided', async () => {
-      const alice = await DevTools.createDid()
+      const alice = await DidKeyMethod.create()
       const rfq = Rfq.create({
         metadata : { from: alice.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -142,7 +144,7 @@ describe('Rfq', () => {
     })
 
     it('returns an instance of Message if parsing is successful', async () => {
-      const did = await DevTools.createDid()
+      const did = await DidKeyMethod.create()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
         data     : rfqData
@@ -159,7 +161,7 @@ describe('Rfq', () => {
   })
 
   describe('verifyOfferingRequirements', () => {
-    const offering: Offering = DevTools.createOffering()
+    const offering: Offering = createUnsignedOffering()
     const rfqOptions: CreateRfqOptions = {
       metadata: {
         from : '',
@@ -171,17 +173,20 @@ describe('Rfq', () => {
       }
     }
     before(async () => {
-      const did = await DevTools.createDid()
-      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+      const did = await DidKeyMethod.create()
+      const vc = await VerifiableCredential.create({
         type    : 'SanctionsCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
+
+      const vcJwt = await vc.sign({ did })
+
       rfqOptions.metadata.from = did.did
-      rfqOptions.data.claims = [signedCredential]
+      rfqOptions.data.claims = [vcJwt]
     })
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
@@ -293,16 +298,19 @@ describe('Rfq', () => {
 
   describe('verifyClaims', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
-      const offering = DevTools.createOffering()
-      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+      const did = await DidKeyMethod.create()
+      const offering = createUnsignedOffering()
+
+      const vc = await VerifiableCredential.create({
         type    : 'SanctionsCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
+
+      const vcJwt = await vc.sign({ did })
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
@@ -324,7 +332,7 @@ describe('Rfq', () => {
             }
           },
           payinSubunits : '20000',
-          claims        : [signedCredential]
+          claims        : [vcJwt]
         }
       })
 
@@ -332,16 +340,19 @@ describe('Rfq', () => {
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
-      const offering = DevTools.createOffering()
-      const { signedCredential } = await DevTools.createCredential({
+      const did = await DidKeyMethod.create()
+      const offering = createUnsignedOffering()
+
+      const vc = await VerifiableCredential.create({
         type    : 'PuupuuCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
+
+      const vcJwt = await vc.sign({ did })
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
@@ -363,7 +374,7 @@ describe('Rfq', () => {
             }
           },
           payinSubunits : '20000',
-          claims        : [signedCredential]
+          claims        : [vcJwt]
         }
       })
 
@@ -375,3 +386,96 @@ describe('Rfq', () => {
     })
   })
 })
+
+function createUnsignedOffering() {
+  const offeringData: OfferingData = {
+    description   : 'Selling BTC for USD',
+    payinCurrency : {
+      currencyCode : 'USD',
+      maxSubunits  : '99999999'
+    },
+    payoutCurrency: {
+      currencyCode : 'BTC',
+      maxSubunits  : '99952611'
+    },
+    payoutUnitsPerPayinUnit : '0.00003826',
+    payinMethods            : [{
+      kind                   : 'DEBIT_CARD',
+      requiredPaymentDetails : {
+        $schema    : 'http://json-schema.org/draft-07/schema',
+        type       : 'object',
+        properties : {
+          cardNumber: {
+            type        : 'string',
+            description : 'The 16-digit debit card number',
+            minLength   : 16,
+            maxLength   : 16
+          },
+          expiryDate: {
+            type        : 'string',
+            description : 'The expiry date of the card in MM/YY format',
+            pattern     : '^(0[1-9]|1[0-2])\\/([0-9]{2})$'
+          },
+          cardHolderName: {
+            type        : 'string',
+            description : 'Name of the cardholder as it appears on the card'
+          },
+          cvv: {
+            type        : 'string',
+            description : 'The 3-digit CVV code',
+            minLength   : 3,
+            maxLength   : 3
+          }
+        },
+        required             : ['cardNumber', 'expiryDate', 'cardHolderName', 'cvv'],
+        additionalProperties : false
+      }
+    }],
+    payoutMethods: [{
+      kind                   : 'BTC_ADDRESS',
+      requiredPaymentDetails : {
+        $schema    : 'http://json-schema.org/draft-07/schema',
+        type       : 'object',
+        properties : {
+          btcAddress: {
+            type        : 'string',
+            description : 'your Bitcoin wallet address'
+          }
+        },
+        required             : ['btcAddress'],
+        additionalProperties : false
+      }
+    }],
+    requiredClaims: {
+      id     : '7ce4004c-3c38-4853-968b-e411bafcd945',
+      format : {
+        'jwt_vc': {
+          'alg': [
+            'ES256K',
+            'EdDSA'
+          ]
+        }
+      },
+      input_descriptors: [{
+        id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
+        constraints : {
+          fields: [{
+            path: [
+              '$.vc.type[*]',
+              '$.type[*]'
+            ],
+            filter: {
+              type    : 'string',
+              pattern : '^SanctionsCredential$'
+            }
+          }]
+        }
+      }]
+    }
+  }
+
+  return Offering.create({
+    metadata : { from: 'did:ex:pfi' },
+    data     : offeringData
+  })
+}

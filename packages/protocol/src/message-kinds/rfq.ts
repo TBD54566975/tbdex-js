@@ -118,14 +118,14 @@ export class Rfq extends Message<'rfq'> {
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
   async verifyClaims(offering: Offering | ResourceModel<'offering'>) {
-    const credentials = PresentationExchange.selectCredentials(this.claims, offering.data.requiredClaims)
+    const credentials = PresentationExchange.selectCredentials({ vcJwts: this.claims, presentationDefinition: offering.data.requiredClaims })
 
     if (!credentials.length) {
       throw new Error(`claims do not fulfill the offering's requirements`)
     }
 
     for (let credential of credentials) {
-      await VerifiableCredential.verify(credential)
+      await VerifiableCredential.verify({ vcJwt: credential })
     }
   }
 

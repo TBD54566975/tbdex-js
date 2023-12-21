@@ -1,7 +1,7 @@
 import type { OfferingData } from '../src/main.js'
 
+import { DidIonMethod } from '@web5/dids' // TODO use did:dht instead of did:ion
 import { Offering } from '../src/main.js'
-import { DevTools } from '../src/dev-tools.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
 
@@ -82,7 +82,7 @@ const offeringData: OfferingData = {
 describe('Offering', () => {
   describe('create', () => {
     it('creates a resource', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData
@@ -118,7 +118,7 @@ describe('Offering', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData
@@ -132,7 +132,7 @@ describe('Offering', () => {
     })
 
     it('includes alg and kid in jws header', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData
@@ -143,15 +143,16 @@ describe('Offering', () => {
 
       const [base64UrlEncodedJwsHeader] = offering.signature.split('.')
       const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
+      const fullyQualifiedVerificationMethodId = `${pfi.did}${pfi.document.verificationMethod[0].id}`
 
-      expect(jwsHeader['kid']).to.equal(pfi.document.verificationMethod[0].id)
+      expect(jwsHeader['kid']).to.equal(fullyQualifiedVerificationMethodId)
       expect(jwsHeader['alg']).to.exist
     })
   })
 
   describe('verify', () => {
     it('does not throw an exception if resource integrity is intact', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData
@@ -162,7 +163,7 @@ describe('Offering', () => {
     })
 
     it('throws an error if no signature is present on the resource provided', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData
@@ -196,7 +197,7 @@ describe('Offering', () => {
     })
 
     it('returns a Resource instance if parsing is successful', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DidIonMethod.create()
       const offering = Offering.create({
         metadata : { from: pfi.did },
         data     : offeringData

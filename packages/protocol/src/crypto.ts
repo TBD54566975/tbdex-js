@@ -3,12 +3,14 @@ import type {
   Web5Crypto,
   JwsHeaderParams,
   JwkParamsEcPrivate,
-  JwkParamsOkpPrivate
+  JwkParamsOkpPrivate,
+  JwkParamsEcPublic,
+  JwkParamsOkpPublic
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
 import { Convert } from '@web5/common'
-import { EcdsaAlgorithm, EdDsaAlgorithm, Jose } from '@web5/crypto'
+import { EcdsaAlgorithm, EdDsaAlgorithm } from '@web5/crypto'
 import { deferenceDidUrl, isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
@@ -113,7 +115,7 @@ export class Crypto {
 
     let verificationMethodId = did.document.verificationMethod[0].id
     if (verificationMethodId.startsWith('#')) {
-      verificationMethodId = `${did.did}#${verificationMethodId}`
+      verificationMethodId = `${did.did}${verificationMethodId}`
     }
 
     const jwsHeader: JwsHeader = { alg: algorithm.alg, kid: verificationMethodId }
@@ -173,7 +175,8 @@ export class Crypto {
     }
 
     // will be used to verify signature
-    const { publicKeyJwk } = verificationMethod
+    const publicKeyJwk = verificationMethod.publicKeyJwk as JwkParamsEcPublic | JwkParamsOkpPublic
+
     if (!publicKeyJwk) { // ensure that Verification Method includes public key as a JWK.
       throw new Error('Signature verification failed: Expected kid in JWS header to dereference to a DID Document Verification Method with publicKeyJwk')
     }
@@ -186,15 +189,8 @@ export class Crypto {
     const algorithmId = `${jwsHeader['alg']}:${publicKeyJwk['crv']}`
     const { signer, options } = Crypto.algorithms[algorithmId]
 
-    // TODO: remove this monkeypatch once 'ext' is no longer a required property within a jwk passed to `jwkToCryptoKey`
-    const monkeyPatchPublicKeyJwk = {
-      ...publicKeyJwk,
-      ext     : 'true' as const,
-      key_ops : ['verify']
-    }
 
-    const key = await Jose.jwkToCryptoKey({ key: monkeyPatchPublicKeyJwk })
-    const isLegit = await signer.verify({ algorithm: options, key, data: signedDataBytes, signature: signatureBytes })
+    const isLegit = await signer.verify({ algorithm: options, key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
 
     if (!isLegit) {
       throw new Error('Signature verification failed: Integrity mismatch')
