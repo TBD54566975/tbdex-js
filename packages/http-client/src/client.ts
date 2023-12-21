@@ -11,9 +11,10 @@ import type {
 
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
-import { Convert } from '@web5/common'
 import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
 import queryString from 'query-string'
+import { Jwt } from '@web5/credentials'
+import type { JwtPayload } from '@web5/crypto'
 
 /**
  * HTTP client for interacting with TBDex PFIs
@@ -44,7 +45,7 @@ export class TbdexHttpClient {
         headers : { 'content-type': 'application/json' },
         body    : JSON.stringify(jsonMessage)
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -110,16 +111,16 @@ export class TbdexHttpClient {
    * @beta
    */
   static async getOfferings(opts: GetOfferingsOptions): Promise<Offering[]> {
-    const { pfiDid , filter } = opts
+    const { pfiDid, filter } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
+    const queryParams = filter ? `?${queryString.stringify(filter)}` : ''
     const apiRoute = `${pfiServiceEndpoint}/offerings${queryParams}`
 
     let response: Response
     try {
       response = await fetch(apiRoute)
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get offerings from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -148,7 +149,7 @@ export class TbdexHttpClient {
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(did)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did, pfiDid)
 
     let response: Response
     try {
@@ -157,7 +158,7 @@ export class TbdexHttpClient {
           authorization: `Bearer ${requestToken}`
         }
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -186,9 +187,9 @@ export class TbdexHttpClient {
     const { pfiDid, filter, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
+    const queryParams = filter ? `?${queryString.stringify(filter)}` : ''
     const apiRoute = `${pfiServiceEndpoint}/exchanges${queryParams}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(did)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did, pfiDid)
 
     let response: Response
     try {
@@ -197,7 +198,7 @@ export class TbdexHttpClient {
           authorization: `Bearer ${requestToken}`
         }
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get exchanges from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -230,7 +231,7 @@ export class TbdexHttpClient {
   static async getPfiServiceEndpoint(did: string) {
     try {
       const didDocument = await resolveDid(did)
-      const [ didService ] = didUtils.getServices({ didDocument, type: 'PFI' })
+      const [didService] = didUtils.getServices({ didDocument, type: 'PFI' })
 
       if (!didService?.serviceEndpoint) {
         throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
@@ -247,17 +248,21 @@ export class TbdexHttpClient {
 
   /**
    * generates a jws to be used to authenticate GET requests
-   * @param did - the requester's did
+   * @param myDid - the requester's did
    */
-  static async generateRequestToken(did: PortableDid): Promise<string> {
-    // TODO: include exp property. expires 1 minute from generation time
-    // TODO: include aud property. should be DID of receipient
-    // TODO: include nbf property. not before current time
-    // TODO: include iss property. should be requester's did
-    const payload = { timestamp: new Date().toISOString() }
-    const payloadBytes = Convert.object(payload).toUint8Array()
+  static async generateRequestToken(myDid: PortableDid, pfiDid: string): Promise<string> {
+    const currentTime = new Date()
+    const exp = currentTime.setMinutes(currentTime.getMinutes() + 1)
 
-    return Crypto.sign({ did: did, payload: payloadBytes, detached: false })
+    const jwtPayload: JwtPayload = {
+      aud : pfiDid,
+      iss : myDid.did,
+      exp : exp,
+      iat : currentTime.getTime(),
+      jti : currentTime.getTime().toString() // TODO: should we us something other than timestamp?
+    }
+
+    return await Jwt.sign({ signerDid: myDid, payload: jwtPayload })
   }
 
   /**
@@ -265,8 +270,11 @@ export class TbdexHttpClient {
    * @throws if the token is invalid
    * @throws see {@link @tbdex/protocol#Crypto.verify}
    */
+  // TODO: this method is only really used in httpserver getExchanges method, should it continue to live in http-client?
+  // TODO: do we want to still return a string? what happens to getExchanges if we don't?
   static async verify(requestToken: string): Promise<string> {
-    return Crypto.verify({ signature: requestToken })
+    const result = await Jwt.verify({ jwt: requestToken })
+    return result.payload.iss // iss is the requesterDid?
   }
 }
 
