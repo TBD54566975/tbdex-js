@@ -1,8 +1,9 @@
 import type {
-  PrivateKeyJwk as Web5PrivateKeyJwk,
   CryptoAlgorithm,
   Web5Crypto,
-  JwsHeaderParams
+  JwsHeaderParams,
+  JwkParamsEcPrivate,
+  JwkParamsOkpPrivate
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
@@ -49,7 +50,7 @@ type SignerValue<T extends Web5Crypto.Algorithm> = {
 
 const secp256k1Signer: SignerValue<Web5Crypto.EcdsaOptions> = {
   signer  : new EcdsaAlgorithm(),
-  options : { name: 'ECDSA', hash: 'SHA-256' },
+  options : { name: 'ECDSA' },
   alg     : 'ES256K',
   crv     : 'secp256k1'
 }
@@ -99,7 +100,7 @@ export class Crypto {
   static async sign(opts: SignOptions) {
     const { did, payload, detached } = opts
 
-    const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
+    const privateKeyJwk = did.keySet.verificationMethodKeys[0].privateKeyJwk as JwkParamsEcPrivate | JwkParamsOkpPrivate
 
     const algorithmName = privateKeyJwk['alg'] || ''
     const namedCurve = privateKeyJwk['crv'] || ''
@@ -119,12 +120,10 @@ export class Crypto {
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
     const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 
-    const key = await Jose.jwkToCryptoKey({ key: privateKeyJwk as Web5PrivateKeyJwk })
-
     const toSign = `${base64UrlEncodedJwsHeader}.${base64urlEncodedJwsPayload}`
     const toSignBytes = Convert.string(toSign).toUint8Array()
 
-    const signatureBytes = await algorithm.signer.sign({ key, data: toSignBytes, algorithm: algorithm.options })
+    const signatureBytes = await algorithm.signer.sign({ key: privateKeyJwk, data: toSignBytes, algorithm: algorithm.options })
     const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
     if (detached) {
