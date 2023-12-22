@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
 import { TbdexHttpClient } from '../src/client.js'
-import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError } from '../src/errors/index.js'
+import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError } from '../src/errors/index.js'
 import { Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 
@@ -20,7 +20,7 @@ sinon.stub(Message, 'verify').resolves('123')
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', async () => {
+  describe('sendMessage', () => {
     const mockMessage = new Rfq({
       data: {
         offeringId    : '123',
@@ -94,7 +94,7 @@ describe('client', () => {
     })
   })
 
-  describe('getOfferings', async () => {
+  describe('getOfferings', () => {
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
@@ -144,7 +144,7 @@ describe('client', () => {
     })
   })
 
-  describe('getExchange', async () => {
+  describe('getExchange', () => {
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
@@ -194,7 +194,7 @@ describe('client', () => {
     })
   })
 
-  describe('getExchanges', async () => {
+  describe('getExchanges', () => {
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
@@ -244,7 +244,7 @@ describe('client', () => {
     })
   })
 
-  describe('getPfiServiceEndpoint', async () => {
+  describe('getPfiServiceEndpoint', () => {
     before(() => {
       getPfiServiceEndpointStub.restore()
       fetchStub.restore()
@@ -276,6 +276,26 @@ describe('client', () => {
       const serviceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(dhtDid.did)
       expect(serviceEndpoint).to.equal('https://localhost:9000')
     })
+  })
+
+  describe('generateRequestToken', () => {
+    xit('includes all expected claims')
+    xit('sets expiration to 1 minute after the time at which it was issued')
+  })
+
+  describe('verifyRequestToken', () => {
+    it('throws an RequestTokenError if request token is not a valid jwt', async () => {
+      try {
+        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: '' })
+        expect.fail()
+      } catch(e) {
+        expect(e).to.be.instanceof(RequestTokenError)
+      }
+    })
+
+    xit('throws an RequestTokenError if request token is missing expected claims')
+    xit('throws an RequestTokenError if request token is expired')
+    xit('throws an RequestTokenError if aud claim does not match pfi did')
   })
 })
 
