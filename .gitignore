@@ -147,4 +147,4 @@ packages/**/src/try.ts
 .DS_STORE
 
 # Test vector cache
-**/test-vectors-cache/**
+**/.test-vectors-cache/**
