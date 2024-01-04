@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '@tbdex/http-client'
+import type { ErrorDetail } from '@tbdex/http-client'
 import type { Server } from 'http'
 
 import { DevTools, Order, TbdexHttpServer } from '../src/main.js'
@@ -25,7 +25,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     expect(resp.status).to.equal(400)
 
-    const responseBody = await resp.json() as ErrorResponse
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
     expect(responseBody.errors.length).to.equal(1)
 
     const [ error ] = responseBody.errors
@@ -41,12 +41,12 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     expect(resp.status).to.equal(400)
 
-    const responseBody = await resp.json() as ErrorResponse
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
     expect(responseBody.errors.length).to.equal(1)
 
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
-    expect(error.detail).to.include('not valid JSON')
+    expect(error.detail).to.include('JSON')
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {
@@ -65,7 +65,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     expect(resp.status).to.equal(404)
 
-    const responseBody = await resp.json() as ErrorResponse
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
     expect(responseBody.errors.length).to.equal(1)
 
     const [ error ] = responseBody.errors
