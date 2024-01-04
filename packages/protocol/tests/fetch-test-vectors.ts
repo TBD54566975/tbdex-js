@@ -106,10 +106,10 @@ async function convertGitRefToCommitHash(gitRef: string): Promise<string> {
 }
 
 /**
- * 
+ *
  * @param commitHash The commit hash associated with the specified git ref
- * @param testVectorFileName The path of the test vector file from 
- * @returns 
+ * @param testVectorFileName The path of the test vector file from
+ * @returns
  */
 async function getCachedTestVector(commitHash: string, testVectorFileName: string): Promise<TestVector | undefined> {
   const cachePath = testVectorCachePath(commitHash, testVectorFileName)
@@ -177,20 +177,20 @@ export async function loadOrFetchTestVector(testVectorFileName): Promise<TestVec
 
   const gitRef = process.env.TEST_VECTOR_GIT_REF || DEFAULT_TBDEX_TEST_VECTOR_GIT_REF
   const commitHash = await convertGitRefToCommitHash(gitRef)
-  console.log("converted git ref: ", Date.now() - startTime)
+  console.log('converted git ref: ', Date.now() - startTime)
 
   // Try to get test vector from local cache
   testVector = await getCachedTestVector(commitHash, testVectorFileName)
-  console.log("looked for cached test vector: ", Date.now() - startTime)
+  console.log('looked for cached test vector: ', Date.now() - startTime)
 
 
   // Fetch vectors from Github, cache them, and try again
   if (!testVector) {
     await fetchFromGithubAndCache(commitHash, testVectorFileName)
-    console.log("fetched github test vector: ", Date.now() - startTime)
+    console.log('fetched github test vector: ', Date.now() - startTime)
 
     testVector = await getCachedTestVector(commitHash, testVectorFileName)
-    console.log("looked for cached  test vector: ", Date.now() - startTime)
+    console.log('looked for cached  test vector: ', Date.now() - startTime)
 
   }
   // Still no vector? ErrroR

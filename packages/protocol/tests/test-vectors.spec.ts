@@ -7,7 +7,7 @@ import { loadOrFetchTestVector } from './fetch-test-vectors.js'
 chai.use(chaiAsPromised)
 
 describe('Test vectors: parse and serialize', () => {
-  it.only('parse-rfq.json', async () => {
+  it('parse-rfq.json', async () => {
     const testVector = await loadOrFetchTestVector('parse-rfq.json')
     const rfq = await Rfq.parse(testVector.input)
     expect(rfq.toJSON()).to.deep.eq(testVector.output)
