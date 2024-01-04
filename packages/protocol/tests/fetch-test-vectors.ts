@@ -92,7 +92,7 @@ async function convertGitRefToCommitHash(gitRef: string): Promise<string> {
 
     commitHash = response.data.sha
   } catch (error) {
-    console.error('Error fetching commit hash:', error.message)
+    throw new Error(`Error fetching commit hash for test vectors: ${error}`)
   }
 
   // cache tha hash
