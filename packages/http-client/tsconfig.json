@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "strict": false,
-    "lib": ["DOM","ES6"],
+    "lib": ["DOM","es2023"],
     "rootDir": "./",
     "allowJs": true,
-    "target": "esnext",
+    "target": "es2022",
     "module": "nodenext",
     "outDir": "dist/esm",
     "skipLibCheck": true,

@@ -25,30 +25,3 @@ export type ErrorDetail = {
   /** A meta object containing non-standard meta-information about the error. */
   meta?: Record<string, any>
 }
-
-/**
- * HTTP Response
- * @beta
- */
-export type HttpResponse = {
-  status: number
-  headers: Headers
-}
-
-/**
- * HTTP Response with data
- * @beta
- */
-export type DataResponse<T> = HttpResponse & {
-  data: T
-  errors?: never
-}
-
-/**
- * HTTP Response with errors
- * @beta
- */
-export type ErrorResponse = HttpResponse & {
-  data?: never
-  errors: ErrorDetail[]
-}

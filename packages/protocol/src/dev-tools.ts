@@ -79,7 +79,8 @@ export class DevTools {
     const offeringData: OfferingData = {
       description   : 'Selling BTC for USD',
       payinCurrency : {
-        currencyCode: 'USD'
+        currencyCode : 'USD',
+        maxSubunits  : '99999999'
       },
       payoutCurrency: {
         currencyCode : 'BTC',
