@@ -224,6 +224,9 @@ importers:
       '@types/chai-as-promised':
         specifier: 7.1.5
         version: 7.1.5
+      '@types/node':
+        specifier: 20.9.4
+        version: 20.9.4
       chai:
         specifier: 4.3.10
         version: 4.3.10
