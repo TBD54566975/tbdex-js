@@ -75,7 +75,7 @@ export type OfferingData = {
   /** Brief description of what is being offered. */
   description: string
   /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
-  rate: string
+  payoutUnitsPerPayinUnit: string
   /** Details about the currency that the PFI is selling. */
   payoutCurrency: CurrencyDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */

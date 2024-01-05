@@ -23,7 +23,7 @@ export class Quote extends Message<'quote'> {
    * Creates a quote message with the given options
    * @param opts - options to create a quote
    */
-  static async create(opts: CreateQuoteOptions) {
+  static create(opts: CreateQuoteOptions) {
     const metadata: MessageMetadata<'quote'> = {
       ...opts.metadata,
       kind      : 'quote' as const,
@@ -32,9 +32,7 @@ export class Quote extends Message<'quote'> {
     }
 
     const message = { metadata, data: opts.data }
-    const quote = new Quote(message)
-    await Message.validate(quote)
-    return quote
+    return new Quote(message)
   }
 
   /** When this quote expires. Expressed as ISO8601 */

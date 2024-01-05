@@ -75,7 +75,7 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering() {
+  static createOffering(): Offering {
     const offeringData: OfferingData = {
       description   : 'Selling BTC for USD',
       payinCurrency : {
@@ -85,8 +85,8 @@ export class DevTools {
         currencyCode : 'BTC',
         maxAmount    : '999526.11'
       },
-      rate         : '0.00003826',
-      payinMethods : [{
+      payoutUnitsPerPayinUnit : '0.00003826',
+      payinMethods            : [{
         kind                   : 'DEBIT_CARD',
         requiredPaymentDetails : {
           $schema    : 'http://json-schema.org/draft-07/schema',
@@ -202,7 +202,7 @@ export class DevTools {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinAmount : '20000',
+      payinAmount : '200.00',
       claims      : [signedCredential]
     }
 

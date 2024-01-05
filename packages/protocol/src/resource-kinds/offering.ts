@@ -22,7 +22,7 @@ export class Offering extends Resource<'offering'> {
    * Creates an Offering with the given options
    * @param opts - options to create an offering
    */
-  static async create(opts: CreateOfferingOptions) {
+  static create(opts: CreateOfferingOptions) {
     const metadata: ResourceMetadata<'offering'> = {
       ...opts.metadata,
       kind      : 'offering',
@@ -31,9 +31,7 @@ export class Offering extends Resource<'offering'> {
     }
 
     const message = { metadata, data: opts.data }
-    const offering = new Offering(message)
-    await Resource.validate(offering)
-    return offering
+    return new Offering(message)
   }
 
   /** Brief description of what is being offered. */
@@ -42,8 +40,8 @@ export class Offering extends Resource<'offering'> {
   }
 
   /** Number of payout currency units for one payin currency unit (i.e 290000 USD for 1 BTC) */
-  get rate() {
-    return this.data.rate
+  get payoutUnitsPerPayinUnit() {
+    return this.data.payoutUnitsPerPayinUnit
   }
 
   /** Details about the currency that the PFI is buying in exchange for payoutCurrency. */
