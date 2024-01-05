@@ -61,6 +61,7 @@
   "devDependencies": {
     "@playwright/test": "1.34.3",
     "chai": "4.3.10",
+    "chai-as-promised": "^7.1.1",
     "esbuild": "0.16.17",
     "karma": "6.4.1",
     "karma-chai": "0.1.0",
