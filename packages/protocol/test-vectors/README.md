@@ -1,0 +1,2 @@
+## Test Vectors
+Please do not edit the test vectors in this directory directly. They are automatically copied from `tbdex/hosted/test-vectors/protocol/vectors/` in the `tbdex` submodule when tests are run. You should edit the files in `tbdex/hosted/test-vectors/protocol/vectors/` instead.
