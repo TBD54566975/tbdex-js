@@ -10,7 +10,17 @@ import type {
   MessageKindClass,
 } from '@tbdex/protocol'
 
-import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError, MissingRequiredClaimsError, RequestTokenAudiencePfiMismatch, ExpiredRequestTokenError } from './errors/index.js'
+import {
+  RequestError,
+  ResponseError,
+  InvalidDidError,
+  MissingServiceEndpointError,
+  MissingRequiredClaimsError,
+  RequestTokenAudiencePfiMismatch,
+  ExpiredRequestTokenError,
+  RequestTokenSigningError,
+  RequestTokenVerificationError
+} from './errors/index.js'
 import { resolveDid, Offering, Resource, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { typeid } from 'typeid-js'
@@ -279,20 +289,20 @@ export class TbdexHttpClient {
   */
   static async generateRequestToken(params: GenerateRequestTokenParams): Promise<string> {
     const now = Date.now()
-    const exp = (now + ms('1m')) / 1000
+    const exp = (now + ms('1m'))
 
     const jwtPayload: JwtPayload = {
       aud : params.pfiDid,
       iss : params.requesterDid.did,
-      exp : exp,
-      iat : now,
+      exp : Math.floor(exp / 1000),
+      iat : Math.floor(now / 1000),
       jti : typeid().getSuffix()
     }
 
     try {
       return await Jwt.sign({ signerDid: params.requesterDid, payload: jwtPayload })
     } catch(e) {
-      throw new RequestTokenError({ message: e.message, cause: e })
+      throw new RequestTokenSigningError({ message: e.message, cause: e })
     }
   }
 
@@ -313,7 +323,7 @@ export class TbdexHttpClient {
     try {
       result = await Jwt.verify({ jwt: params.requestToken })
     } catch(e) {
-      throw new RequestTokenError({ message: e.message, cause: e })
+      throw new RequestTokenVerificationError({ message: e.message, cause: e })
     }
 
     const { payload: requestTokenPayload } = result
