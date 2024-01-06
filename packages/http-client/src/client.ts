@@ -10,7 +10,7 @@ import type {
   MessageKindClass,
 } from '@tbdex/protocol'
 
-import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError } from './errors/index.js'
+import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError, MissingRequiredClaimsError, RequestTokenAudiencePfiMismatch, ExpiredRequestTokenError } from './errors/index.js'
 import { resolveDid, Offering, Resource, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { typeid } from 'typeid-js'
@@ -30,7 +30,7 @@ export type VerifyRequestTokenParams = {
 }
 
 // required jwt claims expected in request token
-const requestTokenRequiredClaims = ['aud', 'iss', 'exp', 'iat', 'jti']
+export const requestTokenRequiredClaims = ['aud', 'iss', 'exp', 'iat', 'jti']
 
 /**
  * HTTP client for interacting with TBDex PFIs
@@ -321,20 +321,20 @@ export class TbdexHttpClient {
     // check to ensure all expected claims are present
     for (let claim of requestTokenRequiredClaims) {
       if (!requestTokenPayload[claim]) {
-        throw new RequestTokenError({ message: `Request token missing ${claim} claim. Expected ${requestTokenRequiredClaims}.` })
+        throw new MissingRequiredClaimsError({ message: `Request token missing ${claim} claim. Expected ${requestTokenRequiredClaims}.` })
       }
     }
 
     // check to ensure request token has not expired
-    // TODO: move this check into Jwt.verify class
-    if (Date.now() > requestTokenPayload.exp) {
-      throw new RequestTokenError({ message: 'Request token is expired.' })
+    // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
+    if (Math.floor(Date.now() / 1000) > requestTokenPayload.exp) {
+      throw new ExpiredRequestTokenError({ message: 'Request token is expired.' })
     }
 
     // TODO: decide if we want to ensure that the expiration date is not longer than 1 minute after the issuance date
 
     if (requestTokenPayload.aud !== params.pfiDid) {
-      throw new RequestTokenError({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
+      throw new RequestTokenAudiencePfiMismatch({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
     }
 
     return requestTokenPayload.iss

@@ -1,9 +1,11 @@
 import { expect } from 'chai'
-import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
-import { TbdexHttpClient } from '../src/client.js'
-import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError } from '../src/errors/index.js'
+import { DidDhtMethod, DidKeyMethod, PortableDid } from '@web5/dids'
+import { TbdexHttpClient, requestTokenRequiredClaims } from '../src/client.js'
+import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError, MissingRequiredClaimsError, RequestTokenAudiencePfiMismatch, ExpiredRequestTokenError } from '../src/errors/index.js'
 import { Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
+import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
+import { Convert } from '@web5/common'
 
 const dhtDid = await DidDhtMethod.create({
   publish  : true,
@@ -284,18 +286,89 @@ describe('client', () => {
   })
 
   describe('verifyRequestToken', () => {
-    it('throws an RequestTokenError if request token is not a valid jwt', async () => {
+    let pfiPortableDid: PortableDid
+    let header: JwtHeaderParams
+    let payload: JwtPayload
+
+    before(async () => {
+      pfiPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
+      header = { typ: 'JWT', alg: 'ES256K', kid: pfiPortableDid.document.verificationMethod![0].id }
+    })
+
+    beforeEach(() => {
+      payload = {
+        iat : Math.floor(Date.now() / 1000),
+        aud : pfiPortableDid.did,
+        iss : 'did:key:1234',
+        exp : Math.floor(Date.now() / 1000 + 60),
+        jti : 'qwertyui'
+      }
+    })
+
+    async function createRequestTokenFromPayload(payload) {
+      const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
+      const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
+      const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
+
+      const toSign = `${base64UrlEncodedHeader}.${base64UrlEncodedPayload}`
+      const toSignBytes = Convert.string(toSign).toUint8Array()
+      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk as PrivateKeyJwk, data: toSignBytes })
+      const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
+
+      return `${toSign}.${base64UrlEncodedSignature}`
+    }
+
+    it('throws RequestTokenError if request token is not a valid jwt', async () => {
       try {
-        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: '' })
+        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiPortableDid.did })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenError)
       }
     })
-
-    xit('throws an RequestTokenError if request token is missing expected claims')
-    xit('throws an RequestTokenError if request token is expired')
-    xit('throws an RequestTokenError if aud claim does not match pfi did')
+    it('throws MissingRequiredClaimsError if request token is missing any of the expected claims', async () => {
+      for (const claim of requestTokenRequiredClaims) {
+        const initialClaim = payload[claim]
+        try {
+          delete payload[claim]
+          const requestToken = await createRequestTokenFromPayload(payload)
+          await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+          expect.fail()
+        } catch(e) {
+          expect(e).to.be.instanceof(MissingRequiredClaimsError)
+          expect(e.message).to.include(`Request token missing ${claim} claim.`)
+        }
+        payload[claim] = initialClaim
+      }
+    })
+    // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
+    it('throws ExpiredRequestTokenError if request token is expired', async () => {
+      try {
+        payload.exp = Math.floor(Date.now() / 1000 - 1)
+        const requestToken = await createRequestTokenFromPayload(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+        expect.fail()
+      } catch(e) {
+        expect(e).to.be.instanceof(ExpiredRequestTokenError)
+        expect(e.message).to.include('Request token is expired.')
+      }
+    })
+    it('throws RequestTokenAudiencePfiMismatch if aud claim does not match pfi did', async () => {
+      try {
+        payload.aud = 'squirtle'
+        const requestToken = await createRequestTokenFromPayload(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+        expect.fail()
+      } catch(e) {
+        expect(e).to.be.instanceof(RequestTokenAudiencePfiMismatch)
+        expect(e.message).to.include('Request token contains invalid audience')
+      }
+    })
+    it('returns token issuer if request token is valid', async () => {
+      const requestToken = await createRequestTokenFromPayload(payload)
+      const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+      expect(iss).to.equal('did:key:1234')
+    })
   })
 })
 
