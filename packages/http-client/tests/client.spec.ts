@@ -345,7 +345,7 @@ describe('client', () => {
         aud : pfiPortableDid.did,
         iss : 'did:key:1234',
         exp : Math.floor(Date.now() / 1000 + 60),
-        jti : 'qwertyui'
+        jti : 'randomnonce'
       }
     })
 
@@ -395,7 +395,7 @@ describe('client', () => {
         expect(e.message).to.include('Request token contains invalid audience')
       }
     })
-    it('returns token issuer if request token is valid', async () => {
+    it('returns requester\'s DID if request token is valid', async () => {
       const requestToken = await createRequestTokenFromPayload(payload)
       const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
       expect(iss).to.equal('did:key:1234')
