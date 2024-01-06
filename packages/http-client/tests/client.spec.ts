@@ -1,11 +1,21 @@
 import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod, PortableDid } from '@web5/dids'
 import { TbdexHttpClient, requestTokenRequiredClaims } from '../src/client.js'
-import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError, RequestTokenError, MissingRequiredClaimsError, RequestTokenAudiencePfiMismatch, ExpiredRequestTokenError } from '../src/errors/index.js'
+import {
+  RequestError,ResponseError,
+  InvalidDidError,
+  MissingServiceEndpointError,
+  MissingRequiredClaimsError,
+  RequestTokenAudiencePfiMismatch,
+  ExpiredRequestTokenError,
+  RequestTokenVerificationError,
+  RequestTokenSigningError
+} from '../src/errors/index.js'
 import { Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'
+import { Jwt } from '@web5/credentials'
 
 const dhtDid = await DidDhtMethod.create({
   publish  : true,
@@ -281,14 +291,48 @@ describe('client', () => {
   })
 
   describe('generateRequestToken', () => {
-    xit('includes all expected claims')
-    xit('sets expiration to 1 minute after the time at which it was issued')
+    let requesterPortableDid: PortableDid
+    before(async () => {
+      requesterPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
+    })
+    it('throws a RequestTokenSigningError if requesterDid is not a valid PortableDid', async () => {
+      try {
+        await TbdexHttpClient.generateRequestToken({ requesterDid: {did: '', document: { id: '' }, keySet: {}}, pfiDid: '' })
+        expect.fail()
+      } catch (e) {
+        expect(e).to.be.instanceOf(RequestTokenSigningError)
+      }
+    })
+    it('includes all expected claims', async () => {
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
+      const decodedToken = await Jwt.verify({ jwt: requestToken })
+      expect(decodedToken.payload).to.have.all.keys(requestTokenRequiredClaims)
+    })
+    // TODO: decide if we want to ensure that the expiration date is not longer than 1 minute after the issuance date
+    it('sets expiration seconds to 1 minute after the time at which it was issued', async () => {
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
+      const decodedToken = await Jwt.verify({ jwt: requestToken })
+      expect(decodedToken.payload.exp - decodedToken.payload.iat).to.equal(60)
+    })
   })
 
   describe('verifyRequestToken', () => {
     let pfiPortableDid: PortableDid
     let header: JwtHeaderParams
     let payload: JwtPayload
+
+    async function createRequestTokenFromPayload(payload) {
+      const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
+      const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
+      const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
+
+      const toSign = `${base64UrlEncodedHeader}.${base64UrlEncodedPayload}`
+      const toSignBytes = Convert.string(toSign).toUint8Array()
+      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk as PrivateKeyJwk, data: toSignBytes })
+      const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
+
+      return `${toSign}.${base64UrlEncodedSignature}`
+    }
 
     before(async () => {
       pfiPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
@@ -305,25 +349,12 @@ describe('client', () => {
       }
     })
 
-    async function createRequestTokenFromPayload(payload) {
-      const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
-      const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
-      const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
-
-      const toSign = `${base64UrlEncodedHeader}.${base64UrlEncodedPayload}`
-      const toSignBytes = Convert.string(toSign).toUint8Array()
-      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk as PrivateKeyJwk, data: toSignBytes })
-      const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
-
-      return `${toSign}.${base64UrlEncodedSignature}`
-    }
-
-    it('throws RequestTokenError if request token is not a valid jwt', async () => {
+    it('throws RequestTokenVerificationError if request token is not a valid jwt', async () => {
       try {
         await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiPortableDid.did })
         expect.fail()
       } catch(e) {
-        expect(e).to.be.instanceof(RequestTokenError)
+        expect(e).to.be.instanceof(RequestTokenVerificationError)
       }
     })
     it('throws MissingRequiredClaimsError if request token is missing any of the expected claims', async () => {
