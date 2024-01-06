@@ -18,3 +18,40 @@ export class RequestTokenError extends Error {
     Object.setPrototypeOf(this, RequestTokenError.prototype)
   }
 }
+
+// TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
+/**
+ * Error thrown when a request token is expired
+ * @beta
+ */
+export class ExpiredRequestTokenError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, ExpiredRequestTokenError.prototype)
+  }
+}
+
+/**
+ * Error thrown when a request token is missing required claims
+ * @beta
+ */
+export class MissingRequiredClaimsError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, MissingRequiredClaimsError.prototype)
+  }
+}
+
+/**
+ * Error thrown when a request token aud does not match the PFI did for which its intended
+ * @beta
+ */
+export class RequestTokenAudiencePfiMismatch extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, RequestTokenAudiencePfiMismatch.prototype)
+  }
+}
