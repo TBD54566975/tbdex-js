@@ -19,6 +19,30 @@ export class RequestTokenError extends Error {
   }
 }
 
+/**
+ * Error thrown when a request token cannot be signed
+ * @beta
+ */
+export class RequestTokenSigningError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, RequestTokenSigningError.prototype)
+  }
+}
+
+/**
+ * Error thrown when a request token cannot be verified
+ * @beta
+ */
+export class RequestTokenVerificationError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, RequestTokenVerificationError.prototype)
+  }
+}
+
 // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
 /**
  * Error thrown when a request token is expired
