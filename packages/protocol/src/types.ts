@@ -85,7 +85,7 @@ export type OfferingData = {
   /** A list of accepted payment methods that Alice can use to receive the _payout_ currency from a PFI */
   payoutMethods: PaymentMethod[]
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
-  requiredClaims: PresentationDefinitionV2
+  requiredClaims?: PresentationDefinitionV2
 }
 
 /**
