@@ -86,7 +86,7 @@
     "build:esm": "rimraf dist/esm dist/types && tsc",
     "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:browser": "rimraf dist/browser.mjs dist/browser.js && node build/bundles.js",
-    "cp:test-vectors": "mkdir -p generated/test-vectors/ && cp -r ../../tbdex/hosted/test-vectors/protocol/vectors/ generated/test-vectors",
+    "cp:test-vectors": "mkdir -p generated/test-vectors/ && cp -r ../../tbdex-interop-suite/test-vectors/protocol/vectors/ generated/test-vectors",
     "test:node": "rimraf tests/compiled && pnpm compile-validators && pnpm cp:test-vectors && tsc -p tests/tsconfig.json && mocha",
     "test:browser": "pnpm compile-validators && pnpm cp:test-vectors && karma start karma.conf.cjs",
     "build": "pnpm clean && pnpm compile-validators && pnpm cp:test-vectors && pnpm build:esm && pnpm build:cjs && pnpm build:browser",

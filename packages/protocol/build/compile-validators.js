@@ -17,15 +17,15 @@ import standaloneCode from 'ajv/dist/standalone/index.js'
 
 import { mkdirp } from 'mkdirp'
 
-import CloseSchema from '../../../tbdex/hosted/json-schemas/close.schema.json' assert { type: 'json' }
-import DefinitionsSchema from '../../../tbdex/hosted/json-schemas/definitions.json' assert { type: 'json' }
-import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.json' assert { type: 'json' }
-import MessageSchema from '../../../tbdex/hosted/json-schemas/message.schema.json' assert { type: 'json' }
-import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' assert { type: 'json' }
-import OrderstatusSchema from '../../../tbdex/hosted/json-schemas/orderstatus.schema.json' assert { type: 'json' }
-import QuoteSchema from '../../../tbdex/hosted/json-schemas/quote.schema.json' assert { type: 'json' }
-import ResourceSchema from '../../../tbdex/hosted/json-schemas/resource.schema.json' assert { type: 'json' }
-import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
+import CloseSchema from '../../../tbdex-interop-suite/json-schemas/close.schema.json' assert { type: 'json' }
+import DefinitionsSchema from '../../../tbdex-interop-suite/json-schemas/definitions.json' assert { type: 'json' }
+import OfferingSchema from '../../../tbdex-interop-suite/json-schemas/offering.schema.json' assert { type: 'json' }
+import MessageSchema from '../../../tbdex-interop-suite/json-schemas/message.schema.json' assert { type: 'json' }
+import OrderSchema from '../../../tbdex-interop-suite/json-schemas/order.schema.json' assert { type: 'json' }
+import OrderstatusSchema from '../../../tbdex-interop-suite/json-schemas/orderstatus.schema.json' assert { type: 'json' }
+import QuoteSchema from '../../../tbdex-interop-suite/json-schemas/quote.schema.json' assert { type: 'json' }
+import ResourceSchema from '../../../tbdex-interop-suite/json-schemas/resource.schema.json' assert { type: 'json' }
+import RfqSchema from '../../../tbdex-interop-suite/json-schemas/rfq.schema.json' assert { type: 'json' }
 
 const schemas = {
   close: CloseSchema,
