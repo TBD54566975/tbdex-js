@@ -62,7 +62,13 @@ jobs:
         run: pnpm lint
 
       - name: Run tests for all packages
-        run: pnpm test:node
+        run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
+      
+       - name: Upload test results to update SDK reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: junit-results
+          path: packages/*/results.xml
 
   # test-with-browsers:
   #   # Run browser tests using macOS so that WebKit tests don't fail under a Linux environment
