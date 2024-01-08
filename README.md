@@ -93,3 +93,32 @@ Recap of the above changesets, plus the release process:
 5. Profit from the release automation:
    - [Create GH Release Workflow](./.github/workflows/create-gh-release.yml) will automatically create a new [GitHub Release](https://github.com/TBD54566975/tbdex-js/releases)
    - [NPM Publish Workflow](./.github/workflows/npm-publish.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions)
+
+## Working with the `tbdex` submodule
+
+### Cloning
+This repository uses git submodules. To clone this repo with submodules
+```sh
+git clone --recurse-submodules git@github.com:TBD54566975/tbdex-js.git
+```
+Or to add submodules after cloning
+```sh
+git submodule init
+git submodule update
+```
+
+### Pulling
+You may need to update the `tbdex` submodule after pulling.
+```sh
+git pull
+git submodule update
+```
+
+### Pushing
+If you have made changes to the `tbdex` submodule, you should push your changes to the `tbdex` remote as well as pushing changes to `tbdex-js`.
+```sh
+cd tbdex
+git push
+cd ..
+git push
+```
