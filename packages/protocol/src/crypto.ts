@@ -1,13 +1,16 @@
 import type {
-  PrivateKeyJwk as Web5PrivateKeyJwk,
   CryptoAlgorithm,
   Web5Crypto,
-  JwsHeaderParams
+  JwsHeaderParams,
+  JwkParamsEcPrivate,
+  JwkParamsOkpPrivate,
+  JwkParamsEcPublic,
+  JwkParamsOkpPublic
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
 import { Convert } from '@web5/common'
-import { EcdsaAlgorithm, EdDsaAlgorithm, Jose } from '@web5/crypto'
+import { EcdsaAlgorithm, EdDsaAlgorithm } from '@web5/crypto'
 import { deferenceDidUrl, isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
@@ -49,7 +52,7 @@ type SignerValue<T extends Web5Crypto.Algorithm> = {
 
 const secp256k1Signer: SignerValue<Web5Crypto.EcdsaOptions> = {
   signer  : new EcdsaAlgorithm(),
-  options : { name: 'ECDSA', hash: 'SHA-256' },
+  options : { name: 'ECDSA' },
   alg     : 'ES256K',
   crv     : 'secp256k1'
 }
@@ -99,7 +102,7 @@ export class Crypto {
   static async sign(opts: SignOptions) {
     const { did, payload, detached } = opts
 
-    const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
+    const privateKeyJwk = did.keySet.verificationMethodKeys[0].privateKeyJwk as JwkParamsEcPrivate | JwkParamsOkpPrivate
 
     const algorithmName = privateKeyJwk['alg'] || ''
     const namedCurve = privateKeyJwk['crv'] || ''
@@ -112,19 +115,17 @@ export class Crypto {
 
     let verificationMethodId = did.document.verificationMethod[0].id
     if (verificationMethodId.startsWith('#')) {
-      verificationMethodId = `${did.did}#${verificationMethodId}`
+      verificationMethodId = `${did.did}${verificationMethodId}`
     }
 
     const jwsHeader: JwsHeader = { alg: algorithm.alg, kid: verificationMethodId }
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
     const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 
-    const key = await Jose.jwkToCryptoKey({ key: privateKeyJwk as Web5PrivateKeyJwk })
-
     const toSign = `${base64UrlEncodedJwsHeader}.${base64urlEncodedJwsPayload}`
     const toSignBytes = Convert.string(toSign).toUint8Array()
 
-    const signatureBytes = await algorithm.signer.sign({ key, data: toSignBytes, algorithm: algorithm.options })
+    const signatureBytes = await algorithm.signer.sign({ key: privateKeyJwk, data: toSignBytes, algorithm: algorithm.options })
     const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
     if (detached) {
@@ -174,7 +175,8 @@ export class Crypto {
     }
 
     // will be used to verify signature
-    const { publicKeyJwk } = verificationMethod
+    const publicKeyJwk = verificationMethod.publicKeyJwk as JwkParamsEcPublic | JwkParamsOkpPublic
+
     if (!publicKeyJwk) { // ensure that Verification Method includes public key as a JWK.
       throw new Error('Signature verification failed: Expected kid in JWS header to dereference to a DID Document Verification Method with publicKeyJwk')
     }
@@ -187,15 +189,8 @@ export class Crypto {
     const algorithmId = `${jwsHeader['alg']}:${publicKeyJwk['crv']}`
     const { signer, options } = Crypto.algorithms[algorithmId]
 
-    // TODO: remove this monkeypatch once 'ext' is no longer a required property within a jwk passed to `jwkToCryptoKey`
-    const monkeyPatchPublicKeyJwk = {
-      ...publicKeyJwk,
-      ext     : 'true' as const,
-      key_ops : ['verify']
-    }
 
-    const key = await Jose.jwkToCryptoKey({ key: monkeyPatchPublicKeyJwk })
-    const isLegit = await signer.verify({ algorithm: options, key, data: signedDataBytes, signature: signatureBytes })
+    const isLegit = await signer.verify({ algorithm: options, key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
 
     if (!isLegit) {
       throw new Error('Signature verification failed: Integrity mismatch')

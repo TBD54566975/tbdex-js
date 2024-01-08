@@ -1,12 +1,13 @@
 import { expect } from 'chai'
 
-import { DevTools, Crypto } from '../src/main.js'
+import { DidIonMethod, DidKeyMethod } from '@web5/dids'
 import { Convert } from '@web5/common'
+import { Crypto } from '../src/main.js'
 
 describe('Crypto', () => {
   describe('sign / verify', () => {
     it('works with did:ion', async () => {
-      const alice = await DevTools.createDid('ion')
+      const alice = await DidIonMethod.create()
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
 
@@ -15,7 +16,7 @@ describe('Crypto', () => {
     }).timeout(30_000)
 
     it('works with did:key', async () => {
-      const alice = await DevTools.createDid('key')
+      const alice = await DidKeyMethod.create()
 
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
@@ -25,7 +26,7 @@ describe('Crypto', () => {
     })
 
     it('works with detached content', async () => {
-      const alice = await DevTools.createDid('ion')
+      const alice = await DidIonMethod.create()
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
 

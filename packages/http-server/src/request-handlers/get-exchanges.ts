@@ -21,9 +21,10 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
       return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
     }
 
-    let requesterDid
+    let requesterDid: string
     try {
-      requesterDid = await TbdexHttpClient.verify(requestToken)
+      // TODO: Correct this to actual pfiDid
+      requesterDid = await TbdexHttpClient.verifyRequestToken({ requestToken: requestToken, pfiDid: 'did:ex:pfi' })
     } catch(e) {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }
