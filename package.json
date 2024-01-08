@@ -25,6 +25,7 @@
     "@typescript-eslint/parser": "6.7.0",
     "eslint": "8.49.0",
     "mocha": "10.2.0",
+    "mocha-junit-reporter": "2.2.1",
     "npkill": "0.11.3",
     "semver": "7.5.4"
   },
