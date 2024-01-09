@@ -222,9 +222,6 @@ importers:
       chai:
         specifier: 4.3.10
         version: 4.3.10
-      chai-as-promised:
-        specifier: ^7.1.1
-        version: 7.1.1(chai@4.3.10)
       esbuild:
         specifier: 0.16.17
         version: 0.16.17
@@ -1995,15 +1992,6 @@ packages:
     dependencies:
       nanoassert: 2.0.0
     dev: false
-
-  /chai-as-promised@7.1.1(chai@4.3.10):
-    resolution: {integrity: sha512-azL6xMoi+uxu6z4rhWQ1jbdUhOMhis2PvscD/xjLqNMkv3BPPp2JyyuTHOrf9BOosGpNQ11v6BKv/g57RXbiaA==}
-    peerDependencies:
-      chai: '>= 2.1.2 < 5'
-    dependencies:
-      chai: 4.3.10
-      check-error: 1.0.3
-    dev: true
 
   /chai@4.3.10:
     resolution: {integrity: sha512-0UXG04VuVbruMUYbJ6JctvH0YnC/4q3/AkT18q4NaITo91CUm0liMS9VqzT9vZhVQ/1eqPanMWjBM+Juhfb/9g==}

@@ -1,5 +1,4 @@
-import chai, { expect } from 'chai'
-import chaiAsPromised from 'chai-as-promised'
+import { expect } from 'chai'
 import { Close, Order, OrderStatus, Quote, Rfq } from '../src/message-kinds/index.js'
 import { Offering } from '../src/resource-kinds/index.js'
 import ParseClose from '../generated/test-vectors/parse-close.json' assert { type: 'json' }
@@ -8,8 +7,6 @@ import ParseOrder from '../generated/test-vectors/parse-order.json' assert { typ
 import ParseOrderStatus from '../generated/test-vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../generated/test-vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../generated/test-vectors/parse-rfq.json' assert { type: 'json' }
-
-chai.use(chaiAsPromised)
 
 describe('Test vectors: parse and serialize', () => {
   it('parse-close.json', async () => {
