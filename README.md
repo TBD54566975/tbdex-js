@@ -103,8 +103,7 @@ git clone --recurse-submodules git@github.com:TBD54566975/tbdex-js.git
 ```
 Or to add submodules after cloning
 ```sh
-git submodule init
-git submodule update
+git submodule update --init
 ```
 We recommend this config which will only checkout the files relevant to tbdex-js
 ```sh
