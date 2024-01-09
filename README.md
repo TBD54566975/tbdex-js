@@ -106,6 +106,10 @@ Or to add submodules after cloning
 git submodule init
 git submodule update
 ```
+We recommend this config which will only checkout the files relevant to tbdex-js
+```sh
+git -C tbdex sparse-checkout set hosted
+```
 
 ### Pulling
 You may need to update the `tbdex` submodule after pulling.
