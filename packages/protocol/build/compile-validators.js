@@ -17,33 +17,26 @@ import standaloneCode from 'ajv/dist/standalone/index.js'
 
 import { mkdirp } from 'mkdirp'
 
-const schemaHostUrl = 'https://tbdex.dev/json-schemas'
-const schemaUrls = {
-  definitions : `${schemaHostUrl}/definitions.json`,
-  resource    : `${schemaHostUrl}/resource.schema.json`,
-  offering    : `${schemaHostUrl}/offering.schema.json`,
-  message     : `${schemaHostUrl}/message.schema.json`,
-  rfq         : `${schemaHostUrl}/rfq.schema.json`,
-  quote       : `${schemaHostUrl}/quote.schema.json`,
-  order       : `${schemaHostUrl}/order.schema.json`,
-  orderstatus : `${schemaHostUrl}/orderstatus.schema.json`,
-  close       : `${schemaHostUrl}/close.schema.json`,
-}
+import CloseSchema from '../../../tbdex/hosted/json-schemas/close.schema.json' assert { type: 'json' }
+import DefinitionsSchema from '../../../tbdex/hosted/json-schemas/definitions.json' assert { type: 'json' }
+import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.json' assert { type: 'json' }
+import MessageSchema from '../../../tbdex/hosted/json-schemas/message.schema.json' assert { type: 'json' }
+import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' assert { type: 'json' }
+import OrderstatusSchema from '../../../tbdex/hosted/json-schemas/orderstatus.schema.json' assert { type: 'json' }
+import QuoteSchema from '../../../tbdex/hosted/json-schemas/quote.schema.json' assert { type: 'json' }
+import ResourceSchema from '../../../tbdex/hosted/json-schemas/resource.schema.json' assert { type: 'json' }
+import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
 
-// fetch schemas from https://tbdex.dev which pulls directly from
-// https://github.com/TBD54566975/tbdex/tree/main/json-schemas
-// TODO: cache schemas on disk
-const schemas = {}
-for (let schemaName in schemaUrls) {
-  const schemaUrl = schemaUrls[schemaName]
-  const response = await fetch(schemaUrl)
-
-  if (!response.ok) {
-    throw new Error(`failed to fetch ${schemaName} schema from ${schemaUrl}`)
-  }
-
-  const schema = await response.json()
-  schemas[schemaName] = schema
+const schemas = {
+  close: CloseSchema,
+  definitions: DefinitionsSchema,
+  offering: OfferingSchema,
+  message: MessageSchema,
+  order: OrderSchema,
+  orderstatus: OrderstatusSchema,
+  quote: QuoteSchema,
+  resource: ResourceSchema,
+  rfq: RfqSchema,
 }
 
 const validator = new Ajv({ code: { source: true, esm: true } })

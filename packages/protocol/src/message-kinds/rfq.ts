@@ -159,7 +159,9 @@ export class Rfq extends Message<'rfq'> {
    */
   toJSON() {
     const jsonMessage = super.toJSON()
-    jsonMessage['private'] = this._private
+    if (this._private) {
+      jsonMessage['private'] = this._private
+    }
 
     return jsonMessage
   }
