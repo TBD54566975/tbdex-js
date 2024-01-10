@@ -16,7 +16,7 @@ import cors from 'cors'
 
 import { getExchanges, getOfferings, submitOrder, submitClose, submitRfq } from './request-handlers/index.js'
 import { jsonBodyParser } from './middleware/index.js'
-import { fakeExchangesApi, fakeOfferingsApi } from './fakes.js'
+import { fakeExchangesApi, fakeOfferingsApi, fakePfiDid } from './fakes.js'
 
 /**
  * Union type alias for the RequestKind
@@ -40,12 +40,14 @@ type CallbackMap = {
  */
 type NewHttpServerOptions = {
   offeringsApi?: OfferingsApi
-  exchangesApi?: ExchangesApi
+  exchangesApi?: ExchangesApi,
+  pfiDid?: string
 }
 
 const defaults: NewHttpServerOptions = {
   offeringsApi : fakeOfferingsApi,
-  exchangesApi : fakeExchangesApi
+  exchangesApi : fakeExchangesApi,
+  pfiDid       : fakePfiDid
 }
 
 /**
@@ -73,13 +75,19 @@ export class TbdexHttpServer {
    */
   offeringsApi: OfferingsApi
 
+  /**
+   * PFI DID
+   */
+  pfiDid: string
+
   constructor(opts?: NewHttpServerOptions) {
     this.callbacks = {}
     opts = { ...defaults, ...opts }
-    const { offeringsApi, exchangesApi } = opts
+    const { offeringsApi, exchangesApi, pfiDid } = opts
 
     this.exchangesApi = exchangesApi
     this.offeringsApi = offeringsApi
+    this.pfiDid = pfiDid
 
     // initialize api here so that consumers can attach custom endpoints
     const api = express()
@@ -115,7 +123,7 @@ export class TbdexHttpServer {
    * @param callback - to be called when the server is ready
    */
   listen(port: number | string, callback?: () => void) {
-    const { offeringsApi, exchangesApi } = this
+    const { offeringsApi, exchangesApi, pfiDid } = this
 
     this.api.post('/exchanges/:exchangeId/rfq', submitRfq({
       callback: this.callbacks['rfq'], offeringsApi, exchangesApi,
@@ -130,7 +138,7 @@ export class TbdexHttpServer {
     }))
 
     this.api.get('/exchanges', getExchanges({
-      callback: this.callbacks['exchanges'], exchangesApi
+      callback: this.callbacks['exchanges'], exchangesApi, pfiDid
     }))
 
     this.api.get('/offerings', getOfferings({

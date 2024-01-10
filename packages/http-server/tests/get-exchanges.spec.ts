@@ -62,7 +62,7 @@ describe('GET /exchanges', () => {
       }
     }
 
-    const testApi = new TbdexHttpServer({ exchangesApi })
+    const testApi = new TbdexHttpServer({ exchangesApi, pfiDid: 'did:ex:pfi' })
     const server = testApi.listen(8001)
     // TODO: Correct this to actual pfiDid
     const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: 'did:ex:pfi' })

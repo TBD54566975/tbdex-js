@@ -1,8 +1,10 @@
 import { MessageKindClass, Offering, Rfq, Quote, Order, OrderStatus, Close } from '@tbdex/protocol'
 import { OfferingsApi, ExchangesApi } from './main.js'
 
+export const fakePfiDid = 'did:ex:pfi'
+
 const offering = Offering.create({
-  metadata : { from: 'did:ex:pfi' },
+  metadata : { from: fakePfiDid },
   data     : {
     description   : 'Selling BTC for USD',
     payinCurrency : {
