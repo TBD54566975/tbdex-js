@@ -39,7 +39,10 @@ export type VerifyRequestTokenParams = {
   pfiDid: string
 }
 
-// required jwt claims expected in request token
+/**
+ * Required jwt claims expected in a request token
+ * @beta
+ */
 export const requestTokenRequiredClaims = ['aud', 'iss', 'exp', 'iat', 'jti']
 
 /**
