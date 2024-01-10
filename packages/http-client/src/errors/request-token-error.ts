@@ -48,11 +48,11 @@ export class RequestTokenVerificationError extends RequestTokenError {
  * Error thrown when a request token is expired
  * @beta
  */
-export class ExpiredRequestTokenError extends RequestTokenError {
+export class RequestTokenExpiredError extends RequestTokenError {
   constructor(params: RequestTokenErrorParams) {
     super(params)
 
-    Object.setPrototypeOf(this, ExpiredRequestTokenError.prototype)
+    Object.setPrototypeOf(this, RequestTokenExpiredError.prototype)
   }
 }
 
@@ -60,11 +60,11 @@ export class ExpiredRequestTokenError extends RequestTokenError {
  * Error thrown when a request token is missing required claims
  * @beta
  */
-export class MissingRequiredClaimsError extends RequestTokenError {
+export class RequestTokenMissingClaimsError extends RequestTokenError {
   constructor(params: RequestTokenErrorParams) {
     super(params)
 
-    Object.setPrototypeOf(this, MissingRequiredClaimsError.prototype)
+    Object.setPrototypeOf(this, RequestTokenMissingClaimsError.prototype)
   }
 }
 
@@ -72,10 +72,10 @@ export class MissingRequiredClaimsError extends RequestTokenError {
  * Error thrown when a request token aud does not match the PFI did for which its intended
  * @beta
  */
-export class RequestTokenAudiencePfiMismatch extends RequestTokenError {
+export class RequestTokenAudienceMismatchError extends RequestTokenError {
   constructor(params: RequestTokenErrorParams) {
     super(params)
 
-    Object.setPrototypeOf(this, RequestTokenAudiencePfiMismatch.prototype)
+    Object.setPrototypeOf(this, RequestTokenAudienceMismatchError.prototype)
   }
 }

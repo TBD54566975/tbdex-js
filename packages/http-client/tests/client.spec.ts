@@ -5,9 +5,9 @@ import {
   RequestError,ResponseError,
   InvalidDidError,
   MissingServiceEndpointError,
-  MissingRequiredClaimsError,
-  RequestTokenAudiencePfiMismatch,
-  ExpiredRequestTokenError,
+  RequestTokenMissingClaimsError,
+  RequestTokenAudienceMismatchError,
+  RequestTokenExpiredError,
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
@@ -357,7 +357,7 @@ describe('client', () => {
         expect(e).to.be.instanceof(RequestTokenVerificationError)
       }
     })
-    it('throws MissingRequiredClaimsError if request token is missing any of the expected claims', async () => {
+    it('throws RequestTokenMissingClaimsError if request token is missing any of the expected claims', async () => {
       for (const claim of requestTokenRequiredClaims) {
         const initialClaim = payload[claim]
         try {
@@ -366,32 +366,32 @@ describe('client', () => {
           await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
           expect.fail()
         } catch(e) {
-          expect(e).to.be.instanceof(MissingRequiredClaimsError)
+          expect(e).to.be.instanceof(RequestTokenMissingClaimsError)
           expect(e.message).to.include(`Request token missing ${claim} claim.`)
         }
         payload[claim] = initialClaim
       }
     })
     // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
-    it('throws ExpiredRequestTokenError if request token is expired', async () => {
+    it('throws RequestTokenExpiredError if request token is expired', async () => {
       try {
         payload.exp = Math.floor(Date.now() / 1000 - 1)
         const requestToken = await createRequestTokenFromPayload(payload)
         await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
         expect.fail()
       } catch(e) {
-        expect(e).to.be.instanceof(ExpiredRequestTokenError)
+        expect(e).to.be.instanceof(RequestTokenExpiredError)
         expect(e.message).to.include('Request token is expired.')
       }
     })
-    it('throws RequestTokenAudiencePfiMismatch if aud claim does not match pfi did', async () => {
+    it('throws RequestTokenAudienceMismatchError if aud claim does not match pfi did', async () => {
       try {
         payload.aud = 'squirtle'
         const requestToken = await createRequestTokenFromPayload(payload)
         await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
         expect.fail()
       } catch(e) {
-        expect(e).to.be.instanceof(RequestTokenAudiencePfiMismatch)
+        expect(e).to.be.instanceof(RequestTokenAudienceMismatchError)
         expect(e.message).to.include('Request token contains invalid audience')
       }
     })
