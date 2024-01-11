@@ -1,0 +1,3 @@
+[submodule "tbdex"]
+	path = tbdex
+	url = https://github.com/TBD54566975/tbdex.git

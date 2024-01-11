@@ -12,6 +12,20 @@ This multi-package repository uses [`pnpm` workspaces](https://pnpm.io/workspace
 
 ## Prerequisites
 
+### Cloning
+This repository uses git submodules. To clone this repo with submodules
+```sh
+git clone --recurse-submodules git@github.com:TBD54566975/tbdex-js.git
+```
+Or to add submodules after cloning
+```sh
+git submodule update --init
+```
+We recommend this config which will only checkout the files relevant to tbdex-js
+```sh
+git -C tbdex sparse-checkout set hosted
+```
+
 ### `node`
 
 This project is using `node v20.3.0`. You can verify your `node` and `npm` installation via the terminal:
@@ -93,3 +107,21 @@ Recap of the above changesets, plus the release process:
 5. Profit from the release automation:
    - [Create GH Release Workflow](./.github/workflows/create-gh-release.yml) will automatically create a new [GitHub Release](https://github.com/TBD54566975/tbdex-js/releases)
    - [NPM Publish Workflow](./.github/workflows/npm-publish.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions)
+
+## Working with the `tbdex` submodule
+
+### Pulling
+You may need to update the `tbdex` submodule after pulling.
+```sh
+git pull
+git submodule update
+```
+
+### Pushing
+If you have made changes to the `tbdex` submodule, you should push your changes to the `tbdex` remote as well as pushing changes to `tbdex-js`.
+```sh
+cd tbdex
+git push
+cd ..
+git push
+```

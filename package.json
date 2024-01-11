@@ -30,7 +30,8 @@
   },
   "pnpm": {
     "overrides": {
-      "browserify-sign@>=2.6.0 <=4.2.1": ">=4.2.2"
+      "browserify-sign@>=2.6.0 <=4.2.1": ">=4.2.2",
+      "follow-redirects": ">=1.15.4"
     }
   }
 }
