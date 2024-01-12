@@ -82,6 +82,9 @@ export class DevTools {
     })
   }
 
+  /**
+   * creates an example OfferingData. Useful for testing purposes
+   */
   static createOfferingData(): OfferingData {
     return {
       description   : 'Selling BTC for USD',
@@ -158,6 +161,9 @@ export class DevTools {
     }
   }
 
+  /**
+   * creates an example QuoteData. Useful for testing purposes
+   */
   static createQuoteData(): QuoteData {
     return {
       expiresAt : new Date().toISOString(),
@@ -201,6 +207,9 @@ export class DevTools {
     })
   }
 
+  /**
+   * creates an example RfqData. Useful for testing purposes
+   */
   static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
     let credential: any = ''
 
