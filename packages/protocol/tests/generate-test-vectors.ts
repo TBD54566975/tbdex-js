@@ -82,7 +82,7 @@ const overWriteTestVectors = async () => {
 
   for (const { filename, vector } of vectorFilePair) {
     console.log(filename)
-    console.log(JSON.stringify(vector))
+    console.log(JSON.stringify(vector, null, 2))
   }
 }
 

@@ -9,6 +9,7 @@ import { Convert } from '@web5/common'
 import { Crypto } from './crypto.js'
 import { Jose } from '@web5/crypto'
 import { Rfq } from './message-kinds/index.js'
+import { Resource } from './resource.js'
 
 /**
  * Supported DID Methods
@@ -226,7 +227,7 @@ export class DevTools {
     }
 
     return {
-      offeringId  : 'abcd123',
+      offeringId  : Resource.generateId('offering'),
       payinMethod : {
         kind           : 'DEBIT_CARD',
         paymentDetails : {
