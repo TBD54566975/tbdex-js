@@ -48,7 +48,7 @@ const rfq = Rfq.create({
         btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
       }
     },
-    payinAmount : '20000',
+    payinAmount : '200.00',
     claims      : ['']
   }
 })
