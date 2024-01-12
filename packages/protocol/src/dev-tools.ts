@@ -27,6 +27,10 @@ export type RfqOptions = {
    * of the offering returned by {@link DevTools.createOffering}
    */
   sender: PortableDid
+  /**
+   * {@link @web5/dids#PortableDid} of the rfq receiver.
+   */
+  receiver?: PortableDid
 }
 
 
@@ -96,7 +100,7 @@ export class DevTools {
         currencyCode : 'BTC',
         maxAmount    : '999526.11'
       },
-      payoutUnitsPerPayinUnit : '0.000038.26',
+      payoutUnitsPerPayinUnit : '0.00003826',
       payinMethods            : [{
         kind                   : 'DEBIT_CARD',
         requiredPaymentDetails : {
@@ -198,12 +202,12 @@ export class DevTools {
    * **NOTE**: generates a random credential that fulfills the offering's required claims
    */
   static async createRfq(opts: RfqOptions) {
-    const { sender } = opts
+    const { sender, receiver } = opts
 
     const rfqData: RfqData = await DevTools.createRfqData(opts)
 
     return Rfq.create({
-      metadata : { from: sender.did, to: 'did:ex:pfi' },
+      metadata : { from: sender.did, to: receiver?.did ?? 'did:ex:pfi' },
       data     : rfqData
     })
   }

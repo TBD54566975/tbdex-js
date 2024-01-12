@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
 import { TbdexHttpClient } from '../src/client.js'
 import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError } from '../src/errors/index.js'
-import { Message, Rfq } from '@tbdex/protocol'
+import { DevTools, Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 
 const dhtDid = await DidDhtMethod.create({
@@ -23,29 +23,8 @@ describe('client', () => {
   describe('sendMessage', async () => {
     let mockMessage: Rfq
 
-    beforeEach(() => {
-      mockMessage = new Rfq({
-        data: {
-          offeringId  : '123',
-          payinAmount : '100',
-          payinMethod : {
-            kind           : 'btc',
-            paymentDetails : '123'
-          },
-          payoutMethod: {
-            kind           : 'btc',
-            paymentDetails : '123'
-          }, claims: ['123']
-        },
-        metadata: {
-          kind       : 'rfq',
-          from       : 'did:key:321',
-          to         : dhtDid.did,
-          id         : '12345',
-          exchangeId : '123',
-          createdAt  : '1234567890'
-        }
-      })
+    beforeEach(async () => {
+      mockMessage = await DevTools.createRfq({ sender: dhtDid, receiver: dhtDid })
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
@@ -82,7 +61,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal('https://localhost:9000/exchanges/123/rfq')
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockMessage.metadata.exchangeId}/rfq`)
       }
     })
     it('should not throw errors if all is well', async () => {
