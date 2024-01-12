@@ -21,28 +21,33 @@ describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('sendMessage', async () => {
-    const mockMessage = new Rfq({
-      data: {
-        offeringId    : '123',
-        payinSubunits : '100',
-        payinMethod   : {
-          kind           : 'btc',
-          paymentDetails : '123'
+    let mockMessage: Rfq
+
+    beforeEach(() => {
+      mockMessage = new Rfq({
+        data: {
+          offeringId  : '123',
+          payinAmount : '100',
+          payinMethod : {
+            kind           : 'btc',
+            paymentDetails : '123'
+          },
+          payoutMethod: {
+            kind           : 'btc',
+            paymentDetails : '123'
+          }, claims: ['123']
         },
-        payoutMethod: {
-          kind           : 'btc',
-          paymentDetails : '123'
-        }, claims: ['123']
-      },
-      metadata: {
-        kind       : 'rfq',
-        from       : 'did:key:321',
-        to         : dhtDid.did,
-        id         : '12345',
-        exchangeId : '123',
-        createdAt  : '1234567890'
-      }
+        metadata: {
+          kind       : 'rfq',
+          from       : 'did:key:321',
+          to         : dhtDid.did,
+          id         : '12345',
+          exchangeId : '123',
+          createdAt  : '1234567890'
+        }
+      })
     })
+
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})

@@ -1,5 +1,5 @@
 
-import type { OfferingData, RfqData } from './types.js'
+import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
 
 import { DidIonMethod, DidKeyMethod } from '@web5/dids'
@@ -75,18 +75,24 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering() {
-    const offeringData: OfferingData = {
+  static createOffering(offeringData?: OfferingData): Offering {
+    return Offering.create({
+      metadata : { from: 'did:ex:pfi' },
+      data     : offeringData ?? DevTools.createOfferingData()
+    })
+  }
+
+  static createOfferingData(): OfferingData {
+    return {
       description   : 'Selling BTC for USD',
       payinCurrency : {
-        currencyCode : 'USD',
-        maxSubunits  : '99999999'
+        currencyCode: 'USD'
       },
       payoutCurrency: {
         currencyCode : 'BTC',
-        maxSubunits  : '99952611'
+        maxAmount    : '999526.11'
       },
-      payoutUnitsPerPayinUnit : '0.00003826',
+      payoutUnitsPerPayinUnit : '0.000038.26',
       payinMethods            : [{
         kind                   : 'DEBIT_CARD',
         requiredPaymentDetails : {
@@ -135,37 +141,46 @@ export class DevTools {
         }
       }],
       requiredClaims: {
-        id     : '7ce4004c-3c38-4853-968b-e411bafcd945',
-        format : {
-          'jwt_vc': {
-            'alg': [
-              'ES256K',
-              'EdDSA'
-            ]
-          }
-        },
-        input_descriptors: [{
+        id                : '7ce4004c-3c38-4853-968b-e411bafcd945',
+        input_descriptors : [{
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
           constraints : {
             fields: [{
-              path: [
-                '$.vc.type[*]',
-                '$.type[*]'
-              ],
-              filter: {
-                type    : 'string',
-                pattern : '^SanctionsCredential$'
+              path   : ['$.type'],
+              filter : {
+                type  : 'string',
+                const : 'YoloCredential'
               }
             }]
           }
         }]
       }
     }
+  }
 
-    return Offering.create({
-      metadata : { from: 'did:ex:pfi' },
-      data     : offeringData
-    })
+  static createQuoteData(): QuoteData {
+    return {
+      expiresAt : new Date().toISOString(),
+      payin     : {
+        currencyCode : 'BTC',
+        amount       : '0.01',
+        fee          : '0.0001'
+      },
+      payout: {
+        currencyCode : 'USD',
+        amount       : '1000.00'
+      },
+      paymentInstructions: {
+        payin: {
+          link        : 'tbdex.io/example',
+          instruction : 'Fake instruction'
+        },
+        payout: {
+          link        : 'tbdex.io/example',
+          instruction : 'Fake instruction'
+        }
+      }
+    }
   }
 
   /**
@@ -177,16 +192,31 @@ export class DevTools {
    */
   static async createRfq(opts: RfqOptions) {
     const { sender } = opts
-    const { signedCredential } = await DevTools.createCredential({
-      type    : 'YoloCredential',
-      issuer  : sender,
-      subject : sender.did,
-      data    : {
-        'beep': 'boop'
-      }
-    })
 
-    const rfqData: RfqData = {
+    const rfqData: RfqData = await DevTools.createRfqData(opts)
+
+    return Rfq.create({
+      metadata : { from: sender.did, to: 'did:ex:pfi' },
+      data     : rfqData
+    })
+  }
+
+  static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
+    let credential: any = ''
+
+    if (opts?.sender) {
+      const { signedCredential } = await DevTools.createCredential({
+        type    : 'YoloCredential',
+        issuer  : opts.sender,
+        subject : opts.sender.did,
+        data    : {
+          'beep': 'boop'
+        }
+      })
+      credential = signedCredential
+    }
+
+    return {
       offeringId  : 'abcd123',
       payinMethod : {
         kind           : 'DEBIT_CARD',
@@ -203,14 +233,9 @@ export class DevTools {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinSubunits : '20000',
-      claims        : [signedCredential]
+      payinAmount : '200.00',
+      claims      : [credential]
     }
-
-    return Rfq.create({
-      metadata : { from: sender.did, to: 'did:ex:pfi' },
-      data     : rfqData
-    })
   }
 
   /**

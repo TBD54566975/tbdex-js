@@ -32,6 +32,7 @@ export class Quote extends Message<'quote'> {
     }
 
     const message = { metadata, data: opts.data }
+    Message.validateData('quote', message.data)
     return new Quote(message)
   }
 

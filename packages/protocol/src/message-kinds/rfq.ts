@@ -1,5 +1,6 @@
 import type { MessageKind, MessageKindModel, MessageMetadata, ResourceModel } from '../types.js'
 
+import { BigNumber } from 'bignumber.js'
 import { Offering } from '../resource-kinds/index.js'
 import { VerifiableCredential, PresentationExchange } from '@web5/credentials'
 import { Message } from '../message.js'
@@ -45,6 +46,7 @@ export class Rfq extends Message<'rfq'> {
     // TODO: hash `data.payoutMethod.paymentDetails` and set `private`
 
     const message = { metadata, data: opts.data }
+    Message.validateData('rfq', message.data)
     return new Rfq(message)
   }
 
@@ -52,7 +54,7 @@ export class Rfq extends Message<'rfq'> {
    * evaluates this rfq against the provided offering
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
-   * @throws if {@link Rfq.payinSubunits} exceeds the provided offering's max subunits allowed
+   * @throws if {@link Rfq.payinAmount} exceeds the provided offering's max units allowed
    * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
    * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
    * @throws if {@link Rfq.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
@@ -63,8 +65,13 @@ export class Rfq extends Message<'rfq'> {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
-    if (this.payinSubunits > offering.data.payinCurrency.maxSubunits) {
-      throw new Error(`rfq payinSubunits exceeds offering's maxSubunits. (rfq) ${this.payinSubunits} > ${offering.data.payinCurrency.maxSubunits} (offering)`)
+    if (offering.data.payinCurrency.maxAmount) {
+      const payinAmount = BigNumber(this.payinAmount)
+      const maxAmount = BigNumber(offering.data.payinCurrency.maxAmount)
+
+      if (payinAmount.isGreaterThan(maxAmount)) {
+        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.payinAmount} > ${offering.data.payinCurrency.maxAmount} (offering)`)
+      }
     }
 
     const payinMethodMatches = offering.data.payinMethods.filter(payinMethod => payinMethod.kind === this.payinMethod.kind)
@@ -135,8 +142,8 @@ export class Rfq extends Message<'rfq'> {
   }
 
   /** Amount of payin currency you want to spend in order to receive payout currency */
-  get payinSubunits() {
-    return this.data.payinSubunits
+  get payinAmount() {
+    return this.data.payinAmount
   }
 
   /** Array of claims that satisfy the respective offering's requiredClaims */

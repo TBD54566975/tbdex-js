@@ -209,6 +209,9 @@ importers:
       ajv:
         specifier: 8.12.0
         version: 8.12.0
+      bignumber.js:
+        specifier: ^9.1.2
+        version: 9.1.2
       canonicalize:
         specifier: 2.0.0
         version: 2.0.0
@@ -1726,6 +1729,10 @@ packages:
     dependencies:
       is-windows: 1.0.2
     dev: true
+
+  /bignumber.js@9.1.2:
+    resolution: {integrity: sha512-2/mKyZH9K85bzOEfhXDBFZTGd1CTs+5IHpeFQo9luiBG7hghdC851Pj2WAhb6E3R6b9tZj/XKhbg4fum+Kepug==}
+    dev: false
 
   /binary-extensions@2.2.0:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}

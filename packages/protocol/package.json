@@ -55,6 +55,7 @@
     "@web5/crypto": "0.2.2",
     "@web5/dids": "0.2.2",
     "ajv": "8.12.0",
+    "bignumber.js": "^9.1.2",
     "canonicalize": "2.0.0",
     "typeid-js": "0.3.0"
   },
@@ -88,6 +89,7 @@
     "cp:test-vectors": "mkdir -p generated/test-vectors/ && cp -r ../../tbdex/hosted/test-vectors/protocol/vectors/ generated/test-vectors",
     "test:node": "rimraf tests/compiled && pnpm compile-validators && pnpm cp:test-vectors && tsc -p tests/tsconfig.json && mocha",
     "test:browser": "pnpm compile-validators && pnpm cp:test-vectors && karma start karma.conf.cjs",
+    "generate-test-vectors": "tsc -p tests/tsconfig.json && node tests/compiled/tests/generate-test-vectors.js",
     "build": "pnpm clean && pnpm compile-validators && pnpm cp:test-vectors && pnpm build:esm && pnpm build:cjs && pnpm build:browser",
     "lint": "eslint . --ext .ts --max-warnings 0",
     "lint:fix": "eslint . --ext .ts --fix",

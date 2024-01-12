@@ -84,7 +84,16 @@ export abstract class Resource<T extends ResourceKind> {
    */
   static validate(jsonResource: any): void {
     validate(jsonResource, 'resource')
-    validate(jsonResource['data'], jsonResource['metadata']['kind'])
+    Resource.validateData(jsonResource['metadata']['kind'], jsonResource['data'])
+  }
+
+  /**
+   * Validates `data` section of resource only. This is useful for partially validating
+   * unsigned Resources.
+   */
+  static validateData(kind: string, resourceData: any): void {
+    // validate the value of `data`
+    validate(resourceData, kind)
   }
 
   /** Generates a unique id with the resource kind's prefix */

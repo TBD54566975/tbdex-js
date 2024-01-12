@@ -91,6 +91,15 @@ export abstract class Message<T extends MessageKind> {
   }
 
   /**
+   * Validates `data` section of message only. This is useful for partially validating
+   * unsigned Messages.
+   */
+  static validateData(kind: string, messageData: any): void {
+    // validate the value of `data`
+    validate(messageData, kind)
+  }
+
+  /**
    * returns an instance of the appropriate MessageKind class based on the value of `jsonMessage.metadata.kind`
    * @param jsonMessage - the message to parse
    */
