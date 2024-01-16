@@ -94,7 +94,9 @@ export class DevTools {
     return {
       description   : 'Selling BTC for USD',
       payinCurrency : {
-        currencyCode: 'USD'
+        currencyCode : 'USD',
+        minAmount    : '0.0',
+        maxAmount    : '999999.99',
       },
       payoutCurrency: {
         currencyCode : 'BTC',
