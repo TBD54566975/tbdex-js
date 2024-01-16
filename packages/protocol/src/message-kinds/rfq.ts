@@ -114,7 +114,7 @@ export class Rfq extends Message<'rfq'> {
     if (!paymentMethodMatches.length) {
       const paymentMethodKinds = allowedPaymentMethods.map(paymentMethod => paymentMethod.kind).join()
       throw new Error(
-        `offering does not support rfq's ${payDirection} method kind. (rfq) ${rfqPaymentMethod.kind} was not found in: ${paymentMethodKinds} (offering)`
+        `offering does not support rfq's ${payDirection}Method kind. (rfq) ${rfqPaymentMethod.kind} was not found in: ${paymentMethodKinds} (offering)`
       )
     }
 
@@ -132,7 +132,7 @@ export class Rfq extends Message<'rfq'> {
     }
 
     if (invalidPaymentDetailsErrors.size > 0) {
-      throw new Error(`rfq ${payDirection} method paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPaymentDetailsErrors).join()}`)
+      throw new Error(`rfq ${payDirection}Method paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPaymentDetailsErrors).join()}`)
     }
   }
 
