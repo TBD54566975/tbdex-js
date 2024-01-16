@@ -32,6 +32,7 @@ export class OrderStatus extends Message<'orderstatus'> {
     }
 
     const message = { metadata, data: opts.data }
+    Message.validateData('orderstatus', message.data)
     return new OrderStatus(message)
   }
 

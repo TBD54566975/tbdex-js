@@ -1,5 +1,5 @@
 
-import type { OfferingData, RfqData } from './types.js'
+import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
 
 import { DidIonMethod, DidKeyMethod } from '@web5/dids'
@@ -9,6 +9,7 @@ import { Convert } from '@web5/common'
 import { Crypto } from './crypto.js'
 import { Jose } from '@web5/crypto'
 import { Rfq } from './message-kinds/index.js'
+import { Resource } from './resource.js'
 
 /**
  * Supported DID Methods
@@ -26,6 +27,10 @@ export type RfqOptions = {
    * of the offering returned by {@link DevTools.createOffering}
    */
   sender: PortableDid
+  /**
+   * {@link @web5/dids#PortableDid} of the rfq receiver.
+   */
+  receiver?: PortableDid
 }
 
 
@@ -75,16 +80,27 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering() {
-    const offeringData: OfferingData = {
+  static createOffering(offeringData?: OfferingData): Offering {
+    return Offering.create({
+      metadata : { from: 'did:ex:pfi' },
+      data     : offeringData ?? DevTools.createOfferingData()
+    })
+  }
+
+  /**
+   * creates an example OfferingData. Useful for testing purposes
+   */
+  static createOfferingData(): OfferingData {
+    return {
       description   : 'Selling BTC for USD',
       payinCurrency : {
         currencyCode : 'USD',
-        maxSubunits  : '99999999'
+        minAmount    : '0.0',
+        maxAmount    : '999999.99',
       },
       payoutCurrency: {
         currencyCode : 'BTC',
-        maxSubunits  : '99952611'
+        maxAmount    : '999526.11'
       },
       payoutUnitsPerPayinUnit : '0.00003826',
       payinMethods            : [{
@@ -135,37 +151,49 @@ export class DevTools {
         }
       }],
       requiredClaims: {
-        id     : '7ce4004c-3c38-4853-968b-e411bafcd945',
-        format : {
-          'jwt_vc': {
-            'alg': [
-              'ES256K',
-              'EdDSA'
-            ]
-          }
-        },
-        input_descriptors: [{
+        id                : '7ce4004c-3c38-4853-968b-e411bafcd945',
+        input_descriptors : [{
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
           constraints : {
             fields: [{
-              path: [
-                '$.vc.type[*]',
-                '$.type[*]'
-              ],
-              filter: {
-                type    : 'string',
-                pattern : '^SanctionsCredential$'
+              path   : ['$.type'],
+              filter : {
+                type  : 'string',
+                const : 'YoloCredential'
               }
             }]
           }
         }]
       }
     }
+  }
 
-    return Offering.create({
-      metadata : { from: 'did:ex:pfi' },
-      data     : offeringData
-    })
+  /**
+   * creates an example QuoteData. Useful for testing purposes
+   */
+  static createQuoteData(): QuoteData {
+    return {
+      expiresAt : new Date().toISOString(),
+      payin     : {
+        currencyCode : 'BTC',
+        amount       : '0.01',
+        fee          : '0.0001'
+      },
+      payout: {
+        currencyCode : 'USD',
+        amount       : '1000.00'
+      },
+      paymentInstructions: {
+        payin: {
+          link        : 'tbdex.io/example',
+          instruction : 'Fake instruction'
+        },
+        payout: {
+          link        : 'tbdex.io/example',
+          instruction : 'Fake instruction'
+        }
+      }
+    }
   }
 
   /**
@@ -176,18 +204,36 @@ export class DevTools {
    * **NOTE**: generates a random credential that fulfills the offering's required claims
    */
   static async createRfq(opts: RfqOptions) {
-    const { sender } = opts
-    const { signedCredential } = await DevTools.createCredential({
-      type    : 'YoloCredential',
-      issuer  : sender,
-      subject : sender.did,
-      data    : {
-        'beep': 'boop'
-      }
-    })
+    const { sender, receiver } = opts
 
-    const rfqData: RfqData = {
-      offeringId  : 'abcd123',
+    const rfqData: RfqData = await DevTools.createRfqData(opts)
+
+    return Rfq.create({
+      metadata : { from: sender.did, to: receiver?.did ?? 'did:ex:pfi' },
+      data     : rfqData
+    })
+  }
+
+  /**
+   * creates an example RfqData. Useful for testing purposes
+   */
+  static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
+    let credential: any = ''
+
+    if (opts?.sender) {
+      const { signedCredential } = await DevTools.createCredential({
+        type    : 'YoloCredential',
+        issuer  : opts.sender,
+        subject : opts.sender.did,
+        data    : {
+          'beep': 'boop'
+        }
+      })
+      credential = signedCredential
+    }
+
+    return {
+      offeringId  : Resource.generateId('offering'),
       payinMethod : {
         kind           : 'DEBIT_CARD',
         paymentDetails : {
@@ -203,14 +249,9 @@ export class DevTools {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinSubunits : '20000',
-      claims        : [signedCredential]
+      payinAmount : '200.00',
+      claims      : [credential]
     }
-
-    return Rfq.create({
-      metadata : { from: sender.did, to: 'did:ex:pfi' },
-      data     : rfqData
-    })
   }
 
   /**

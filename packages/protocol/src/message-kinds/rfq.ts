@@ -1,5 +1,6 @@
-import type { MessageKind, MessageKindModel, MessageMetadata, ResourceModel } from '../types.js'
+import type { MessageKind, MessageKindModel, MessageMetadata, PaymentMethod, ResourceModel, SelectedPaymentMethod } from '../types.js'
 
+import { BigNumber } from 'bignumber.js'
 import { Offering } from '../resource-kinds/index.js'
 import { VerifiableCredential, PresentationExchange } from '@web5/credentials'
 import { Message } from '../message.js'
@@ -45,6 +46,7 @@ export class Rfq extends Message<'rfq'> {
     // TODO: hash `data.payoutMethod.paymentDetails` and set `private`
 
     const message = { metadata, data: opts.data }
+    Message.validateData('rfq', message.data)
     return new Rfq(message)
   }
 
@@ -52,7 +54,7 @@ export class Rfq extends Message<'rfq'> {
    * evaluates this rfq against the provided offering
    * @param offering - the offering to evaluate this rfq against
    * @throws if {@link Rfq.offeringId} doesn't match the provided offering's id
-   * @throws if {@link Rfq.payinSubunits} exceeds the provided offering's max subunits allowed
+   * @throws if {@link Rfq.payinAmount} exceeds the provided offering's max units allowed or is below the offering's min units allowed
    * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
    * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
    * @throws if {@link Rfq.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
@@ -63,53 +65,75 @@ export class Rfq extends Message<'rfq'> {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
-    if (this.payinSubunits > offering.data.payinCurrency.maxSubunits) {
-      throw new Error(`rfq payinSubunits exceeds offering's maxSubunits. (rfq) ${this.payinSubunits} > ${offering.data.payinCurrency.maxSubunits} (offering)`)
+    // Verifyin payin amount is less than maximum
+    let payinAmount: BigNumber
+    if (offering.data.payinCurrency.maxAmount) {
+      payinAmount = BigNumber(this.payinAmount)
+      const maxAmount = BigNumber(offering.data.payinCurrency.maxAmount)
+
+      if (payinAmount.isGreaterThan(maxAmount)) {
+        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.payinAmount} > ${offering.data.payinCurrency.maxAmount} (offering)`)
+      }
     }
 
-    const payinMethodMatches = offering.data.payinMethods.filter(payinMethod => payinMethod.kind === this.payinMethod.kind)
+    // Verify payin amount is more than minimum
+    if (offering.data.payinCurrency.minAmount) {
+      payinAmount ??= BigNumber(this.payinAmount)
+      const minAmount = BigNumber(offering.data.payinCurrency.minAmount)
 
-    if (!payinMethodMatches.length) {
-      throw new Error(`offering does not support rfq's payinMethod kind. (rfq) ${this.payinMethod.kind} was not found in: ${offering.data.payinMethods.map(payinMethod => payinMethod.kind).join()} (offering)`)
+      if (payinAmount.isLessThan(minAmount)) {
+        throw new Error(`rfq payinAmount is below offering's minAmount. (rfq) ${this.payinAmount} > ${offering.data.payinCurrency.minAmount} (offering)`)
+      }
+    }
+
+    // Verify payin/payout methods
+    this.verifyPaymentMethod(this.payinMethod, offering.data.payinMethods, 'payin')
+    this.verifyPaymentMethod(this.payoutMethod, offering.data.payoutMethods, 'payout')
+
+    await this.verifyClaims(offering)
+  }
+
+  /**
+   * Validate the Rfq's payin/payout method against an Offering's allow payin/payout methods
+   *
+   * @param rfqPaymentMethod The Rfq's selected payin/payout method being validated
+   * @param allowedPaymentMethods The Offering's allowed payin/payout methods
+   *
+   * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
+   * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
+   * @throws if {@link Rfq.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
+   * @throws if {@link Rfq.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
+   */
+  private verifyPaymentMethod(
+    rfqPaymentMethod: SelectedPaymentMethod,
+    allowedPaymentMethods: PaymentMethod[],
+    payDirection: 'payin' | 'payout'
+  ): void {
+    const paymentMethodMatches = allowedPaymentMethods.filter(paymentMethod => paymentMethod.kind === rfqPaymentMethod.kind)
+
+    if (!paymentMethodMatches.length) {
+      const paymentMethodKinds = allowedPaymentMethods.map(paymentMethod => paymentMethod.kind).join()
+      throw new Error(
+        `offering does not support rfq's ${payDirection}Method kind. (rfq) ${rfqPaymentMethod.kind} was not found in: ${paymentMethodKinds} (offering)`
+      )
     }
 
     const ajv = new Ajv.default()
-    const invalidPayinDetailsErrors = new Set()
+    const invalidPaymentDetailsErrors = new Set()
 
-    for (const payinMethodMatch of payinMethodMatches) {
-      const validate = ajv.compile(payinMethodMatch.requiredPaymentDetails)
-      const isValid = validate(this.payinMethod.paymentDetails)
+    // Only one matching paymentMethod is needed
+    for (const paymentMethodMatch of paymentMethodMatches) {
+      const validate = ajv.compile(paymentMethodMatch.requiredPaymentDetails)
+      const isValid = validate(rfqPaymentMethod.paymentDetails)
       if (isValid) {
         break
       }
-      invalidPayinDetailsErrors.add(validate.errors)
+      invalidPaymentDetailsErrors.add(validate.errors)
     }
 
-    if (invalidPayinDetailsErrors.size > 0) {
-      throw new Error(`rfq payinMethod paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPayinDetailsErrors).join()}`)
+    if (invalidPaymentDetailsErrors.size > 0) {
+      throw new Error(`rfq ${payDirection}Method paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPaymentDetailsErrors).join()}`)
     }
-
-    const payoutMethodMatches = offering.data.payoutMethods.filter(payoutMethod => payoutMethod.kind === this.payoutMethod.kind)
-
-    if (!payoutMethodMatches.length) {
-      throw new Error(`offering does not support rfq's payoutMethod kind. (rfq) ${this.payoutMethod.kind} was not found in: ${offering.data.payoutMethods.map(payoutMethod => payoutMethod.kind).join()} (offering)`)
-    }
-
-    const invalidPayoutDetailsErrors = new Set()
-
-    for (const payoutMethodMatch of payoutMethodMatches) {
-      const validate = ajv.compile(payoutMethodMatch.requiredPaymentDetails)
-      const isValid = validate(this.payoutMethod.paymentDetails)
-      if (isValid) {
-        break
-      }
-      invalidPayoutDetailsErrors.add(validate.errors)
-    }
-    if (invalidPayoutDetailsErrors.size > 0) {
-      throw new Error(`rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPayoutDetailsErrors).join()}`)
-    }
-
-    await this.verifyClaims(offering)
   }
 
   /**
@@ -135,8 +159,8 @@ export class Rfq extends Message<'rfq'> {
   }
 
   /** Amount of payin currency you want to spend in order to receive payout currency */
-  get payinSubunits() {
-    return this.data.payinSubunits
+  get payinAmount() {
+    return this.data.payinAmount
   }
 
   /** Array of claims that satisfy the respective offering's requiredClaims */

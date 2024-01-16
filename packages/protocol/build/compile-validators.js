@@ -28,15 +28,15 @@ import ResourceSchema from '../../../tbdex/hosted/json-schemas/resource.schema.j
 import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
 
 const schemas = {
-  close: CloseSchema,
-  definitions: DefinitionsSchema,
-  offering: OfferingSchema,
-  message: MessageSchema,
-  order: OrderSchema,
-  orderstatus: OrderstatusSchema,
-  quote: QuoteSchema,
-  resource: ResourceSchema,
-  rfq: RfqSchema,
+  close       : CloseSchema,
+  definitions : DefinitionsSchema,
+  offering    : OfferingSchema,
+  message     : MessageSchema,
+  order       : OrderSchema,
+  orderstatus : OrderstatusSchema,
+  quote       : QuoteSchema,
+  resource    : ResourceSchema,
+  rfq         : RfqSchema,
 }
 
 const validator = new Ajv({ code: { source: true, esm: true } })

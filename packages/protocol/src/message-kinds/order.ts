@@ -31,6 +31,7 @@ export class Order extends Message<'order'> {
     }
 
     const message = { metadata, data: {} }
+    Message.validateData('order', message.data)
     return new Order(message)
   }
 }

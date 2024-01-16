@@ -31,6 +31,7 @@ export class Close extends Message<'close'> {
     }
 
     const message = { metadata, data: opts.data }
+    Message.validateData('close', message.data)
     return new Close(message)
   }
 

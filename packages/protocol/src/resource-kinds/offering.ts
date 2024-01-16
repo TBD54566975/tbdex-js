@@ -31,6 +31,7 @@ export class Offering extends Resource<'offering'> {
     }
 
     const message = { metadata, data: opts.data }
+    Resource.validateData('offering', message.data)
     return new Offering(message)
   }
 

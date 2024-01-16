@@ -1,29 +1,8 @@
-import type { CreateRfqOptions, Offering, RfqData } from '../src/main.js'
+import type { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
-
-const rfqData: RfqData = {
-  offeringId  : 'abcd123',
-  payinMethod : {
-    kind           : 'DEBIT_CARD',
-    paymentDetails : {
-      'cardNumber'     : '1234567890123456',
-      'expiryDate'     : '12/22',
-      'cardHolderName' : 'Ephraim Bartholomew Winthrop',
-      'cvv'            : '123'
-    }
-  },
-  payoutMethod: {
-    kind           : 'BTC_ADDRESS',
-    paymentDetails : {
-      btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-    }
-  },
-  payinSubunits : '20000',
-  claims        : ['']
-}
 
 describe('Rfq', () => {
   describe('create', () => {
@@ -31,7 +10,7 @@ describe('Rfq', () => {
       const alice = await DevTools.createDid()
       const message = Rfq.create({
         metadata : { from: alice.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
 
       expect(message.id).to.exist
@@ -69,7 +48,7 @@ describe('Rfq', () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
 
       await rfq.sign(did)
@@ -82,7 +61,7 @@ describe('Rfq', () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
 
       await rfq.sign(did)
@@ -100,7 +79,7 @@ describe('Rfq', () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
 
       await rfq.sign(did)
@@ -111,7 +90,7 @@ describe('Rfq', () => {
       const alice = await DevTools.createDid()
       const rfq = Rfq.create({
         metadata : { from: alice.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
 
       try {
@@ -145,9 +124,8 @@ describe('Rfq', () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : rfqData
+        data     : await DevTools.createRfqData()
       })
-
 
       await rfq.sign(did)
 
@@ -158,19 +136,11 @@ describe('Rfq', () => {
     })
   })
 
-  describe('verifyOfferingRequirements', () => {
-    const offering: Offering = DevTools.createOffering()
-    const rfqOptions: CreateRfqOptions = {
-      metadata: {
-        from : '',
-        to   : 'did:ex:pfi'
-      },
-      data: {
-        ...rfqData,
-        offeringId: offering.id,
-      }
-    }
-    before(async () => {
+  describe('verifyOfferingRequirements', async () => {
+    let offering: Offering
+    let rfqOptions: CreateRfqOptions
+
+    beforeEach(async () => {
       const did = await DevTools.createDid()
       const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
@@ -180,9 +150,23 @@ describe('Rfq', () => {
           'beep': 'boop'
         }
       })
+
+      offering = DevTools.createOffering()
+
+      rfqOptions = {
+        metadata: {
+          from : '',
+          to   : 'did:ex:pfi'
+        },
+        data: {
+          ...await DevTools.createRfqData(),
+          offeringId: offering.id,
+        }
+      }
       rfqOptions.metadata.from = did.did
       rfqOptions.data.claims = [signedCredential]
     })
+
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -198,21 +182,26 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering id mismatch')
       }
     })
-    it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
+
+    it('throws an error if payinAmount exceeds the provided offering\'s maxAmount', async () => {
+      offering.payinCurrency.maxAmount = '0.01'
+
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinSubunits: '99999999999999999'
+          payinAmount : '99999999999999999.0',
+          offeringId  : offering.id
         }
       })
       try {
         await rfq.verifyOfferingRequirements(offering)
         expect.fail()
       } catch(e) {
-        expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
+        expect(e.message).to.include('rfq payinAmount exceeds offering\'s maxAmount')
       }
     })
+
     it('throws an error if payinMethod kind cannot be validated against the provided offering\'s payinMethod kinds', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -231,6 +220,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
       }
     })
+
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -251,6 +241,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('rfq payinMethod paymentDetails could not be validated against offering requiredPaymentDetails')
       }
     })
+
     it('throws an error if payoutMethod kind cannot be validated against the provided offering\'s payoutMethod kinds', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -269,6 +260,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering does not support rfq\'s payoutMethod kind')
       }
     })
+
     it('throws an error if payoutMethod paymentDetails cannot be validated against the provided offering\'s payoutMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -304,28 +296,12 @@ describe('Rfq', () => {
         }
       })
 
+      const rfqData = await DevTools.createRfqData()
+      rfqData.claims = [signedCredential]
+
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : {
-          offeringId  : 'abcd123',
-          payinMethod : {
-            kind           : 'DEBIT_CARD',
-            paymentDetails : {
-              'cardNumber'     : '1234567890123456',
-              'expiryDate'     : '12/22',
-              'cardHolderName' : 'Ephraim Bartholomew Winthrop',
-              'cvv'            : '123'
-            }
-          },
-          payoutMethod: {
-            kind           : 'BTC_ADDRESS',
-            paymentDetails : {
-              btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-            }
-          },
-          payinSubunits : '20000',
-          claims        : [signedCredential]
-        }
+        data     : rfqData
       })
 
       await rfq.verifyClaims(offering)
@@ -343,28 +319,12 @@ describe('Rfq', () => {
         }
       })
 
+      const rfqData = await DevTools.createRfqData()
+      rfqData.claims = [signedCredential]
+
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
-        data     : {
-          offeringId  : 'abcd123',
-          payinMethod : {
-            kind           : 'DEBIT_CARD',
-            paymentDetails : {
-              'cardNumber'     : '1234567890123456',
-              'expiryDate'     : '12/22',
-              'cardHolderName' : 'Ephraim Bartholomew Winthrop',
-              'cvv'            : '123'
-            }
-          },
-          payoutMethod: {
-            kind           : 'BTC_ADDRESS',
-            paymentDetails : {
-              btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-            }
-          },
-          payinSubunits : '20000',
-          claims        : [signedCredential]
-        }
+        data     : rfqData
       })
 
       try {
