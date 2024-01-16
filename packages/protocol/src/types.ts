@@ -95,7 +95,7 @@ export type PaymentMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
   /** A JSON Schema containing the fields that need to be collected in order to use this payment method */
-  requiredPaymentDetails: JsonSchema
+  requiredPaymentDetails?: JsonSchema
 }
 
 /**
