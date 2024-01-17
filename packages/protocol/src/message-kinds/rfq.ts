@@ -25,7 +25,7 @@ export class Rfq extends Message<'rfq'> {
   readonly validNext = new Set<MessageKind>(['quote', 'close'])
 
   /** private data (PII or PCI) */
-  _private: Record<string, any>
+  _private: Record<string, any> | undefined
 
   /**
    * Creates an rfq with the given options
@@ -141,7 +141,11 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to check against
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
-  async verifyClaims(offering: Offering | ResourceModel<'offering'>) {
+  async verifyClaims(offering: Offering | ResourceModel<'offering'>): Promise<void> {
+    if (!offering.data.requiredClaims) {
+      return
+    }
+
     const credentials = PresentationExchange.selectCredentials(this.claims, offering.data.requiredClaims)
 
     if (!credentials.length) {

@@ -26,7 +26,8 @@ export async function resolveDid(did: string): Promise<DidDocument> {
     throw new Error(`Failed to resolve DID: ${did}. Error: ${didResolutionMetadata.error}`)
   }
 
-  return didDocument
+  // If did resolution has no errors, assume we have did document
+  return didDocument!
 }
 
 /**
@@ -47,7 +48,7 @@ export type DidResource = DidDocument | VerificationMethod | DidService
  * @throws if DID cannot be resolved
  * @beta
  */
-export async function deferenceDidUrl(didUrl: string): Promise<DidResource> {
+export async function deferenceDidUrl(didUrl: string): Promise<DidResource | undefined> {
   const parsedDid = didUtils.parseDid({ didUrl })
   if (!parsedDid) {
     throw new Error('failed to parse did')
@@ -67,13 +68,13 @@ export async function deferenceDidUrl(didUrl: string): Promise<DidResource> {
   // using a set for fast string comparison. DIDs can be lonnng.
   const idSet = new Set([didUrl, parsedDid.fragment, `#${parsedDid.fragment}`])
 
-  for (let vm of verificationMethod) {
+  for (let vm of verificationMethod || []) {
     if (idSet.has(vm.id)) {
       return vm
     }
   }
 
-  for (let svc of service) {
+  for (let svc of service || []) {
     if (idSet.has(svc.id)) {
       return svc
     }
@@ -86,6 +87,6 @@ export async function deferenceDidUrl(didUrl: string): Promise<DidResource> {
  * @returns true if the didResource is a `VerificationMethod`
  * @beta
  */
-export function isVerificationMethod(didResource: DidResource): didResource is VerificationMethod {
-  return didResource && 'id' in didResource && 'type' in didResource && 'controller' in didResource
+export function isVerificationMethod(didResource: DidResource | undefined): didResource is VerificationMethod {
+  return !!didResource && 'id' in didResource && 'type' in didResource && 'controller' in didResource
 }

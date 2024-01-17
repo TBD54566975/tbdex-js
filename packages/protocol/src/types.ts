@@ -25,7 +25,7 @@ export type ResourceModel<T extends ResourceKind> = {
   /** The actual resource content */
   data: ResourceKindModel<T>
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**
@@ -121,8 +121,10 @@ export type MessageModel<T extends MessageKind> = {
   metadata: MessageMetadata<T>
   /** The actual message content */
   data: MessageKindModel<T>
+  /** Private data that must not be in the main  */
+  private?: T extends 'rfq' ? Record<string, any> : never
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**

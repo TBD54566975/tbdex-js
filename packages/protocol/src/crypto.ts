@@ -2,7 +2,9 @@ import type {
   PrivateKeyJwk as Web5PrivateKeyJwk,
   CryptoAlgorithm,
   Web5Crypto,
-  JwsHeaderParams
+  JwsHeaderParams,
+  PrivateKeyJwk,
+  PublicKeyJwk
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
@@ -42,7 +44,7 @@ export type VerifyOptions = {
  */
 type SignerValue<T extends Web5Crypto.Algorithm> = {
   signer: CryptoAlgorithm,
-  options?: T,
+  options: T,
   alg: JwsHeader['alg'],
   crv: JsonWebKey['crv']
 }
@@ -99,18 +101,18 @@ export class Crypto {
   static async sign(opts: SignOptions) {
     const { did, payload, detached } = opts
 
-    const { privateKeyJwk } = did.keySet.verificationMethodKeys[0]
+    const privateKeyJwk = did.keySet.verificationMethodKeys?.[0]?.privateKeyJwk
 
-    const algorithmName = privateKeyJwk['alg'] || ''
-    const namedCurve = privateKeyJwk['crv'] || ''
+    const algorithmName = privateKeyJwk?.['alg'] || ''
+    let namedCurve = Crypto.extractNamedCurve(privateKeyJwk)
     const algorithmId = `${algorithmName}:${namedCurve}`
 
     const algorithm = this.algorithms[algorithmId]
     if (!algorithm) {
-      throw new Error(`${algorithmId} not supported`)
+      throw new Error(`Algorithm (${algorithmId}) not supported`)
     }
 
-    let verificationMethodId = did.document.verificationMethod[0].id
+    let verificationMethodId = did.document.verificationMethod?.[0]?.id || ''
     if (verificationMethodId.startsWith('#')) {
       verificationMethodId = `${did.did}#${verificationMethodId}`
     }
@@ -168,7 +170,7 @@ export class Crypto {
       throw new Error('Signature verification failed: Expected JWS header to contain alg and kid')
     }
 
-    const verificationMethod = await deferenceDidUrl(jwsHeader.kid as string)
+    const verificationMethod = await deferenceDidUrl(jwsHeader.kid)
     if (!isVerificationMethod(verificationMethod)) { // ensure that appropriate verification method was found
       throw new Error('Signature verification failed: Expected kid in JWS header to dereference to a DID Document Verification Method')
     }
@@ -184,7 +186,7 @@ export class Crypto {
 
     const signatureBytes = Convert.base64Url(base64UrlEncodedSignature).toUint8Array()
 
-    const algorithmId = `${jwsHeader['alg']}:${publicKeyJwk['crv']}`
+    const algorithmId = `${jwsHeader['alg']}:${Crypto.extractNamedCurve(publicKeyJwk)}`
     const { signer, options } = Crypto.algorithms[algorithmId]
 
     // TODO: remove this monkeypatch once 'ext' is no longer a required property within a jwk passed to `jwkToCryptoKey`
@@ -201,8 +203,19 @@ export class Crypto {
       throw new Error('Signature verification failed: Integrity mismatch')
     }
 
-    const [did] = (jwsHeader as JwsHeaderParams).kid.split('#')
+    const [did] = jwsHeader.kid.split('#')
     return did
+  }
+
+  /**
+   * Gets crv property from a PublicKeyJwk or PrivateKeyJwk. Returns empty string if crv is undefined.
+   */
+  static extractNamedCurve(jwk: PrivateKeyJwk | PublicKeyJwk | undefined): string {
+    if (jwk && 'crv' in jwk) {
+      return jwk.crv
+    } else {
+      return ''
+    }
   }
 }
 
