@@ -17,7 +17,7 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     let message: Message<MessageKind>
 
     try {
-      message = await Message.parse(req.body)
+      message = await Message.parse(req.body.rfq)
     } catch(e) {
       const errorResponse: ErrorDetail = { detail: `Parsing of TBDex message failed: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })

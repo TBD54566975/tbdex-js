@@ -160,7 +160,7 @@ describe('Rfq', () => {
         },
         data: {
           ...await DevTools.createRfqData(),
-          offeringId: offering.id
+          offeringId: offering.id,
         }
       }
       rfqOptions.metadata.from = did.did
