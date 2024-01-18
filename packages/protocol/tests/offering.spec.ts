@@ -12,7 +12,7 @@ const offeringData: OfferingData = {
   },
   payoutCurrency: {
     currencyCode : 'BTC',
-    maxAmount    : '99952611'
+    maxAmount    : '99952611.00000'
   },
   payoutUnitsPerPayinUnit : '0.00003826',
   payinMethods            : [{

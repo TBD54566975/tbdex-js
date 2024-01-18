@@ -12,7 +12,7 @@ const offering = Offering.create({
     },
     payoutCurrency: {
       currencyCode : 'BTC',
-      maxSubunits  : '99952611'
+      maxAmount    : '99952611'
     },
     payoutUnitsPerPayinUnit : '0.000038',
     payinMethods            : [{

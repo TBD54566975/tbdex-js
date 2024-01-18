@@ -5,7 +5,7 @@
       "DOM",
       "ES6"
     ],
-    "rootDir": "./",
+    "rootDir": "../../",
     "allowJs": true,
     "target": "esnext",
     "module": "nodenext",

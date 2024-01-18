@@ -23,7 +23,7 @@ const rfqData: RfqData = {
       btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
     }
   },
-  payinAmount : '20000',
+  payinAmount : '20000.00',
   claims      : ['']
 }
 
@@ -205,6 +205,7 @@ describe('Rfq', () => {
     })
 
     it('throws an error if payinAmount exceeds the provided offering\'s maxAmount', async () => {
+      const offering = createUnsignedOffering()
       offering.payinCurrency.maxAmount = '0.01'
 
       const rfq = Rfq.create({
@@ -339,7 +340,7 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinAmount : '20000',
+          payinAmount : '20000.00',
           claims      : [vcJwt]
         }
       })
@@ -381,7 +382,7 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinAmount : '20000',
+          payinAmount : '20000.00',
           claims      : [vcJwt]
         }
       })
@@ -400,11 +401,11 @@ function createUnsignedOffering() {
     description   : 'Selling BTC for USD',
     payinCurrency : {
       currencyCode : 'USD',
-      maxAmount    : '99999999'
+      maxAmount    : '99999999.00'
     },
     payoutCurrency: {
       currencyCode : 'BTC',
-      maxAmount    : '99952611'
+      maxAmount    : '99952611.00000'
     },
     payoutUnitsPerPayinUnit : '0.00003826',
     payinMethods            : [{

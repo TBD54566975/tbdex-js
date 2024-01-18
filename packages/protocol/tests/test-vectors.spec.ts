@@ -1,12 +1,12 @@
 import { expect } from 'chai'
 import { Close, Order, OrderStatus, Quote, Rfq } from '../src/message-kinds/index.js'
 import { Offering } from '../src/resource-kinds/index.js'
-import ParseClose from '../generated/test-vectors/parse-close.json' assert { type: 'json' }
-import ParseOffering from '../generated/test-vectors/parse-offering.json' assert { type: 'json' }
-import ParseOrder from '../generated/test-vectors/parse-order.json' assert { type: 'json' }
-import ParseOrderStatus from '../generated/test-vectors/parse-orderstatus.json' assert { type: 'json' }
-import ParseQuote from '../generated/test-vectors/parse-quote.json' assert { type: 'json' }
-import ParseRfq from '../generated/test-vectors/parse-rfq.json' assert { type: 'json' }
+import ParseClose from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-close.json' assert { type: 'json' }
+import ParseOffering from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-offering.json' assert { type: 'json' }
+import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-order.json' assert { type: 'json' }
+import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
+import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
+import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 
 describe('Test vectors: parse and serialize', () => {
   it('parse-close.json', async () => {
