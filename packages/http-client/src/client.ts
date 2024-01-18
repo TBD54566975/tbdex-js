@@ -29,6 +29,7 @@ export class TbdexHttpClient {
    */
   static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
     const { message, replyTo } = opts
+
     const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
 
     await Message.verify(jsonMessage)

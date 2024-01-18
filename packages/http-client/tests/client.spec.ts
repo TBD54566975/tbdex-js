@@ -21,10 +21,10 @@ describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('sendMessage', async () => {
-    let mockMessage: Rfq
+    let mockRfqMessage: Rfq
 
     beforeEach(async () => {
-      mockMessage = await DevTools.createRfq({ sender: dhtDid, receiver: dhtDid })
+      mockRfqMessage = await DevTools.createRfq({ sender: dhtDid, receiver: dhtDid })
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
@@ -32,7 +32,7 @@ describe('client', () => {
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfqMessage})
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -53,7 +53,7 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfqMessage})
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
@@ -61,17 +61,29 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockMessage.metadata.exchangeId}/rfq`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockRfqMessage.metadata.exchangeId}/rfq`)
       }
     })
-    it('should not throw errors if all is well', async () => {
+    it('should not throw errors if all is well when sending RFQ with replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
       } as Response)
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfqMessage, replyTo: 'https://tbdex.io/callback'})
+      } catch (e) {
+        expect.fail()
+      }
+    })
+    it('should not throw errors if all is well when sending RFQ without replyTo field', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      try {
+        await TbdexHttpClient.sendMessage({message: mockRfqMessage})
       } catch (e) {
         expect.fail()
       }

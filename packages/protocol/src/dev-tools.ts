@@ -8,7 +8,7 @@ import { Offering } from './resource-kinds/index.js'
 import { Convert } from '@web5/common'
 import { Crypto } from './crypto.js'
 import { Jose } from '@web5/crypto'
-import { Rfq } from './message-kinds/index.js'
+import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
 
 /**
@@ -21,9 +21,9 @@ export type DidMethodOptions = 'key' | 'ion'
  * Options passed to {@link DevTools.createRfq}
  * @beta
  */
-export type RfqOptions = {
+export type MessageOptions = {
   /**
-   * {@link @web5/dids#PortableDid} of the rfq sender. used to generate a random credential that fulfills the vcRequirements
+   * {@link @web5/dids#PortableDid} of the message sender. When generating RFQ, it is used to generate a random credential that fulfills the vcRequirements
    * of the offering returned by {@link DevTools.createOffering}
    */
   sender: PortableDid
@@ -203,7 +203,7 @@ export class DevTools {
    *
    * **NOTE**: generates a random credential that fulfills the offering's required claims
    */
-  static async createRfq(opts: RfqOptions) {
+  static async createRfq(opts: MessageOptions) {
     const { sender, receiver } = opts
 
     const rfqData: RfqData = await DevTools.createRfqData(opts)
@@ -214,10 +214,22 @@ export class DevTools {
     })
   }
 
+  static createOrder(opts: MessageOptions) {
+    const { sender, receiver } = opts
+
+    return Order.create({
+      metadata: {
+        from       : sender.did,
+        to         : receiver?.did ?? 'did:ex:pfi',
+        exchangeId : 'rfq_123'
+      }
+    })
+  }
+
   /**
    * creates an example RfqData. Useful for testing purposes
    */
-  static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
+  static async createRfqData(opts?: MessageOptions): Promise<RfqData> {
     let credential: any = ''
 
     if (opts?.sender) {
