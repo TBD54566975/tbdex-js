@@ -155,27 +155,27 @@ export class Rfq extends Message<'rfq'> {
 
   /** Offering which Alice would like to get a quote for */
   get offeringId() {
-    return this.data.offeringId
+    return this.data.rfq.offeringId
   }
 
   /** Amount of payin currency you want to spend in order to receive payout currency */
   get payinAmount() {
-    return this.data.payinAmount
+    return this.data.rfq.payinAmount
   }
 
   /** Array of claims that satisfy the respective offering's requiredClaims */
   get claims() {
-    return this.data.claims
+    return this.data.rfq.claims
   }
 
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   get payinMethod() {
-    return this.data.payinMethod
+    return this.data.rfq.payinMethod
   }
 
   /** Selected payment method that the PFI will use to send the listed payout currency to Alice */
   get payoutMethod() {
-    return this.data.payoutMethod
+    return this.data.rfq.payoutMethod
   }
 
   /**
