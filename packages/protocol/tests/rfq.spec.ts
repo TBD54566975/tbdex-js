@@ -159,24 +159,20 @@ describe('Rfq', () => {
           to   : 'did:ex:pfi'
         },
         data: {
-          rfq: {
-            ...(await DevTools.createRfqData()).rfq,
-            offeringId: offering.id
-          }
+          ...await DevTools.createRfqData(),
+          offeringId: offering.id
         }
       }
       rfqOptions.metadata.from = did.did
-      rfqOptions.data.rfq.claims = [signedCredential]
+      rfqOptions.data.claims = [signedCredential]
     })
 
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            offeringId: 'ABC123456',
-          }
+          ...rfqOptions.data,
+          offeringId: 'ABC123456',
         }
       })
       try {
@@ -193,11 +189,9 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            payinAmount : '99999999999999999.0',
-            offeringId  : offering.id
-          }
+          ...rfqOptions.data,
+          payinAmount : '99999999999999999.0',
+          offeringId  : offering.id
         }
       })
       try {
@@ -212,12 +206,10 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            payinMethod: {
-              ...rfqOptions.data.rfq.payinMethod,
-              kind: 'POKEMON'
-            }
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod,
+            kind: 'POKEMON'
           }
         }
       })
@@ -233,13 +225,11 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            payinMethod: {
-              ...rfqOptions.data.rfq.payinMethod,
-              paymentDetails: {
-                beep: 'boop'
-              }
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod,
+            paymentDetails: {
+              beep: 'boop'
             }
           }
         }
@@ -256,12 +246,10 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            payoutMethod: {
-              ...rfqOptions.data.rfq.payoutMethod,
-              kind: 'POKEMON'
-            }
+          ...rfqOptions.data,
+          payoutMethod: {
+            ...rfqOptions.data.payoutMethod,
+            kind: 'POKEMON'
           }
         }
       })
@@ -277,13 +265,11 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
-          rfq: {
-            ...rfqOptions.data.rfq,
-            payoutMethod: {
-              ...rfqOptions.data.rfq.payoutMethod,
-              paymentDetails: {
-                beep: 'boop'
-              }
+          ...rfqOptions.data,
+          payoutMethod: {
+            ...rfqOptions.data.payoutMethod,
+            paymentDetails: {
+              beep: 'boop'
             }
           }
         }
@@ -311,7 +297,7 @@ describe('Rfq', () => {
       })
 
       const rfqData = await DevTools.createRfqData()
-      rfqData.rfq.claims = [signedCredential]
+      rfqData.claims = [signedCredential]
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
@@ -334,7 +320,7 @@ describe('Rfq', () => {
       })
 
       const rfqData = await DevTools.createRfqData()
-      rfqData.rfq.claims = [signedCredential]
+      rfqData.claims = [signedCredential]
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },

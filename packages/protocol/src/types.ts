@@ -179,17 +179,6 @@ export type MessageKinds = {
  * @beta
  */
 export type RfqData = {
-  /** Details of an RFQ (Request For Quote) */
-  rfq: RfqDetails
-  /** A string containing a valid URI where new messages from the PFI will be sent */
-  replyTo?: string
-}
-
-/**
- * Details of an RFQ (Request For Quote)
- * @beta
- */
-export type RfqDetails = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
   /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */

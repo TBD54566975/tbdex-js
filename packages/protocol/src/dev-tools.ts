@@ -233,27 +233,24 @@ export class DevTools {
     }
 
     return {
-      rfq: {
-        offeringId  : Resource.generateId('offering'),
-        payinMethod : {
-          kind           : 'DEBIT_CARD',
-          paymentDetails : {
-            'cardNumber'     : '1234567890123456',
-            'expiryDate'     : '12/22',
-            'cardHolderName' : 'Ephraim Bartholomew Winthrop',
-            'cvv'            : '123'
-          }
-        },
-        payoutMethod: {
-          kind           : 'BTC_ADDRESS',
-          paymentDetails : {
-            btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
-          }
-        },
-        payinAmount : '200.00',
-        claims      : [credential]
+      offeringId  : Resource.generateId('offering'),
+      payinMethod : {
+        kind           : 'DEBIT_CARD',
+        paymentDetails : {
+          'cardNumber'     : '1234567890123456',
+          'expiryDate'     : '12/22',
+          'cardHolderName' : 'Ephraim Bartholomew Winthrop',
+          'cvv'            : '123'
+        }
       },
-      replyTo: 'https://tbdex.io/alice/callback'
+      payoutMethod: {
+        kind           : 'BTC_ADDRESS',
+        paymentDetails : {
+          btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+        }
+      },
+      payinAmount : '200.00',
+      claims      : [credential]
     }
   }
 
