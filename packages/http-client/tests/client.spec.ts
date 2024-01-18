@@ -55,6 +55,7 @@ describe('client', () => {
         createdAt  : '1234567890'
       }
     })
+
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
@@ -89,7 +90,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal('https://localhost:9000/exchanges/123/rfq')
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockMessage.metadata.exchangeId}/rfq`)
       }
     })
     it('should not throw errors if all is well', async () => {

@@ -23,8 +23,8 @@ const rfqData: RfqData = {
       btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
     }
   },
-  payinSubunits : '20000',
-  claims        : ['']
+  payinAmount : '20000',
+  claims      : ['']
 }
 
 describe('Rfq', () => {
@@ -150,7 +150,6 @@ describe('Rfq', () => {
         data     : rfqData
       })
 
-
       await rfq.sign(did)
 
       const jsonMessage = JSON.stringify(rfq)
@@ -188,6 +187,7 @@ describe('Rfq', () => {
       rfqOptions.metadata.from = did.did
       rfqOptions.data.claims = [vcJwt]
     })
+
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -203,21 +203,26 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering id mismatch')
       }
     })
-    it('throws an error if payinSubunits exceeds the provided offering\'s maxSubunits', async () => {
+
+    it('throws an error if payinAmount exceeds the provided offering\'s maxAmount', async () => {
+      offering.payinCurrency.maxAmount = '0.01'
+
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinSubunits: '99999999999999999'
+          payinAmount : '99999999999999999.0',
+          offeringId  : offering.id
         }
       })
       try {
         await rfq.verifyOfferingRequirements(offering)
         expect.fail()
       } catch(e) {
-        expect(e.message).to.include('rfq payinSubunits exceeds offering\'s maxSubunits')
+        expect(e.message).to.include('rfq payinAmount exceeds offering\'s maxAmount')
       }
     })
+
     it('throws an error if payinMethod kind cannot be validated against the provided offering\'s payinMethod kinds', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -236,6 +241,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
       }
     })
+
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -256,6 +262,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('rfq payinMethod paymentDetails could not be validated against offering requiredPaymentDetails')
       }
     })
+
     it('throws an error if payoutMethod kind cannot be validated against the provided offering\'s payoutMethod kinds', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -274,6 +281,7 @@ describe('Rfq', () => {
         expect(e.message).to.include('offering does not support rfq\'s payoutMethod kind')
       }
     })
+
     it('throws an error if payoutMethod paymentDetails cannot be validated against the provided offering\'s payoutMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -331,8 +339,8 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinSubunits : '20000',
-          claims        : [vcJwt]
+          payinAmount : '20000',
+          claims      : [vcJwt]
         }
       })
 
@@ -373,8 +381,8 @@ describe('Rfq', () => {
               btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
             }
           },
-          payinSubunits : '20000',
-          claims        : [vcJwt]
+          payinAmount : '20000',
+          claims      : [vcJwt]
         }
       })
 
@@ -392,11 +400,11 @@ function createUnsignedOffering() {
     description   : 'Selling BTC for USD',
     payinCurrency : {
       currencyCode : 'USD',
-      maxSubunits  : '99999999'
+      maxAmount    : '99999999'
     },
     payoutCurrency: {
       currencyCode : 'BTC',
-      maxSubunits  : '99952611'
+      maxAmount    : '99952611'
     },
     payoutUnitsPerPayinUnit : '0.00003826',
     payinMethods            : [{

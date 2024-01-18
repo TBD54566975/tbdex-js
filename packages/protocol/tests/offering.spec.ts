@@ -12,7 +12,7 @@ const offeringData: OfferingData = {
   },
   payoutCurrency: {
     currencyCode : 'BTC',
-    maxSubunits  : '99952611'
+    maxAmount    : '99952611'
   },
   payoutUnitsPerPayinUnit : '0.00003826',
   payinMethods            : [{
@@ -112,6 +112,25 @@ describe('Offering', () => {
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('required property')
+      }
+    })
+
+    it('throws an error if additional properties are present', async () => {
+      const pfi = await DidIonMethod.create()
+
+      try {
+        const data = structuredClone(offeringData)
+        data['foo'] = 'bar'
+        const offering = Offering.create({
+          metadata : { from: pfi.did },
+          data     : data
+        })
+        await offering.sign(pfi)
+
+        Offering.validate(offering)
+        expect.fail()
+      } catch (e) {
+        expect(e.message).to.include('additional properties')
       }
     })
   })

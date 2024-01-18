@@ -1,4 +1,4 @@
-import { MessageKindClass, Offering, Rfq, Quote, Order, OrderStatus, Close } from '@tbdex/protocol'
+import { MessageKindClass, Rfq, Quote, Offering, Order, OrderStatus, Close } from '@tbdex/protocol'
 import { OfferingsApi, ExchangesApi } from './main.js'
 
 export const fakePfiDid = 'did:ex:pfi'
