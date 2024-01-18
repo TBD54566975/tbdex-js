@@ -1,11 +1,11 @@
 {
-  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": false,
     "lib": [
       "DOM",
       "ES6"
     ],
+    "rootDir": "../../",
     "allowJs": true,
     "target": "esnext",
     "module": "nodenext",
