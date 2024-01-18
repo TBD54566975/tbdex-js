@@ -1,8 +1,8 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": false,
-    "lib": ["DOM","es2023"],
-    "rootDir": "./",
+    "lib": ["DOM", "es2022"],
     "allowJs": true,
     "target": "es2022",
     "module": "nodenext",
