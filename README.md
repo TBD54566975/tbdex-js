@@ -1,5 +1,7 @@
 # tbdex-js
 
+[![codecov](https://codecov.io/github/TBD54566975/tbdex-js/graph/badge.svg?token=NE0263LUKG)](https://codecov.io/github/TBD54566975/tbdex-js)
+
 This repo contains 3 npm packages:
 
 - [`@tbdex/protocol`](./packages/protocol/) - create, parse, verify, and validate the tbdex messages and resources defined in the [protocol draft specification](https://github.com/TBD54566975/tbdex-protocol/blob/main/README.md)
