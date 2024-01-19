@@ -36,6 +36,7 @@ export async function resolveDid(did: string): Promise<DidDocument> {
  */
 export type DidResource = DidDocument | VerificationMethod | DidService
 
+// TODO https://github.com/TBD54566975/tbdex-js/issues/147 Remove deferenceDidUrl with web5/dids DidResolver#dereference
 /**
  * Dereferences a DID URL according to [specification](https://www.w3.org/TR/did-core/#did-url-dereferencing).
  * See also: [DID URL Syntax](https://www.w3.org/TR/did-core/#did-url-syntax)
