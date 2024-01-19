@@ -2,7 +2,7 @@
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
 
-import { DidIonMethod, DidKeyMethod } from '@web5/dids'
+import { DidDhtMethod, DidIonMethod, DidKeyMethod } from '@web5/dids'
 import { utils as vcUtils } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
 import { Convert } from '@web5/common'
@@ -10,12 +10,13 @@ import { Crypto } from './crypto.js'
 import { Jose } from '@web5/crypto'
 import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
+import { Message } from './main.js'
 
 /**
  * Supported DID Methods
  * @beta
  */
-export type DidMethodOptions = 'key' | 'ion'
+export type DidMethodOptions = 'key' | 'ion' | 'dht'
 
 /**
  * Options passed to {@link DevTools.createRfq}
@@ -72,6 +73,8 @@ export class DevTools {
       return DidKeyMethod.create()
     } else if (didMethod === 'ion') {
       return DidIonMethod.create()
+    } else if (didMethod === 'dht') {
+      return DidDhtMethod.create()
     } else {
       throw new Error(`${didMethod} method not implemented.`)
     }
@@ -214,6 +217,11 @@ export class DevTools {
     })
   }
 
+  /**
+   * Creates and returns an example Order with a generated exchangeId. Useful for testing purposes
+   * @param opts - options used to create a Message
+   * @returns Order message
+   */
   static createOrder(opts: MessageOptions) {
     const { sender, receiver } = opts
 
@@ -221,7 +229,7 @@ export class DevTools {
       metadata: {
         from       : sender.did,
         to         : receiver?.did ?? 'did:ex:pfi',
-        exchangeId : 'rfq_123'
+        exchangeId : Message.generateId('rfq')
       }
     })
   }
