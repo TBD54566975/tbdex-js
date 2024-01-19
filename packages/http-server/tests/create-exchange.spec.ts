@@ -74,4 +74,5 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   xit('returns a 409 if request body if RFQ already exists')
   xit('returns a 400 if request body if offering doesnt exist')
   xit(`returns a 400 if request body if RFQ does not fulfill offering's requirements`)
+  xit(`returns a 202 if RFQ is accepted`)
 })
