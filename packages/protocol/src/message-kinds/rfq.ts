@@ -96,8 +96,8 @@ export class Rfq extends Message<'rfq'> {
   /**
    * Validate the Rfq's payin/payout method against an Offering's allow payin/payout methods
    *
-   * @param rfqPaymentMethod The Rfq's selected payin/payout method being validated
-   * @param allowedPaymentMethods The Offering's allowed payin/payout methods
+   * @param rfqPaymentMethod - The Rfq's selected payin/payout method being validated
+   * @param allowedPaymentMethods - The Offering's allowed payin/payout methods
    *
    * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
    * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
