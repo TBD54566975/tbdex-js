@@ -38,6 +38,10 @@ export class TbdexHttpClient {
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}/${kind}`
 
+    if (jsonMessage.metadata.kind != 'rfq' && replyTo) {
+      throw new RequestError({ message: `Failed to send message to ${pfiDid}. replyTo field should not be present in a ${jsonMessage.metadata.kind} message.`, recipientDid: pfiDid, url: apiRoute })
+    }
+
     let response: Response
     try {
       response = await fetch(apiRoute, {
