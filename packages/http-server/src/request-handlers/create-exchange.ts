@@ -1,20 +1,24 @@
-import type { SubmitCallback, RequestHandler, OfferingsApi, ExchangesApi } from '../types.js'
+import type { SubmitCallback as CreateExchangeCallback, RequestHandler, OfferingsApi, ExchangesApi } from '../types.js'
 import type { MessageKind } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
 import { Message } from '@tbdex/protocol'
 import { CallbackError } from '../callback-error.js'
 
-type SubmitRfqOpts = {
-  callback: SubmitCallback<'rfq'>
+type CreateExchangeOpts = {
+  callback: CreateExchangeCallback<'rfq'>
   offeringsApi: OfferingsApi
   exchangesApi: ExchangesApi
 }
 
-export function submitRfq(options: SubmitRfqOpts): RequestHandler {
+export function createExchange(options: CreateExchangeOpts): RequestHandler {
   const { offeringsApi, exchangesApi, callback } = options
   return async function (req, res) {
     let message: Message<MessageKind>
+
+    if (req.body.replyTo && !isValidUrl(req.body.replyTo)) {
+      return res.status(400).json({ errors: [{ detail: 'replyTo must be a valid url' }] })
+    }
 
     try {
       message = await Message.parse(req.body.rfq)
@@ -65,5 +69,14 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     return res.sendStatus(202)
+  }
+}
+
+function isValidUrl(urlStr: string) {
+  try {
+    new URL(urlStr)
+    return true
+  } catch (err) {
+    return false
   }
 }

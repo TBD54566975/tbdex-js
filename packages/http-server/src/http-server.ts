@@ -14,7 +14,7 @@ import type { Express } from 'express'
 import express from 'express'
 import cors from 'cors'
 
-import { getExchanges, getOfferings, submitOrder, submitClose, submitRfq } from './request-handlers/index.js'
+import { getExchanges, getOfferings, submitOrder, submitClose, createExchange } from './request-handlers/index.js'
 import { jsonBodyParser } from './middleware/index.js'
 import { fakeExchangesApi, fakeOfferingsApi } from './fakes.js'
 
@@ -117,7 +117,7 @@ export class TbdexHttpServer {
   listen(port: number | string, callback?: () => void) {
     const { offeringsApi, exchangesApi } = this
 
-    this.api.post('/exchanges/:exchangeId/rfq', submitRfq({
+    this.api.post('/exchanges/:exchangeId/rfq', createExchange({
       callback: this.callbacks['rfq'], offeringsApi, exchangesApi,
     }))
 
