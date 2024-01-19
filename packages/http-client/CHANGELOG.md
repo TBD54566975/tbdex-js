@@ -1,5 +1,19 @@
 # @tbdex/http-client
 
+## 0.23.0
+
+### Minor Changes
+
+- 9e1015e: Introduces custom errors types and breaking changes: functions now throw instead of return on failure
+
+### Patch Changes
+
+- 47105ca: Removes HttpResponse and ErrorResponse types from http-client package
+- Updated dependencies [a7bc582]
+- Updated dependencies [5631d32]
+- Updated dependencies [c3610ed]
+  - @tbdex/protocol@0.23.0
+
 ## 0.22.1
 
 ### Patch Changes
