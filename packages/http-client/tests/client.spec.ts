@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { DidDhtMethod, DidKeyMethod } from '@web5/dids'
 import { TbdexHttpClient } from '../src/client.js'
 import { RequestError,ResponseError, InvalidDidError, MissingServiceEndpointError } from '../src/errors/index.js'
-import { DevTools, Message, Rfq } from '@tbdex/protocol'
+import { DevTools, Message, Order, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 
 const dhtDid = await DidDhtMethod.create({
@@ -20,7 +20,7 @@ sinon.stub(Message, 'verify').resolves('123')
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', async () => {
+  describe.only('sendMessage', async () => {
     let mockRfqMessage: Rfq
 
     beforeEach(async () => {
@@ -86,6 +86,32 @@ describe('client', () => {
         await TbdexHttpClient.sendMessage({message: mockRfqMessage})
       } catch (e) {
         expect.fail()
+      }
+    })
+    it.only('should throw errors when sending Order with replyTo field', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      let mockOrderMessage
+      try {
+        mockOrderMessage = Order.create({
+          metadata: {
+            from       : dhtDid.did,
+            to         : dhtDid.did,
+            exchangeId : 'rfq_123'
+          }
+        })
+        await TbdexHttpClient.sendMessage({message: mockOrderMessage, replyTo: 'https://tbdex.io/callback'})
+        expect.fail()
+      } catch (e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.statusCode).to.not.exist
+        expect(e.details).to.not.exist
+        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockOrderMessage.metadata.exchangeId}/order`)
       }
     })
   })
