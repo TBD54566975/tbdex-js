@@ -66,10 +66,10 @@ describe('Rfq', () => {
 
       await rfq.sign(did)
 
-      const [base64UrlEncodedJwsHeader] = rfq.signature.split('.')
-      const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
+      const [base64UrlEncodedJwsHeader] = rfq.signature!.split('.')
+      const jwsHeader: { kid?: string, alg?: string}  = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod[0].id)
+      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod![0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })

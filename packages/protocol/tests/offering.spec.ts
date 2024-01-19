@@ -43,8 +43,8 @@ describe('Offering', () => {
       const pfi = await DevTools.createDid()
 
       try {
-        const offeringData = DevTools.createOfferingData()
-        offeringData['foo'] = 'bar'
+        const offeringData = DevTools.createOfferingData();
+        (offeringData as any)['foo'] = 'bar'
         const offering = Offering.create({
           metadata : { from: pfi.did },
           data     : offeringData
@@ -81,14 +81,13 @@ describe('Offering', () => {
         data     : DevTools.createOfferingData()
       })
 
-
       await offering.sign(pfi)
 
-      const [base64UrlEncodedJwsHeader] = offering.signature.split('.')
-      const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
+      const [base64UrlEncodedJwsHeader] = offering.signature!.split('.')
+      const jwsHeader: { kid?: string, alg?: string} = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(pfi.document.verificationMethod[0].id)
-      expect(jwsHeader['alg']).to.exist
+      expect(jwsHeader.kid).to.equal(pfi.document.verificationMethod![0].id)
+      expect(jwsHeader.alg).to.exist
     })
   })
 
