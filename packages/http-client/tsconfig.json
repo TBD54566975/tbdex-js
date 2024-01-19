@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "strict": false,
     "lib": ["DOM", "es2022"],
@@ -14,10 +15,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["src"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "build",
-  ]
+  "include": ["src"]
 }
