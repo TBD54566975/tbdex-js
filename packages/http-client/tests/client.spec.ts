@@ -20,7 +20,7 @@ sinon.stub(Message, 'verify').resolves('123')
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe.only('sendMessage', async () => {
+  describe('sendMessage', async () => {
     let mockRfqMessage: Rfq
 
     beforeEach(async () => {
@@ -88,7 +88,7 @@ describe('client', () => {
         expect.fail()
       }
     })
-    it.only('should throw errors when sending Order with replyTo field', async () => {
+    it('should throw errors when sending Order with replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
