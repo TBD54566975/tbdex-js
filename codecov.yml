@@ -20,7 +20,7 @@ component_management:
       paths: ["packages/http-client/**"]
 
     - component_id: package-http-server
-      name: common
+      name: http-server
       paths: ["packages/http-server/**"]
 
 coverage:
