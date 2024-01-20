@@ -48,6 +48,9 @@ importers:
       semver:
         specifier: 7.5.4
         version: 7.5.4
+      typescript:
+        specifier: 5.2.2
+        version: 5.2.2
 
   packages/http-client:
     dependencies:
