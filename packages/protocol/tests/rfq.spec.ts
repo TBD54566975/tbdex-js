@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { VerifiableCredential } from '@web5/credentials'
 import { CreateRfqOptions, Offering } from '../src/main.js'
+||||||| parent of c6aae4c (Handle requiredPaymentDetails undefined for RFQ verification)
+import type { CreateRfqOptions, Offering } from '../src/main.js'
+=======
+import { CreateRfqOptions, Offering } from '../src/main.js'
+>>>>>>> c6aae4c (Handle requiredPaymentDetails undefined for RFQ verification)
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
@@ -340,6 +346,79 @@ describe('Rfq', () => {
       } catch(e) {
         expect(e.message).to.include('rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails')
       }
+    })
+
+    it('accepts selected payment method if it matches one but not all of the Offerings requiredPaymentDetails of matching kind', async () => {
+      // scenario: An offering has two payin methods with kind 'card'. One payin method requires property 'cardNumber' and 'pin' in the RFQ's selected
+      //           payin method. The second payin method only requires 'cardNumber'. An RFQ has selected payin method with kind 'card' and only
+      //           payment detail 'cardNumber', so it matches the Offering's second payin method but not the first. The RFQ is valid against the offering.
+      const offeringData = DevTools.createOfferingData()
+
+      // Supply Offering with two payin methods of kind 'card'.
+      // The first requires 'cardNumber' and 'pin'. The second only requires 'cardNumber'.
+      offeringData.requiredClaims = undefined
+      offeringData.payinMethods = [
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              },
+              pin: {
+                type: 'string'
+              },
+            },
+            required             : ['cardNumber', 'pin'],
+            additionalProperties : false
+          }
+        },
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              }
+            },
+            required             : ['cardNumber'],
+            additionalProperties : false
+          }
+        }
+      ]
+
+      const pfi = await DevTools.createDid()
+
+      const offering = Offering.create({
+        metadata : { from: pfi.did },
+        data     : offeringData,
+      })
+      await offering.sign(pfi)
+
+      // Construct RFQ with a payin method that has payin detail 'cardNumber'
+      const alice = await DevTools.createDid()
+      const rfqData = await DevTools.createRfqData()
+      rfqData.offeringId = offering.metadata.id
+      rfqData.payinMethod = {
+        kind           : 'card',
+        paymentDetails : {
+          cardNumber: '1234'
+        }
+      }
+      const rfq = Rfq.create({
+        metadata: {
+          from : alice.did,
+          to   : pfi.did,
+        },
+        data: rfqData,
+      })
+      await rfq.sign(alice)
+
+      await rfq.verifyOfferingRequirements(offering)
     })
   })
 

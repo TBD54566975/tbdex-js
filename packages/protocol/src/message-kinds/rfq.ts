@@ -146,21 +146,26 @@ export class Rfq extends Message {
     const paymentMethodMatches = allowedPaymentMethods.filter(paymentMethod => paymentMethod.kind === rfqPaymentMethod.kind)
 
     if (!paymentMethodMatches.length) {
-      const paymentMethodKinds = allowedPaymentMethods.map(paymentMethod => paymentMethod.kind).join()
+      const paymentMethodKinds = allowedPaymentMethods.map(paymentMethod => paymentMethod.kind).join(', ')
       throw new Error(
-        `offering does not support rfq's ${payDirection}Method kind. (rfq) ${rfqPaymentMethod.kind} was not found in: ${paymentMethodKinds} (offering)`
+        `offering does not support rfq's ${payDirection}Method kind. (rfq) ${rfqPaymentMethod.kind} was not found in: [${paymentMethodKinds}] (offering)`
       )
     }
 
     const ajv = new Ajv.default()
     const invalidPaymentDetailsErrors = new Set()
 
-    // Only one matching paymentMethod is needed
     for (const paymentMethodMatch of paymentMethodMatches) {
+      if (!paymentMethodMatch.requiredPaymentDetails) {
+        // The offering does not required any payment details for this kind of payment method
+        return
+      }
+
       const validate = ajv.compile(paymentMethodMatch.requiredPaymentDetails)
       const isValid = validate(rfqPaymentMethod.paymentDetails)
       if (isValid) {
-        break
+        // Selected payment method matches one of the offering's allowed payment methods
+        return
       }
       invalidPaymentDetailsErrors.add(validate.errors)
     }
