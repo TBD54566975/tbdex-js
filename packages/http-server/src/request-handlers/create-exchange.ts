@@ -72,9 +72,9 @@ export function createExchange(options: CreateExchangeOpts): RequestHandler {
   }
 }
 
-function isValidUrl(urlStr: string) {
+function isValidUrl(replyToUrl: string) {
   try {
-    new URL(urlStr)
+    new URL(replyToUrl)
     return true
   } catch (err) {
     return false
