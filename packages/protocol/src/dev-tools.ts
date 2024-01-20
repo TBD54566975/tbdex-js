@@ -1,13 +1,9 @@
 
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
-
 import { DidIonMethod, DidKeyMethod } from '@web5/dids'
-import { utils as vcUtils } from '@web5/credentials'
+import { VerifiableCredential } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
-import { Convert } from '@web5/common'
-import { Crypto } from './crypto.js'
-import { Jose } from '@web5/crypto'
 import { Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
 
@@ -219,9 +215,9 @@ export class DevTools {
     let credential: any = ''
 
     if (opts?.sender) {
-      const { signedCredential } = await DevTools.createCredential({
+      const signedCredential = VerifiableCredential.create({
         type    : 'YoloCredential',
-        issuer  : opts.sender,
+        issuer  : opts.sender.did,
         subject : opts.sender.did,
         data    : {
           'beep': 'boop'
@@ -249,86 +245,6 @@ export class DevTools {
       },
       payinAmount : '200.00',
       claims      : [credential]
-    }
-  }
-
-  /**
-   * creates a verifiable credential using the options provided. This method is intended for testing purposes
-   * @param opts - options used to create the credential
-   * @returns
-   */
-  static async createCredential(opts: CreateCredentialOptions) {
-    const credential = {
-      '@context'          : ['https://www.w3.org/2018/credentials/v1'],
-      'id'                : Date.now().toString(),
-      'type'              : ['VerifiableCredential', opts.type],
-      'issuer'            : opts.issuer.did,
-      'issuanceDate'      : vcUtils.getCurrentXmlSchema112Timestamp(),
-      'credentialSubject' : { id: opts.subject, ...opts.data }
-    }
-
-    const signedCredential = await DevTools.createJwt({
-      issuer  : opts.issuer,
-      subject : credential.credentialSubject.id,
-      payload : { vc: credential }
-    })
-
-    return { credential, signedCredential }
-  }
-
-  /**
-   * Creates a JWT using the options provided.
-   * It's signed with the issuer's first verification method private key JWK
-   *
-   * @param opts - options used to create the JWT
-   * @returns a compact JWT
-   */
-  static async createJwt(opts: CreateJwtOptions) {
-    const { issuer, subject, payload } = opts
-    const privateKeyJwk = issuer.keySet.verificationMethodKeys?.[0].privateKeyJwk
-    if (!privateKeyJwk) {
-      throw Error('Could not get private key JWK from issuer')
-    }
-
-    // build jwt header
-    const algorithmName = privateKeyJwk['alg'] || ''
-    let namedCurve = Crypto.extractNamedCurve(privateKeyJwk)
-    const algorithmId = `${algorithmName}:${namedCurve}`
-    const algorithm = Crypto.algorithms[algorithmId]
-    const jwtHeader = { alg: algorithm.alg, kid: issuer.document.verificationMethod?.[0]?.id }
-    const base64urlEncodedJwtHeader = Convert.object(jwtHeader).toBase64Url()
-
-    // build jwt payload
-    const jwtPayload = { iss: issuer.did, sub: subject, ...payload }
-    const base64urlEncodedJwtPayload = Convert.object(jwtPayload).toBase64Url()
-
-    // build what will be signed
-    const toSign = `${base64urlEncodedJwtHeader}.${base64urlEncodedJwtPayload}`
-    const bytesToSign = Convert.string(toSign).toUint8Array()
-
-    // select signer based on the provided key's named curve
-    const { signer, options } = algorithm
-    const signingKey = await Jose.jwkToCryptoKey({ key: privateKeyJwk })
-
-    // generate signature
-    const signatureBytes = await signer.sign({ key: signingKey, data: bytesToSign, algorithm: options })
-    const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
-
-    return `${base64urlEncodedJwtHeader}.${base64urlEncodedJwtPayload}.${base64UrlEncodedSignature}`
-  }
-
-  /**
-   * convenience method that can be used to decode a COMPACT JWT
-   * @param compactJwt - the JWT to decode
-   * @returns
-   */
-  static decodeJwt(compactJwt: string) {
-    const [base64urlEncodedJwtHeader, base64urlEncodedJwtPayload, base64urlEncodedSignature] = compactJwt.split('.')
-
-    return {
-      header  : Convert.base64Url(base64urlEncodedJwtHeader).toObject(),
-      payload : Convert.base64Url(base64urlEncodedJwtPayload).toObject(),
-      base64urlEncodedSignature
     }
   }
 }
