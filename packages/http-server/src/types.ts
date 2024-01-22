@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express'
 import type { Close, MessageKindClass, MessageKindClasses, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
+import type { ErrorDetail } from '@tbdex/http-client'
 
 /**
  * Union type for get requests
@@ -28,10 +29,20 @@ export type GetCallbacks = {
 export type SubmitKind = 'rfq' | 'order' | 'close'
 
 /**
+ * Types for options provided to {@link SubmitCallback}
+ * @beta
+ */
+export type SubmitCallbackOpts = {
+  'rfq': { offering: Offering }
+  'order': undefined
+  'close': undefined
+}
+
+/**
  * Callback handler for the submit requests
  * @beta
  */
-export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T]) => any
+export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T], opts: SubmitCallbackOpts[T]) => Promise<void>
 
 /**
  * Map of callbacks handlers for the submit requests
@@ -72,6 +83,8 @@ export type GetOfferingsFilter = {
 export type GetExchangesFilter = {
   /** List of exchanges ids */
   id?: string[]
+  /** the rfq author's DID */
+  from: string
 }
 
 /**
@@ -89,7 +102,7 @@ export type RequestContext = {
  * Type alias for the request handler
  * @beta
  */
-export type RequestHandler = (request: Request, response: Response) => any
+export type RequestHandler = (request: Request, response: Response<{ errors?: ErrorDetail[], data?: any }>) => any
 
 /**
  * PFI Offerings API

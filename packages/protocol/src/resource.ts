@@ -1,10 +1,10 @@
 import type { ResourceModel, ResourceMetadata, ResourceKind, ResourceKindModel, NewResource } from './types.js'
-import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
 import type { ResourceKindClass } from './resource-kinds/index.js'
 
 import { typeid } from 'typeid-js'
 import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
+import { PortableDid } from '@web5/dids'
 
 
 /**
@@ -15,7 +15,7 @@ import { validate } from './validator.js'
 export abstract class Resource<T extends ResourceKind> {
   private _metadata: ResourceMetadata<T>
   private _data: ResourceKindModel<T>
-  private _signature: string
+  private _signature: string | undefined
 
   /**
    * used by {@link Resource.parse} to return an instance of resource kind's class. This abstraction is needed
@@ -47,7 +47,8 @@ export abstract class Resource<T extends ResourceKind> {
     try {
       jsonResource = typeof resource === 'string' ? JSON.parse(resource): resource
     } catch(e) {
-      throw new Error(`parse: Failed to parse resource. Error: ${e.message}`)
+      const errorMessage = e instanceof Error ? e.message : e
+      throw new Error(`parse: Failed to parse resource. Error: ${errorMessage}`)
     }
 
     await Resource.verify(jsonResource)
@@ -59,13 +60,15 @@ export abstract class Resource<T extends ResourceKind> {
    * validates the resource and verifies the cryptographic signature
    * @throws if the message is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Resource signer's DID
    */
   static async verify<T extends ResourceKind>(resource: ResourceModel<T> | Resource<T>): Promise<string> {
     let jsonResource: ResourceModel<T> = resource instanceof Resource ? resource.toJSON() : resource
     Resource.validate(jsonResource)
 
     const digest = Crypto.digest({ metadata: jsonResource.metadata, data: jsonResource.data })
-    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature })
+    // Resource.validate() guarantees presence of signature
+    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature! })
 
     if (jsonResource.metadata.from !== signerDid) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
@@ -84,7 +87,16 @@ export abstract class Resource<T extends ResourceKind> {
    */
   static validate(jsonResource: any): void {
     validate(jsonResource, 'resource')
-    validate(jsonResource['data'], jsonResource['metadata']['kind'])
+    Resource.validateData(jsonResource['metadata']['kind'], jsonResource['data'])
+  }
+
+  /**
+   * Validates `data` section of resource only. This is useful for partially validating
+   * unsigned Resources.
+   */
+  static validateData(kind: string, resourceData: any): void {
+    // validate the value of `data`
+    validate(resourceData, kind)
   }
 
   /** Generates a unique id with the resource kind's prefix */
@@ -94,23 +106,22 @@ export abstract class Resource<T extends ResourceKind> {
 
   /**
    * signs the message as a jws with detached content and sets the signature property
-   * @param privateKeyJwk - the key to sign with
-   * @param kid - the kid to include in the jws header. used by the verifier to select the appropriate verificationMethod
-   *              when dereferencing the signer's DID
+   * @param did - the signer's DID
    */
-  async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
+  async sign(did: PortableDid): Promise<void> {
     const payload = { metadata: this.metadata, data: this.data }
     const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
+    this._signature = await Crypto.sign({ did, payload: payloadDigest, detached: true })
   }
 
   /**
    * validates the resource and verifies the cryptographic signature
    * @throws if the resource is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Resource signer's DID
    */
-  async verify() {
+  async verify(): Promise<string> {
     return Resource.verify(this)
   }
 

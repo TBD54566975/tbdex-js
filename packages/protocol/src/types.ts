@@ -1,5 +1,5 @@
 import type { Schema as JsonSchema } from 'ajv'
-import type { PresentationDefinitionV2 } from '@sphereon/pex-models'
+import type { PresentationDefinitionV2 } from '@web5/credentials'
 
 export { JsonSchema }
 
@@ -25,7 +25,7 @@ export type ResourceModel<T extends ResourceKind> = {
   /** The actual resource content */
   data: ResourceKindModel<T>
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**
@@ -85,7 +85,7 @@ export type OfferingData = {
   /** A list of accepted payment methods that Alice can use to receive the _payout_ currency from a PFI */
   payoutMethods: PaymentMethod[]
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
-  requiredClaims: PresentationDefinitionV2
+  requiredClaims?: PresentationDefinitionV2
 }
 
 /**
@@ -96,9 +96,9 @@ export type CurrencyDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
   /** Minimum amount of currency that can be requested */
-  minSubunits?: string
+  minAmount?: string
   /** Maximum amount of currency that can be requested */
-  maxSubunits?: string
+  maxAmount?: string
 }
 
 /**
@@ -121,8 +121,10 @@ export type MessageModel<T extends MessageKind> = {
   metadata: MessageMetadata<T>
   /** The actual message content */
   data: MessageKindModel<T>
+  /** Private data that must not be in the main  */
+  private?: T extends 'rfq' ? Record<string, any> : never
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**
@@ -182,7 +184,7 @@ export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
   /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */
-  payinSubunits: string
+  payinAmount: string
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   payinMethod: SelectedPaymentMethod
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
@@ -214,8 +216,6 @@ export type QuoteData = {
   payin: QuoteDetails
   /** the amount of payout currency that Alice will receive */
   payout: QuoteDetails
-  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
-  paymentInstructions?: PaymentInstructions
 }
 
 /**
@@ -225,21 +225,12 @@ export type QuoteData = {
 export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
-  /** The amount of currency expressed in the smallest respective unit */
-  amountSubunits: string
-  /** the amount paid in fees */
-  feeSubunits?: string
-}
-
-/**
- * Payment Instructions payin and payout pairs
- * @beta
- */
-export type PaymentInstructions = {
-  /** link or instruction describing how to send payin currency to the PFI. */
-  payin?: PaymentInstruction
-  /** link or Instruction describing how to get recieve payout currency from the PFI */
-  payout?: PaymentInstruction
+  /** The amount of currency */
+  amount: string
+  /** The amount paid in fees */
+  fee?: string
+  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
+  paymentInstruction?: PaymentInstruction
 }
 
 /**

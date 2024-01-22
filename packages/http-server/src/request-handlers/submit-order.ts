@@ -1,8 +1,9 @@
 import type { SubmitCallback, RequestHandler, ExchangesApi } from '../types.js'
 import type { ErrorDetail } from '@tbdex/http-client'
-import type { MessageKind } from '@tbdex/protocol'
+import type { MessageKind, Quote } from '@tbdex/protocol'
 
 import { Message } from '@tbdex/protocol'
+import { CallbackError } from '../callback-error.js'
 
 type SubmitOrderOpts = {
   callback: SubmitCallback<'order'>
@@ -27,12 +28,30 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    // TODO: return 409 if order is not allowed given the current state of the exchange. (#issue 4)
+    const exchange = await exchangesApi.getExchange({id: message.exchangeId})
+    if(exchange == undefined) {
+      const errorResponse: ErrorDetail = { detail: `No exchange found for ${message.exchangeId}` }
 
-    const quote = await exchangesApi.getQuote({ exchangeId: message.exchangeId })
+      return res.status(404).json({ errors: [errorResponse] })
+    }
+
+    const last = exchange[exchange.length-1]
+    if(!last.validNext.has('order')) {
+      const errorResponse: ErrorDetail = { detail: `cannot submit Order for an exchange where the last message is kind: ${last.kind}` }
+
+      return res.status(409).json({ errors: [errorResponse] })
+    }
+
+    const quote = exchange.find((message) => message.isQuote) as Quote
     if(quote == undefined) {
       const errorResponse: ErrorDetail = { detail: 'quote is undefined' }
       return res.status(404).json({errors: [errorResponse]})
+    }
+
+    if(new Date(quote.expiresAt) < new Date(message.createdAt)){
+      const errorResponse: ErrorDetail = { detail: `quote is expired` }
+
+      return res.status(400).json({ errors: [errorResponse] })
     }
 
     if (!callback) {
@@ -40,11 +59,15 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
     }
 
     try {
-      // TODO: figure out what to do with callback result, if anything. (#issue 5)
-      const _result = await callback({ request: req, response: res }, message)
+      await callback({ request: req, response: res }, message, undefined)
       return res.sendStatus(202)
     } catch(e) {
-      // TODO: handle error lewl
+      if (e instanceof CallbackError) {
+        return res.status(e.statusCode).json({ errors: e.details })
+      } else {
+        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        return res.status(500).json({ errors: [errorDetail] })
+      }
     }
   }
 }

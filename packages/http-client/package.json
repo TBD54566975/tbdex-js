@@ -1,6 +1,6 @@
 {
   "name": "@tbdex/http-client",
-  "version": "0.18.0",
+  "version": "0.23.0",
   "type": "module",
   "description": "Http client that can be used to send tbdex messages",
   "license": "Apache-2.0",
@@ -50,9 +50,9 @@
   },
   "dependencies": {
     "@tbdex/protocol": "workspace:*",
-    "@web5/crypto": "0.2.0",
-    "@web5/dids": "0.2.0",
-    "@web5/common": "0.2.0",
+    "@web5/common": "0.2.1",
+    "@web5/crypto": "0.2.2",
+    "@web5/dids": "0.2.2",
     "query-string": "8.1.0"
   },
   "devDependencies": {
@@ -60,6 +60,7 @@
     "@types/chai": "4.3.5",
     "@types/eslint": "8.37.0",
     "@types/mocha": "10.0.1",
+    "@types/sinon": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "5.59.0",
     "@typescript-eslint/parser": "5.59.0",
     "chai": "4.3.10",
@@ -87,7 +88,7 @@
     "build:esm": "rimraf dist/esm dist/types && tsc",
     "build:cjs": "rimraf dist/cjs && tsc -p tsconfig.cjs.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json",
     "build:browser": "rimraf dist/browser.mjs dist/browser.js && node build/bundles.js",
-    "test:node": "rimraf tests/compiled && tsc -p tests/tsconfig.json && mocha",
+    "test:node": "rimraf tests/compiled && tsc -p tests/tsconfig.json && c8 mocha",
     "test:browser": "karma start karma.conf.cjs",
     "build": "pnpm clean && pnpm build:esm && pnpm build:cjs && pnpm build:browser",
     "lint": "eslint . --ext .ts --max-warnings 0",

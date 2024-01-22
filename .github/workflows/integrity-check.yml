@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
+        with:
+          submodules: 'true'
 
       - name: install pnpm
         uses: pnpm/action-setup@v2
@@ -62,7 +64,41 @@ jobs:
         run: pnpm lint
 
       - name: Run tests for all packages
-        run: pnpm test:node
+        run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
+      
+      - name: Upload test results to update SDK reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: junit-results
+          path: packages/*/results.xml
+
+      - name: Upload test coverage to Codecov
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Generate an access token to trigger downstream repo
+        uses: actions/create-github-app-token@2986852ad836768dfea7781f31828eb3e17990fa # v1.6.2
+        id: generate_token
+        if: github.ref == 'refs/heads/main'
+        with:
+          app-id: ${{ secrets.CICD_ROBOT_GITHUB_APP_ID }}
+          private-key: ${{ secrets.CICD_ROBOT_GITHUB_APP_PRIVATE_KEY }}
+          owner: TBD54566975
+          repositories: sdk-development
+
+      - name: Trigger sdk-development report build
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -L \
+          -H "Authorization: Bearer ${APP_TOKEN}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -H "Content-Type: application/json" \
+          --fail \
+          --data '{"ref": "main"}' \
+          https://api.github.com/repos/TBD54566975/sdk-development/actions/workflows/build-report.yaml/dispatches
+        env:
+          APP_TOKEN: ${{ steps.generate_token.outputs.token }}
 
   # test-with-browsers:
   #   # Run browser tests using macOS so that WebKit tests don't fail under a Linux environment
@@ -90,44 +126,3 @@ jobs:
 
   #     - name: Run tests for all packages
   #       run: pnpm test:browser
-
-  tbdocs-reporter:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-
-      - name: install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      - name: Set up Node.js
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build all workspace packages
-        run: pnpm build
-
-      - name: TBDocs Reporter
-        id: tbdocs-reporter-protocol
-        uses: TBD54566975/tbdocs@main
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          report_changed_scope_only: true
-          fail_on_error: false
-          entry_points: |
-            - file: packages/protocol/src/main.ts
-              docsReporter: api-extractor
-              docsGenerator: typedoc-markdown
-            - file: packages/http-client/src/main.ts
-              docsReporter: api-extractor
-              docsGenerator: typedoc-markdown
-            - file: packages/http-server/src/main.ts
-              docsReporter: api-extractor
-              docsGenerator: typedoc-markdown

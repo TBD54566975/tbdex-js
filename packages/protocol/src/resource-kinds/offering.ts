@@ -1,5 +1,6 @@
 import type { ResourceKindModel, ResourceMetadata } from '../types.js'
 import { Resource } from '../resource.js'
+import type { PresentationDefinitionV2 } from '@web5/credentials'
 
 /**
  * Options passed to {@link Offering.create}
@@ -30,6 +31,7 @@ export class Offering extends Resource<'offering'> {
     }
 
     const message = { metadata, data: opts.data }
+    Resource.validateData('offering', message.data)
     return new Offering(message)
   }
 
@@ -64,7 +66,9 @@ export class Offering extends Resource<'offering'> {
   }
 
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
-  get requiredClaims() {
+  // TODO: Remove type annotation once type alias replaced with direct export in @web5/credentials
+  // [Link to the PR](https://github.com/TBD54566975/web5-js/pull/336)
+  get requiredClaims(): PresentationDefinitionV2 | undefined {
     return this.data.requiredClaims
   }
 }

@@ -1,11 +1,11 @@
 import type { MessageKind, MessageKindModel, MessageModel, MessageMetadata, NewMessage } from './types.js'
 import type { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
-import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
 import type { MessageKindClass } from './message-kinds/index.js'
 
 import { validate } from './validator.js'
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
+import { PortableDid } from '@web5/dids'
 
 
 /**
@@ -16,7 +16,7 @@ import { typeid } from 'typeid-js'
 export abstract class Message<T extends MessageKind> {
   private _metadata: MessageMetadata<T>
   private _data: MessageKindModel<T>
-  private _signature: string
+  private _signature: string | undefined
 
   /**
    * used by {@link Message.parse} to return an instance of message kind's class. This abstraction is needed
@@ -41,7 +41,8 @@ export abstract class Message<T extends MessageKind> {
     try {
       jsonMessage = typeof message === 'string' ? JSON.parse(message): message
     } catch(e) {
-      throw new Error(`parse: Failed to parse message. Error: ${e.message}`)
+      const errorMessage = e instanceof Error ? e.message : e
+      throw new Error(`parse: Failed to parse message. Error: ${errorMessage}`)
     }
 
     await Message.verify(jsonMessage)
@@ -53,6 +54,7 @@ export abstract class Message<T extends MessageKind> {
    * validates the message and verifies the cryptographic signature
    * @throws if the message is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Message signer's DID
    */
   static async verify<T extends MessageKind>(message: MessageModel<T> | Message<T>): Promise<string> {
     let jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
@@ -60,7 +62,8 @@ export abstract class Message<T extends MessageKind> {
     Message.validate(jsonMessage)
 
     const digest = Crypto.digest({ metadata: jsonMessage.metadata, data: jsonMessage.data })
-    const signer = await Crypto.verify({ detachedPayload: digest, signature: jsonMessage.signature })
+    // Message.validate() guarantees presence of signature
+    const signer = await Crypto.verify({ detachedPayload: digest, signature: jsonMessage.signature! })
 
     if (jsonMessage.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
@@ -91,6 +94,15 @@ export abstract class Message<T extends MessageKind> {
   }
 
   /**
+   * Validates `data` section of message only. This is useful for partially validating
+   * unsigned Messages.
+   */
+  static validateData(kind: string, messageData: any): void {
+    // validate the value of `data`
+    validate(messageData, kind)
+  }
+
+  /**
    * returns an instance of the appropriate MessageKind class based on the value of `jsonMessage.metadata.kind`
    * @param jsonMessage - the message to parse
    */
@@ -100,23 +112,22 @@ export abstract class Message<T extends MessageKind> {
 
   /**
    * signs the message as a jws with detached content and sets the signature property
-   * @param privateKeyJwk - the key to sign with
-   * @param kid - the verification method id to include in the jws header. used by the verifier to
-   *               select the appropriate verificationMethod when dereferencing the signer's DID
+   * @param did - the signer's DID
    */
-  async sign(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<void> {
+  async sign(did: PortableDid): Promise<void> {
     const payload = { metadata: this.metadata, data: this.data }
     const payloadDigest = Crypto.digest(payload)
 
-    this._signature = await Crypto.sign({ privateKeyJwk, kid, payload: payloadDigest, detached: true })
+    this._signature = await Crypto.sign({ did: did, payload: payloadDigest, detached: true })
   }
 
   /**
    * validates the message and verifies the cryptographic signature
    * @throws if the message is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Signer's DID
    */
-  async verify() {
+  async verify(): Promise<string> {
     return Message.verify(this)
   }
 
@@ -192,6 +203,7 @@ export abstract class Message<T extends MessageKind> {
 
   /**
    * returns the message as a json object. Automatically used by `JSON.stringify` method.
+   * @throws if message is missing signature
    */
   toJSON() {
     const message: MessageModel<T> = {

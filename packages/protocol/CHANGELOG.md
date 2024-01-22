@@ -1,5 +1,41 @@
 # @tbdex/protocol
 
+## 0.23.0
+
+### Patch Changes
+
+- a7bc582: make required claims nullable
+- 5631d32: Replace pex implementation with web5
+- c3610ed: Adds more checks to validate an RFQ against a provided Offering
+
+## 0.22.1
+
+### Patch Changes
+
+- 2f4c096: bump @web5/credentials dependency
+
+## 0.22.0
+
+### Minor Changes
+
+- bef3ae7: Refactored `sign` to take `PortableDid` as an argument instead of `privateKeyJwk` and `kid`
+
+## 0.21.0
+
+### Minor Changes
+
+- 415b234: - Added requester DID in filter passed to `ExchangesApi.getExchanges`. Prior to this change, there was no way to prevent returning exchanges that the requester wasn't a participant of
+  - Added `did:dht` resolution
+  - Fixed `DevTools.createJwt`
+
+## 0.20.0
+
+No changes
+
+## 0.19.0
+
+No changes
+
 ## 0.18.0
 
 ## 0.17.0

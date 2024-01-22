@@ -1,5 +1,5 @@
-import type { DataResponse, ErrorDetail, ErrorResponse, HttpResponse } from './types.js'
-import type { PrivateKeyJwk as Web5PrivateKeyJwk } from '@web5/crypto'
+import type { ErrorDetail } from './types.js'
+import type { PortableDid } from '@web5/dids'
 import type {
   ResourceMetadata,
   MessageModel,
@@ -12,7 +12,7 @@ import type {
 import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { Convert } from '@web5/common'
-
+import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
 import queryString from 'query-string'
 
 /**
@@ -27,7 +27,7 @@ export class TbdexHttpClient {
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<HttpResponse | ErrorResponse> {
+  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
     const { message } = opts
     const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
 
@@ -45,20 +45,12 @@ export class TbdexHttpClient {
         body    : JSON.stringify(jsonMessage)
       })
     } catch(e) {
-      throw new Error(`Failed to send message to ${pfiDid}. Error: ${e.message}`)
+      throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const { status, headers } = response
-    if (status === 202) {
-      return { status, headers }
-    } else {
-      // TODO: figure out what happens if this fails. do we need to try/catch?
-      const responseBody: { errors: ErrorDetail[] } = await response.json()
-      return {
-        status  : response.status,
-        headers : response.headers,
-        errors  : responseBody.errors
-      }
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
   }
 
@@ -114,9 +106,10 @@ export class TbdexHttpClient {
 
   /**
    * gets offerings from the pfi provided
-   * @param _opts - options
+   * @param opts - options
+   * @beta
    */
-  static async getOfferings(opts: GetOfferingsOptions): Promise<DataResponse<Offering[]> | ErrorResponse> {
+  static async getOfferings(opts: GetOfferingsOptions): Promise<Offering[]> {
     const { pfiDid , filter } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
@@ -127,42 +120,35 @@ export class TbdexHttpClient {
     try {
       response = await fetch(apiRoute)
     } catch(e) {
-      throw new Error(`Failed to get offerings from ${pfiDid}. Error: ${e.message}`)
+      throw new RequestError({ message: `Failed to get offerings from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
     const data: Offering[] = []
 
-    if (response.status === 200) {
-      const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
-      for (let jsonResource of responseBody.data) {
-        const resource = await Resource.parse(jsonResource)
-        data.push(resource)
-      }
-
-      return {
-        status  : response.status,
-        headers : response.headers,
-        data    : data
-      }
-    } else {
-      return {
-        status  : response.status,
-        headers : response.headers,
-        errors  : await response.json() as ErrorDetail[]
-      } as ErrorResponse
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
+
+    const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
+    for (let jsonResource of responseBody.data) {
+      const resource = await Resource.parse(jsonResource)
+      data.push(resource)
+    }
+
+    return data
   }
 
   /**
    * get a specific exchange from the pfi provided
    * @param _opts - options
    */
-  static async getExchange(opts: GetExchangeOptions): Promise<DataResponse<MessageKindClass[]> | ErrorResponse> {
-    const { pfiDid, exchangeId, privateKeyJwk } = opts
+  static async getExchange(opts: GetExchangeOptions): Promise<MessageKindClass[]> {
+    const { pfiDid, exchangeId, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, privateKeyJwk.kid)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did)
 
     let response: Response
     try {
@@ -172,43 +158,37 @@ export class TbdexHttpClient {
         }
       })
     } catch(e) {
-      throw new Error(`Failed to get offerings from ${pfiDid}. Error: ${e.message}`)
+      throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
     const data: MessageKindClass[] = []
 
-    if (response.status === 200) {
-      const responseBody = await response.json() as { data: MessageModel<MessageKind>[] }
-      for (let jsonMessage of responseBody.data) {
-        const message = await Message.parse(jsonMessage)
-        data.push(message)
-      }
-
-      return {
-        status  : response.status,
-        headers : response.headers,
-        data    : data
-      }
-    } else {
-      return {
-        status  : response.status,
-        headers : response.headers,
-        errors  : await response.json() as ErrorDetail[]
-      } as ErrorResponse
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
+
+    const responseBody = await response.json() as { data: MessageModel<MessageKind>[] }
+    for (let jsonMessage of responseBody.data) {
+      const message = await Message.parse(jsonMessage)
+      data.push(message)
+    }
+
+    return data
+
   }
 
   /**
    * returns all exchanges created by requester
    * @param _opts - options
    */
-  static async getExchanges(opts: GetExchangesOptions): Promise<DataResponse<MessageKindClass[][]> | ErrorResponse> {
-    const { pfiDid, filter, privateKeyJwk, kid } = opts
-    const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
+  static async getExchanges(opts: GetExchangesOptions): Promise<MessageKindClass[][]> {
+    const { pfiDid, filter, did } = opts
 
+    const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
     const apiRoute = `${pfiServiceEndpoint}/exchanges${queryParams}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(privateKeyJwk, kid)
+    const requestToken = await TbdexHttpClient.generateRequestToken(did)
 
     let response: Response
     try {
@@ -218,36 +198,29 @@ export class TbdexHttpClient {
         }
       })
     } catch(e) {
-      throw new Error(`Failed to get exchanges from ${pfiDid}. Error: ${e.message}`)
+      throw new RequestError({ message: `Failed to get exchanges from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
     const exchanges: MessageKindClass[][] = []
 
-    if (response.status === 200) {
-      const responseBody = await response.json() as { data: MessageModel<MessageKind>[][] }
-      for (let jsonExchange of responseBody.data) {
-        const exchange: MessageKindClass[] = []
-
-        for (let jsonMessage of jsonExchange) {
-          const message = await Message.parse(jsonMessage)
-          exchange.push(message)
-        }
-
-        exchanges.push(exchange)
-      }
-
-      return {
-        status  : response.status,
-        headers : response.headers,
-        data    : exchanges
-      }
-    } else {
-      return {
-        status  : response.status,
-        headers : response.headers,
-        errors  : await response.json() as ErrorDetail[]
-      } as ErrorResponse
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
+
+    const responseBody = await response.json() as { data: MessageModel<MessageKind>[][] }
+    for (let jsonExchange of responseBody.data) {
+      const exchange: MessageKindClass[] = []
+
+      for (let jsonMessage of jsonExchange) {
+        const message = await Message.parse(jsonMessage)
+        exchange.push(message)
+      }
+
+      exchanges.push(exchange)
+    }
+
+    return exchanges
   }
 
   /**
@@ -255,23 +228,28 @@ export class TbdexHttpClient {
    * @param did - the pfi's DID
    */
   static async getPfiServiceEndpoint(did: string) {
-    const didDocument = await resolveDid(did)
-    const [ didService ] = didUtils.getServices({ didDocument, type: 'PFI' })
+    try {
+      const didDocument = await resolveDid(did)
+      const [ didService ] = didUtils.getServices({ didDocument, type: 'PFI' })
 
-    if (didService?.serviceEndpoint) {
+      if (!didService?.serviceEndpoint) {
+        throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
+      }
+
       return didService.serviceEndpoint
-    } else {
-      throw new Error(`${did} has no PFI service entry`)
+    } catch (e) {
+      if (e instanceof MissingServiceEndpointError) {
+        throw e
+      }
+      throw new InvalidDidError(e)
     }
   }
 
   /**
    * generates a jws to be used to authenticate GET requests
-   * @param privateKeyJwk - the key to sign with
-   * @param kid - the kid to include in the jws header. used by the verifier to select the appropriate verificationMethod
-   *              when dereferencing the signer's DID
+   * @param did - the requester's did
    */
-  static async generateRequestToken(privateKeyJwk: Web5PrivateKeyJwk, kid: string): Promise<string> {
+  static async generateRequestToken(did: PortableDid): Promise<string> {
     // TODO: include exp property. expires 1 minute from generation time
     // TODO: include aud property. should be DID of receipient
     // TODO: include nbf property. not before current time
@@ -279,7 +257,7 @@ export class TbdexHttpClient {
     const payload = { timestamp: new Date().toISOString() }
     const payloadBytes = Convert.object(payload).toUint8Array()
 
-    return Crypto.sign({ privateKeyJwk, kid, payload: payloadBytes, detached: false })
+    return Crypto.sign({ did: did, payload: payloadBytes, detached: false })
   }
 
   /**
@@ -326,9 +304,9 @@ export type GetExchangeOptions = {
   pfiDid: string
   /** the exchange you want to fetch */
   exchangeId: string
-  /** the private key used to sign the bearer token */
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
+
+  /** the message author's DID */
+  did: PortableDid
 }
 
 /**
@@ -338,8 +316,7 @@ export type GetExchangeOptions = {
 export type GetExchangesOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
-  privateKeyJwk: Web5PrivateKeyJwk
-  kid: string
+  did: PortableDid,
   filter?: {
     id: string | string[]
   }

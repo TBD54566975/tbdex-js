@@ -3,9 +3,9 @@
   "compilerOptions": {
     "lib": [
       "DOM",
-      "ES2015",
+      "ES2023",
     ],
-    "target": "ES5",
+    "target": "ES2022",
     "outDir": "dist/cjs",
     "declaration": false,
     "declarationMap": false,

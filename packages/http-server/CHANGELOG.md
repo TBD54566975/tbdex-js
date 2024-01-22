@@ -1,5 +1,72 @@
 # @tbdex/http-server
 
+## 0.23.0
+
+### Patch Changes
+
+- 941e8f6: Improve http-server error handling and test coverage
+- 47105ca: Removes HttpResponse and ErrorResponse types from http-client package
+- Updated dependencies [a7bc582]
+- Updated dependencies [5631d32]
+- Updated dependencies [9e1015e]
+- Updated dependencies [47105ca]
+- Updated dependencies [c3610ed]
+  - @tbdex/protocol@0.23.0
+  - @tbdex/http-client@0.23.0
+
+## 0.22.1
+
+### Patch Changes
+
+- Updated dependencies [2f4c096]
+  - @tbdex/protocol@0.22.1
+  - @tbdex/http-client@0.22.1
+
+## 0.22.0
+
+### Patch Changes
+
+- Updated dependencies [bef3ae7]
+  - @tbdex/http-client@0.22.0
+  - @tbdex/protocol@0.22.0
+
+## 0.21.0
+
+### Minor Changes
+
+- 415b234: - Added requester DID in filter passed to `ExchangesApi.getExchanges`. Prior to this change, there was no way to prevent returning exchanges that the requester wasn't a participant of
+  - Added `did:dht` resolution
+  - Fixed `DevTools.createJwt`
+
+### Patch Changes
+
+- Updated dependencies [415b234]
+  - @tbdex/http-client@0.21.0
+  - @tbdex/protocol@0.21.0
+
+## 0.20.0
+
+### Minor Changes
+
+- 563e036: export `CallbackError`
+
+### Patch Changes
+
+- @tbdex/protocol@0.20.0
+- @tbdex/http-client@0.20.0
+
+## 0.19.0
+
+### Minor Changes
+
+- Restructure error messages as ErrorDetail type
+- Handle http-server callback errors and pass offering to RFQ handler
+
+### Patch Changes
+
+- @tbdex/protocol@0.19.0
+- @tbdex/http-client@0.19.0
+
 ## 0.18.0
 
 ### Minor Changes

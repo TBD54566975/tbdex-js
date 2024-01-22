@@ -145,3 +145,6 @@ generated
 packages/**/tests/compiled/
 packages/**/src/try.ts
 .DS_STORE
+
+# Test report
+results.xml
