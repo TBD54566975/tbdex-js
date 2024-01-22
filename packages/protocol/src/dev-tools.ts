@@ -1,7 +1,7 @@
 
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
-import { DidIonMethod, DidKeyMethod } from '@web5/dids'
+import { DidDhtMethod, DidIonMethod, DidKeyMethod } from '@web5/dids'
 import { VerifiableCredential } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
 import { Rfq } from './message-kinds/index.js'
@@ -65,9 +65,11 @@ export class DevTools {
    */
   static async createDid(didMethod: DidMethodOptions = 'key') {
     if (didMethod === 'key') {
-      return DidKeyMethod.create()
+      return await DidKeyMethod.create()
     } else if (didMethod === 'ion') {
-      return DidIonMethod.create()
+      return await DidIonMethod.create()
+    } else if (didMethod === 'dht') {
+      return await DidDhtMethod.create()
     } else {
       throw new Error(`${didMethod} method not implemented.`)
     }
