@@ -1,6 +1,7 @@
 # tbdex-js
 
 [![codecov](https://codecov.io/github/TBD54566975/tbdex-js/graph/badge.svg?token=NE0263LUKG)](https://codecov.io/github/TBD54566975/tbdex-js)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/TBD54566975/tbdex-js/badge)](https://securityscorecards.dev/viewer/?uri=github.com/TBD54566975/tbdex-js)
 
 This repo contains 3 npm packages:
 
