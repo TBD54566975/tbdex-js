@@ -39,4 +39,3 @@ describe('Test vectors: parse and serialize', () => {
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
   })
 })
-
