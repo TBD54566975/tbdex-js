@@ -15,7 +15,7 @@ import { PortableDid } from '@web5/dids'
 export abstract class Resource<T extends ResourceKind> {
   private _metadata: ResourceMetadata<T>
   private _data: ResourceKindModel<T>
-  private _signature: string
+  private _signature: string | undefined
 
   /**
    * used by {@link Resource.parse} to return an instance of resource kind's class. This abstraction is needed
@@ -47,7 +47,8 @@ export abstract class Resource<T extends ResourceKind> {
     try {
       jsonResource = typeof resource === 'string' ? JSON.parse(resource): resource
     } catch(e) {
-      throw new Error(`parse: Failed to parse resource. Error: ${e.message}`)
+      const errorMessage = e instanceof Error ? e.message : e
+      throw new Error(`parse: Failed to parse resource. Error: ${errorMessage}`)
     }
 
     await Resource.verify(jsonResource)
@@ -59,13 +60,15 @@ export abstract class Resource<T extends ResourceKind> {
    * validates the resource and verifies the cryptographic signature
    * @throws if the message is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Resource signer's DID
    */
   static async verify<T extends ResourceKind>(resource: ResourceModel<T> | Resource<T>): Promise<string> {
     let jsonResource: ResourceModel<T> = resource instanceof Resource ? resource.toJSON() : resource
     Resource.validate(jsonResource)
 
     const digest = Crypto.digest({ metadata: jsonResource.metadata, data: jsonResource.data })
-    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature })
+    // Resource.validate() guarantees presence of signature
+    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature! })
 
     if (jsonResource.metadata.from !== signerDid) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
@@ -116,8 +119,9 @@ export abstract class Resource<T extends ResourceKind> {
    * validates the resource and verifies the cryptographic signature
    * @throws if the resource is invalid
    * @throws see {@link Crypto.verify}
+   * @returns Resource signer's DID
    */
-  async verify() {
+  async verify(): Promise<string> {
     return Resource.verify(this)
   }
 

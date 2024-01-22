@@ -1,0 +1,33 @@
+comment:
+  layout: "header, diff, components"
+
+component_management:
+  default_rules:
+    statuses:
+      - type: project
+        target: auto # auto compares coverage to the previous base commit
+        threshold: 5% # allows a 5% drop from the previous base commit coverage
+      - type: patch
+        target: 90 # every PR opened should strive for at least 90% coverage
+
+  individual_components:
+    - component_id: package-protocol
+      name: protocol
+      paths: ["packages/protocol/**"]
+
+    - component_id: package-http-client
+      name: http-client
+      paths: ["packages/http-client/**"]
+
+    - component_id: package-http-server
+      name: http-server
+      paths: ["packages/http-server/**"]
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true # Don't gate PRs based on Codecov passing thresholds

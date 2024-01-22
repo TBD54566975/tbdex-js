@@ -23,6 +23,8 @@ export function messageFactory<T extends MessageKind>(jsonMessage: MessageModel<
     case 'order': return new Order(jsonMessage as NewMessage<'order'>)
     case 'orderstatus': return new OrderStatus(jsonMessage as NewMessage<'orderstatus'>)
     case 'close': return new Close(jsonMessage as NewMessage<'close'>)
+    default:
+      throw new Error(`Unrecognized message kind (${jsonMessage.metadata.kind})`)
   }
 }
 
@@ -36,5 +38,7 @@ export function messageFactory<T extends MessageKind>(jsonMessage: MessageModel<
 export function resourceFactory<T extends ResourceKind>(jsonResource: ResourceModel<T>): ResourceKindClass {
   switch(jsonResource.metadata.kind) {
     case 'offering': return new Offering(jsonResource as NewResource<'offering'>)
+    default:
+      throw new Error(`Unrecognized resource kind (${jsonResource.metadata.kind})`)
   }
 }

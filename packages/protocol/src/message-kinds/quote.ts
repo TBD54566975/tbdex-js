@@ -30,7 +30,6 @@ export class Quote extends Message<'quote'> {
       id        : Message.generateId('quote'),
       createdAt : new Date().toISOString()
     }
-
     const message = { metadata, data: opts.data }
     Message.validateData('quote', message.data)
     return new Quote(message)
@@ -49,10 +48,5 @@ export class Quote extends Message<'quote'> {
   /** the amount of payout currency that Alice will receive */
   get payout() {
     return this.data.payout
-  }
-
-  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
-  get paymentInstructions() {
-    return this.data.paymentInstructions
   }
 }

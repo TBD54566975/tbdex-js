@@ -72,6 +72,11 @@ jobs:
           name: junit-results
           path: packages/*/results.xml
 
+      - name: Upload test coverage to Codecov
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Generate an access token to trigger downstream repo
         uses: actions/create-github-app-token@2986852ad836768dfea7781f31828eb3e17990fa # v1.6.2
         id: generate_token

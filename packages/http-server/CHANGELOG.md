@@ -1,5 +1,19 @@
 # @tbdex/http-server
 
+## 0.23.0
+
+### Patch Changes
+
+- 941e8f6: Improve http-server error handling and test coverage
+- 47105ca: Removes HttpResponse and ErrorResponse types from http-client package
+- Updated dependencies [a7bc582]
+- Updated dependencies [5631d32]
+- Updated dependencies [9e1015e]
+- Updated dependencies [47105ca]
+- Updated dependencies [c3610ed]
+  - @tbdex/protocol@0.23.0
+  - @tbdex/http-client@0.23.0
+
 ## 0.22.1
 
 ### Patch Changes

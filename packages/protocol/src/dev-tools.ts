@@ -175,20 +175,18 @@ export class DevTools {
     return {
       expiresAt : new Date().toISOString(),
       payin     : {
-        currencyCode : 'BTC',
-        amount       : '0.01',
-        fee          : '0.0001'
-      },
-      payout: {
-        currencyCode : 'USD',
-        amount       : '1000.00'
-      },
-      paymentInstructions: {
-        payin: {
+        currencyCode       : 'BTC',
+        amount             : '0.01',
+        fee                : '0.0001',
+        paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
-        },
-        payout: {
+        }
+      },
+      payout: {
+        currencyCode       : 'USD',
+        amount             : '1000.00',
+        paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
         }
@@ -287,12 +285,17 @@ export class DevTools {
    */
   static async createJwt(opts: CreateJwtOptions) {
     const { issuer, subject, payload } = opts
-    const { privateKeyJwk } = issuer.keySet.verificationMethodKeys[0]
+    const privateKeyJwk = issuer.keySet.verificationMethodKeys?.[0].privateKeyJwk
+    if (!privateKeyJwk) {
+      throw Error('Could not get private key JWK from issuer')
+    }
 
     // build jwt header
-    const algorithmId = `${privateKeyJwk['alg']}:${privateKeyJwk['crv']}`
+    const algorithmName = privateKeyJwk['alg'] || ''
+    let namedCurve = Crypto.extractNamedCurve(privateKeyJwk)
+    const algorithmId = `${algorithmName}:${namedCurve}`
     const algorithm = Crypto.algorithms[algorithmId]
-    const jwtHeader = { alg: algorithm.alg, kid: issuer.document.verificationMethod[0].id }
+    const jwtHeader = { alg: algorithm.alg, kid: issuer.document.verificationMethod?.[0]?.id }
     const base64urlEncodedJwtHeader = Convert.object(jwtHeader).toBase64Url()
 
     // build jwt payload
@@ -319,7 +322,7 @@ export class DevTools {
    * @param compactJwt - the JWT to decode
    * @returns
    */
-  static decodeJwt(compactJwt) {
+  static decodeJwt(compactJwt: string) {
     const [base64urlEncodedJwtHeader, base64urlEncodedJwtPayload, base64urlEncodedSignature] = compactJwt.split('.')
 
     return {

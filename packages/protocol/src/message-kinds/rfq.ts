@@ -25,7 +25,7 @@ export class Rfq extends Message<'rfq'> {
   readonly validNext = new Set<MessageKind>(['quote', 'close'])
 
   /** private data (PII or PCI) */
-  _private: Record<string, any>
+  _private: Record<string, any> | undefined
 
   /**
    * Creates an rfq with the given options
@@ -96,8 +96,8 @@ export class Rfq extends Message<'rfq'> {
   /**
    * Validate the Rfq's payin/payout method against an Offering's allow payin/payout methods
    *
-   * @param rfqPaymentMethod The Rfq's selected payin/payout method being validated
-   * @param allowedPaymentMethods The Offering's allowed payin/payout methods
+   * @param rfqPaymentMethod - The Rfq's selected payin/payout method being validated
+   * @param allowedPaymentMethods - The Offering's allowed payin/payout methods
    *
    * @throws if {@link Rfq.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
    * @throws if {@link Rfq.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
@@ -141,7 +141,11 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to check against
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
-  async verifyClaims(offering: Offering | ResourceModel<'offering'>) {
+  async verifyClaims(offering: Offering | ResourceModel<'offering'>): Promise<void> {
+    if (!offering.data.requiredClaims) {
+      return
+    }
+
     const credentials = PresentationExchange.selectCredentials(this.claims, offering.data.requiredClaims)
 
     if (!credentials.length) {
