@@ -4,11 +4,12 @@ import { TbdexHttpClient } from '@tbdex/http-client'
 
 type GetExchangesOpts = {
   callback: GetCallback<'exchanges'>
-  exchangesApi: ExchangesApi
+  exchangesApi: ExchangesApi,
+  pfiDid: string
 }
 
 export function getExchanges(opts: GetExchangesOpts): RequestHandler {
-  const { callback, exchangesApi } = opts
+  const { callback, exchangesApi, pfiDid } = opts
   return async function (request, response) {
     const authzHeader = request.headers['authorization']
     if (!authzHeader) {
@@ -21,9 +22,10 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
       return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
     }
 
-    let requesterDid
+    let requesterDid: string
     try {
-      requesterDid = await TbdexHttpClient.verify(requestToken)
+      // TODO: Correct this to actual pfiDid
+      requesterDid = await TbdexHttpClient.verifyRequestToken({ requestToken: requestToken, pfiDid })
     } catch(e) {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
     }

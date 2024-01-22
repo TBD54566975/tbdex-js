@@ -62,10 +62,10 @@ describe('GET /exchanges', () => {
       }
     }
 
-    const testApi = new TbdexHttpServer({ exchangesApi })
+    const testApi = new TbdexHttpServer({ exchangesApi, pfiDid: 'did:ex:pfi' })
     const server = testApi.listen(8001)
-
-    const requestToken = await TbdexHttpClient.generateRequestToken(alice)
+    // TODO: Correct this to actual pfiDid
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: 'did:ex:pfi' })
     const resp = await fetch('http://localhost:8001/exchanges', {
       headers: {
         'Authorization': `Bearer ${requestToken}`
