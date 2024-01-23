@@ -262,7 +262,11 @@ const overWriteTestVectors = async () => {
   for (const { filename, vector } of vectorFilePair) {
     const fileLocation = `../../tbdex/hosted/test-vectors/protocol/vectors/${filename}`
     console.log(`Overwriting ${fileLocation} with new test vector.`)
-    fs.writeFile(fileLocation, JSON.stringify(vector, null, 2))
+    try {
+      fs.writeFileSync(fileLocation, JSON.stringify(vector, null, 2))
+    } catch (err) {
+      console.error(`Error writing file ${fileLocation}:`, err)
+    }
   }
 }
 
