@@ -9,7 +9,7 @@ import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 
 describe('TbdexTestVectorsProtocol', () => {
-  it('parse_close.json', async () => {
+  it('parse_close', async () => {
     const close = await Close.parse(ParseClose.input)
     expect(close.toJSON()).to.deep.eq(ParseClose.output)
   })
