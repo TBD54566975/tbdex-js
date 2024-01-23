@@ -12,7 +12,7 @@ import Ajv from 'ajv'
  */
 export type CreateRfqOptions = {
   data: MessageKindModel<'rfq'>
-  metadata: Omit<MessageMetadata<'rfq'>, 'id' |'kind' | 'createdAt' | 'exchangeId'>
+  metadata: Omit<MessageMetadata<'rfq'>, 'id' | 'kind' | 'createdAt' | 'exchangeId'>
   private?: Record<string, any>
 }
 
@@ -61,7 +61,7 @@ export class Rfq extends Message<'rfq'> {
    * @throws if {@link Rfq.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
-    if (offering.metadata.id !== this.offeringId)  {
+    if (offering.metadata.id !== this.offeringId) {
       throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 

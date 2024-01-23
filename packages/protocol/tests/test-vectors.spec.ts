@@ -8,33 +8,33 @@ import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vector
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 
-describe('Test vectors: parse and serialize', () => {
-  it('parse-close.json', async () => {
+describe('TbdexTestVectorsProtocol', () => {
+  it('parse_close', async () => {
     const close = await Close.parse(ParseClose.input)
     expect(close.toJSON()).to.deep.eq(ParseClose.output)
   })
 
-  it('parse-offering.json', async() => {
+  it('parse_offering', async() => {
     const offering = await Offering.parse(ParseOffering.input)
     expect(offering.toJSON()).to.deep.eq(ParseOffering.output)
   })
 
-  it('parse-order.json', async () => {
+  it('parse_order', async () => {
     const order = await Order.parse(ParseOrder.input)
     expect(order.toJSON()).to.deep.eq(ParseOrder.output)
   })
 
-  it('parse-orderstatus.json', async () => {
+  it('parse_orderstatus', async () => {
     const orderstatus = await OrderStatus.parse(ParseOrderStatus.input)
     expect(orderstatus.toJSON()).to.deep.eq(ParseOrderStatus.output)
   })
 
-  it('parse-quote.json', async () => {
+  it('parse_quote', async () => {
     const quote = await Quote.parse(ParseQuote.input)
     expect(quote.toJSON()).to.deep.eq(ParseQuote.output)
   })
 
-  it('parse-rfq.json', async () => {
+  it('parse_rfq', async () => {
     const rfq = await Rfq.parse(ParseRfq.input)
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
   })

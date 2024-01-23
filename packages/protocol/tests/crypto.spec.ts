@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
-import { DevTools, Crypto } from '../src/main.js'
 import { Convert } from '@web5/common'
+import { Crypto, DevTools } from '../src/main.js'
 
 describe('Crypto', () => {
   describe('sign / verify', () => {
