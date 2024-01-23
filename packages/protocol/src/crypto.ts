@@ -13,10 +13,10 @@ import type {
 import { sha256 } from '@noble/hashes/sha256'
 import { Convert } from '@web5/common'
 import { EcdsaAlgorithm, EdDsaAlgorithm } from '@web5/crypto'
-import { deferenceDidUrl, isVerificationMethod } from './did-resolver.js'
+import { isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
-import { PortableDid } from '@web5/dids'
+import { DidDhtMethod, DidIonMethod, DidKeyMethod, DidResolver, PortableDid, VerificationMethod } from '@web5/dids'
 
 /**
  * Options passed to {@link Crypto.sign}
@@ -171,8 +171,10 @@ export class Crypto {
       throw new Error('Signature verification failed: Expected JWS header to contain alg and kid')
     }
 
-    const verificationMethod = await deferenceDidUrl(jwsHeader.kid)
+    const didResolver = new DidResolver({ didResolvers: [DidKeyMethod, DidIonMethod, DidDhtMethod] })
+    const dereferenceResult = await didResolver.dereference({ didUrl: jwsHeader.kid })
 
+    const verificationMethod = dereferenceResult.contentStream as VerificationMethod
     if (!isVerificationMethod(verificationMethod)) { // ensure that appropriate verification method was found
       throw new Error('Signature verification failed: Expected kid in JWS header to dereference to a DID Document Verification Method')
     }
