@@ -214,10 +214,10 @@ export class DevTools {
    * creates an example RfqData. Useful for testing purposes
    */
   static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
-    let credential: any = ''
+    let vcJwt: string = ''
 
     if (opts?.sender) {
-      const signedCredential = VerifiableCredential.create({
+      const vc = await VerifiableCredential.create({
         type    : 'YoloCredential',
         issuer  : opts.sender.did,
         subject : opts.sender.did,
@@ -225,7 +225,7 @@ export class DevTools {
           'beep': 'boop'
         }
       })
-      credential = signedCredential
+      vcJwt = await vc.sign({ did: opts.sender })
     }
 
     return {
@@ -246,7 +246,7 @@ export class DevTools {
         }
       },
       payinAmount : '200.00',
-      claims      : [credential]
+      claims      : [vcJwt]
     }
   }
 }
