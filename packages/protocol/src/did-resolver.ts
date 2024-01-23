@@ -42,6 +42,6 @@ export type DidResource = DidDocument | VerificationMethod | DidService
  * @returns true if the didResource is a `VerificationMethod`
  * @beta
  */
-export function isVerificationMethod(didResource: DidResource | undefined): didResource is VerificationMethod {
+export function isVerificationMethod(didResource: DidResource | null): didResource is VerificationMethod {
   return !!didResource && 'id' in didResource && 'type' in didResource && 'controller' in didResource
 }
