@@ -103,7 +103,7 @@ const generateParseOrderVector = async () => {
   await order.sign(did)
 
   return {
-    description : 'RFQ parses from string',
+    description : 'Order parses from string',
     input       : JSON.stringify(order),
     output      : order.toJSON(),
     error       : false,
@@ -122,7 +122,7 @@ const generateParseCloseVector = async () => {
   await close.sign(did)
 
   return {
-    description : 'RFQ parses from string',
+    description : 'Close parses from string',
     input       : JSON.stringify(close),
     output      : close.toJSON(),
     error       : false,
@@ -141,7 +141,7 @@ const generateParseOrderStatusVector = async () => {
   await orderStatus.sign(did)
 
   return {
-    description : 'RFQ parses from string',
+    description : 'Order Status parses from string',
     input       : JSON.stringify(orderStatus),
     output      : orderStatus.toJSON(),
     error       : false,
