@@ -29,11 +29,19 @@ import { Jwt } from '@web5/credentials'
 import queryString from 'query-string'
 import ms from 'ms'
 
+/**
+ * Parameters for generating a request token
+ * @beta
+ */
 export type GenerateRequestTokenParams = {
   requesterDid: PortableDid
   pfiDid: string
 }
 
+/**
+ * Parameters for verifying a request token
+ * @beta
+ */
 export type VerifyRequestTokenParams = {
   requestToken: string
   pfiDid: string
@@ -336,12 +344,6 @@ export class TbdexHttpClient {
       if (!requestTokenPayload[claim]) {
         throw new RequestTokenMissingClaimsError({ message: `Request token missing ${claim} claim. Expected ${requestTokenRequiredClaims}.` })
       }
-    }
-
-    // check to ensure request token has not expired
-    // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
-    if (Math.floor(Date.now() / 1000) > requestTokenPayload.exp) {
-      throw new RequestTokenExpiredError({ message: 'Request token is expired.' })
     }
 
     // TODO: decide if we want to ensure that the expiration date is not longer than 1 minute after the issuance date

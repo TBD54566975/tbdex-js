@@ -1,13 +1,12 @@
 import type { ErrorDetail } from '@tbdex/http-client'
 import type { Server } from 'http'
 
-import { Order, TbdexHttpServer } from '../src/main.js'
+import { DevTools, Order, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
-import { DidKeyMethod } from '@web5/dids'
 
 let api = new TbdexHttpServer()
 let server: Server
-const did = await DidKeyMethod.create()
+const did = await DevTools.createDid()
 
 describe('POST /exchanges/:exchangeId/order', () => {
   before(() => {

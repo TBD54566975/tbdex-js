@@ -1,14 +1,13 @@
 import type { ErrorDetail } from '@tbdex/http-client'
 import type { Server } from 'http'
 
-import { Close, TbdexHttpServer } from '../src/main.js'
+import { Close, DevTools, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { FakeExchangesApi } from '../src/fakes.js'
-import { DidKeyMethod } from '@web5/dids'
 
 let api = new TbdexHttpServer()
 let server: Server
-const did = await DidKeyMethod.create()
+const did = await DevTools.createDid()
 
 describe('POST /exchanges/:exchangeId/close', () => {
   before(() => {
