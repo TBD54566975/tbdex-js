@@ -29,31 +29,6 @@ export type RfqOptions = {
   receiver?: PortableDid
 }
 
-
-/**
- * Options passed to {@link DevTools.createCredential}
- * @beta
- */
-export type CreateCredentialOptions = Omit<CreateJwtOptions, 'payload'> & {
-  /** the credential type (e.g. UniversityDegreeCredential) */
-  type: string
-  /** data to include in the credential */
-  data: Record<string, any>
-}
-
-/**
- * Options passed to {@link DevTools.createJwt}
- * @beta
- */
-export type CreateJwtOptions = {
-  /** the thing to sign */
-  payload: any,
-  /** the JWT's subject (e.g. Alice's DID) */
-  subject: string
-  /** the JWT's issuer */
-  issuer: PortableDid
-}
-
 /**
  * Utility functions for testing purposes
  * @beta
