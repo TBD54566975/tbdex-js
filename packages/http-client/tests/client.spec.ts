@@ -11,7 +11,7 @@ import {
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
-import { Message, Rfq } from '@tbdex/protocol'
+import { DevTools, Message } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'
@@ -33,27 +33,14 @@ describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('sendMessage', () => {
-    const mockMessage = new Rfq({
-      data: {
-        offeringId  : '123',
-        payinAmount : '100',
-        payinMethod : {
-          kind           : 'btc',
-          paymentDetails : '123'
-        },
-        payoutMethod: {
-          kind           : 'btc',
-          paymentDetails : '123'
-        }, claims: ['123']
-      },
-      metadata: {
-        kind       : 'rfq',
-        from       : 'did:key:321',
-        to         : dhtDid.did,
-        id         : '12345',
-        exchangeId : '123',
-        createdAt  : '1234567890'
-      }
+
+    let mockRfq: Message<'rfq'>
+    beforeEach(async () =>
+    {
+      mockRfq = await DevTools.createRfq({
+        sender   : await DevTools.createDid(),
+        receiver : await DevTools.createDid()
+      })
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
@@ -61,7 +48,7 @@ describe('client', () => {
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfq})
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -82,7 +69,7 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfq})
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
@@ -90,7 +77,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockMessage.metadata.exchangeId}/rfq`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockRfq.metadata.exchangeId}/rfq`)
       }
     })
     it('should not throw errors if all is well', async () => {
@@ -100,7 +87,7 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.sendMessage({message: mockMessage})
+        await TbdexHttpClient.sendMessage({message: mockRfq})
       } catch (e) {
         expect.fail()
       }
