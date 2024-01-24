@@ -35,9 +35,9 @@ describe('client', () => {
   describe('sendMessage', () => {
     const mockMessage = new Rfq({
       data: {
-        offeringId    : '123',
-        payinSubunits : '100',
-        payinMethod   : {
+        offeringId  : '123',
+        payinAmount : '100',
+        payinMethod : {
           kind           : 'btc',
           paymentDetails : '123'
         },
