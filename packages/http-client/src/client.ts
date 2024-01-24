@@ -17,7 +17,6 @@ import {
   MissingServiceEndpointError,
   RequestTokenMissingClaimsError,
   RequestTokenAudienceMismatchError,
-  RequestTokenExpiredError,
   RequestTokenSigningError,
   RequestTokenVerificationError
 } from './errors/index.js'
