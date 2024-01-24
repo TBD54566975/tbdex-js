@@ -62,6 +62,8 @@
   },
   "devDependencies": {
     "@types/sinon": "17.0.2",
+    "@web/test-runner": "^0.18.0",
+    "@web/test-runner-playwright": "^0.11.0",
     "chai": "4.3.10",
     "esbuild": "0.16.17",
     "mkdirp": "3.0.1",
@@ -69,12 +71,10 @@
     "node-stdlib-browser": "1.2.0",
     "rimraf": "4.4.0",
     "sinon": "17.0.1",
+    "tiny-glob": "0.2.9",
     "typedoc": "0.25.0",
     "typedoc-plugin-markdown": "3.16.0",
-    "typescript": "5.2.2",
-    "@web/test-runner": "^0.18.0",
-    "@web/test-runner-playwright": "^0.11.0",
-    "buffer": "^6.0.3"
+    "typescript": "5.2.2"
   },
   "scripts": {
     "clean": "rimraf generated dist tests/compiled",
