@@ -8,8 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 esbuild.buildSync({
-  //TODO: fix test vectors spec
-  entryPoints : await glob(`${__dirname}/!(test-vectors)*.spec.ts`),
+  entryPoints : await glob(`${__dirname}/*.spec.ts`),
   format      : 'esm',
   bundle      : true,
   sourcemap   : true,

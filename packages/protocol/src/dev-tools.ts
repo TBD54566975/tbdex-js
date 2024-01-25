@@ -53,10 +53,10 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering(offeringData?: OfferingData): Offering {
+  static createOffering(opts?: { from?: string, offeringData?: OfferingData }): Offering {
     return Offering.create({
-      metadata : { from: 'did:ex:pfi' },
-      data     : offeringData ?? DevTools.createOfferingData()
+      metadata : { from: opts?.from ?? 'did:ex:pfi' },
+      data     : opts?.offeringData ?? DevTools.createOfferingData()
     })
   }
 

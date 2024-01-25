@@ -12,8 +12,6 @@
     ".",
   ],
   "exclude": [
-    "./compiled",
-    //TODO: fix test vectors spec
-    "test-vectors.spec.ts"
+    "./compiled"
   ]
 }

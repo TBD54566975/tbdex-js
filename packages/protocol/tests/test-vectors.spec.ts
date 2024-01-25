@@ -7,6 +7,12 @@ import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
+import { messageFactory, resourceFactory } from '../src/utils.js'
+import { Resource } from '../src/resource.js'
+import { Message } from '../src/message.js'
+
+Message.factory = messageFactory
+Resource.factory = resourceFactory
 
 describe('TbdexTestVectorsProtocol', () => {
   it('parse_close', async () => {
