@@ -29,31 +29,6 @@ export type RfqOptions = {
   receiver?: PortableDid
 }
 
-
-/**
- * Options passed to {@link DevTools.createCredential}
- * @beta
- */
-export type CreateCredentialOptions = Omit<CreateJwtOptions, 'payload'> & {
-  /** the credential type (e.g. UniversityDegreeCredential) */
-  type: string
-  /** data to include in the credential */
-  data: Record<string, any>
-}
-
-/**
- * Options passed to {@link DevTools.createJwt}
- * @beta
- */
-export type CreateJwtOptions = {
-  /** the thing to sign */
-  payload: any,
-  /** the JWT's subject (e.g. Alice's DID) */
-  subject: string
-  /** the JWT's issuer */
-  issuer: PortableDid
-}
-
 /**
  * Utility functions for testing purposes
  * @beta
@@ -214,7 +189,7 @@ export class DevTools {
    * creates an example RfqData. Useful for testing purposes
    */
   static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
-    let vcJwt: any = ''
+    let vcJwt: string = ''
 
     if (opts?.sender) {
       const vc = await VerifiableCredential.create({
@@ -225,7 +200,6 @@ export class DevTools {
           'beep': 'boop'
         }
       })
-
       vcJwt = await vc.sign({ did: opts.sender })
     }
 
