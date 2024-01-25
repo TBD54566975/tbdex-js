@@ -38,7 +38,7 @@ describe('client', () => {
     {
       mockRfq = await DevTools.createRfq({
         sender   : await DevTools.createDid(),
-        receiver : await DevTools.createDid()
+        receiver : dhtDid
       })
     })
 
@@ -357,18 +357,6 @@ describe('client', () => {
           expect(e.message).to.include(`Request token missing ${claim} claim.`)
         }
         payload[claim] = initialClaim
-      }
-    })
-    // TODO: remove once PR is pulled into Web5 Credentials pkg: https://github.com/TBD54566975/web5-js/pull/366
-    it('throws RequestTokenExpiredError if request token is expired', async () => {
-      try {
-        payload.exp = Math.floor(Date.now() / 1000 - 1)
-        const requestToken = await createRequestTokenFromPayload(payload)
-        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
-        expect.fail()
-      } catch(e) {
-        expect(e).to.be.instanceof(RequestTokenExpiredError)
-        expect(e.message).to.include('Request token is expired.')
       }
     })
     it('throws RequestTokenAudienceMismatchError if aud claim does not match pfi did', async () => {
