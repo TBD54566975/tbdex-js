@@ -39,4 +39,3 @@ describe('TbdexTestVectorsProtocol', () => {
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
   })
 })
-
