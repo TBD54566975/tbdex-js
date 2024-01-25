@@ -24,7 +24,6 @@ export function getExchanges(opts: GetExchangesOpts): RequestHandler {
 
     let requesterDid: string
     try {
-      // TODO: Correct this to actual pfiDid
       requesterDid = await TbdexHttpClient.verifyRequestToken({ requestToken: requestToken, pfiDid })
     } catch(e) {
       return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
