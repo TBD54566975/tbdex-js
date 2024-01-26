@@ -1,5 +1,15 @@
 # @tbdex/protocol
 
+## 0.24.0
+
+### Minor Changes
+
+- c471b3d: Upgrading web5 versions in protocol and http-client
+
+### Patch Changes
+
+- 550fe94: Replaces karma testing library with web-test-runner
+
 ## 0.23.0
 
 ### Patch Changes

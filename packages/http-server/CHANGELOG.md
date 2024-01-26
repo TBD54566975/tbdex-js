@@ -1,5 +1,19 @@
 # @tbdex/http-server
 
+## 0.24.0
+
+### Minor Changes
+
+- 01fc636: JWT creation and verification
+
+### Patch Changes
+
+- Updated dependencies [550fe94]
+- Updated dependencies [c471b3d]
+- Updated dependencies [01fc636]
+  - @tbdex/http-client@0.24.0
+  - @tbdex/protocol@0.24.0
+
 ## 0.23.0
 
 ### Patch Changes
