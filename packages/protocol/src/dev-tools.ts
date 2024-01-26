@@ -29,18 +29,6 @@ export type RfqOptions = {
   receiver?: PortableDid
 }
 
-export type OfferingOptions = {
-  /**
-   * DID URI of the Offering creator.
-   */
-  creator?: string
-
-  /**
-   * {@link OfferingData} to use when creating the offering
-   */
-  offeringData?: OfferingData
-}
-
 /**
  * Utility functions for testing purposes
  * @beta
@@ -65,9 +53,9 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering(opts?: OfferingOptions): Offering {
+  static createOffering(opts?: { from?: string, offeringData?: OfferingData }): Offering {
     return Offering.create({
-      metadata : { from: opts?.creator ?? 'did:ex:pfi' },
+      metadata : { from: opts?.from ?? 'did:ex:pfi' },
       data     : opts?.offeringData ?? DevTools.createOfferingData()
     })
   }

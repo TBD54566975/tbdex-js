@@ -15,7 +15,7 @@ type TestVector = {
 
 const generateParseOfferingVector = async () => {
   const did = await DidKeyMethod.create()
-  const offering = DevTools.createOffering({ creator: did.did })
+  const offering = DevTools.createOffering({ from: did.did })
 
   await offering.sign(did)
 
