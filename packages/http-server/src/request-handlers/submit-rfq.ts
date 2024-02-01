@@ -1,12 +1,11 @@
-import type { SubmitCallback, RequestHandler, OfferingsApi, ExchangesApi } from '../types.js'
-import type { MessageKind } from '@tbdex/protocol'
+import type { RequestHandler, OfferingsApi, ExchangesApi, SubmitRfqCallback } from '../types.js'
+import { Rfq } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
-import { Message } from '@tbdex/protocol'
 import { CallbackError } from '../callback-error.js'
 
 type SubmitRfqOpts = {
-  callback: SubmitCallback<'rfq'>
+  callback: SubmitRfqCallback
   offeringsApi: OfferingsApi
   exchangesApi: ExchangesApi
 }
@@ -14,36 +13,31 @@ type SubmitRfqOpts = {
 export function submitRfq(options: SubmitRfqOpts): RequestHandler {
   const { offeringsApi, exchangesApi, callback } = options
   return async function (req, res) {
-    let message: Message<MessageKind>
+    let rfq: Rfq
 
     try {
-      message = await Message.parse(req.body)
+      rfq = await Rfq.parse(req.body)
     } catch(e) {
-      const errorResponse: ErrorDetail = { detail: `Parsing of TBDex message failed: ${e.message}` }
-      return res.status(400).json({ errors: [errorResponse] })
-    }
-
-    if (!message.isRfq()) {
-      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid rfq' }
+      const errorResponse: ErrorDetail = { detail: `Parsing of TBDex Rfq message failed: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
     // TODO: check message.from against allowlist
 
-    const rfqExists = !! await exchangesApi.getRfq({ exchangeId: message.id })
+    const rfqExists = !! await exchangesApi.getRfq({ exchangeId: rfq.id })
     if (rfqExists) {
-      const errorResponse: ErrorDetail = { detail: `rfq ${message.id} already exists`}
+      const errorResponse: ErrorDetail = { detail: `rfq ${rfq.id} already exists`}
       return res.status(409).json({ errors: [errorResponse] })
     }
 
-    const offering = await offeringsApi.getOffering({ id: message.data.offeringId })
+    const offering = await offeringsApi.getOffering({ id: rfq.data.offeringId })
     if (!offering) {
-      const errorResponse: ErrorDetail = { detail: `offering ${message.data.offeringId} does not exist` }
+      const errorResponse: ErrorDetail = { detail: `offering ${rfq.data.offeringId} does not exist` }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
     try {
-      await message.verifyOfferingRequirements(offering)
+      await rfq.verifyOfferingRequirements(offering)
     } catch(e) {
       const errorResponse: ErrorDetail = { detail: `Failed to verify offering requirements: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })
@@ -54,12 +48,12 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     try {
-      await callback({ request: req, response: res }, message, { offering })
+      await callback({ request: req, response: res }, rfq, { offering })
     } catch(e) {
       if (e instanceof CallbackError) {
         return res.status(e.statusCode).json({ errors: e.details })
       } else {
-        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        const errorDetail: ErrorDetail = { detail: 'Internal Server Error' }
         return res.status(500).json({ errors: [errorDetail] })
       }
     }

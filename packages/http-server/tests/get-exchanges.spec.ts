@@ -1,7 +1,7 @@
-import type { ExchangesApi, GetExchangesFilter } from '../src/main.js'
+import type { ExchangesApi, GetExchangesFilter, Message } from '../src/main.js'
 import type { Server } from 'http'
 
-import { TbdexHttpServer, MessageKindClass, Rfq, Quote, Order, OrderStatus, Close, TbdexHttpClient } from '../src/main.js'
+import { TbdexHttpServer, Rfq, Quote, Order, OrderStatus, Close, TbdexHttpClient } from '../src/main.js'
 import { DidKeyMethod } from '@web5/dids'
 import { expect } from 'chai'
 
@@ -35,14 +35,14 @@ describe('GET /exchanges', () => {
     const alice = await DidKeyMethod.create()
 
     const exchangesApi: ExchangesApi = {
-      getExchanges: async function (opts: { filter: GetExchangesFilter }): Promise<MessageKindClass[][]> {
+      getExchanges: async function (opts: { filter: GetExchangesFilter }): Promise<Message[][]> {
         functionReached = true
         expect(opts.filter.from).to.exist
         expect(opts.filter.from).to.equal(alice.did)
 
         return []
       },
-      getExchange: function (): Promise<MessageKindClass[]> {
+      getExchange: function (): Promise<Message[]> {
         throw new Error('Function not implemented.')
       },
       getRfq: function (): Promise<Rfq> {

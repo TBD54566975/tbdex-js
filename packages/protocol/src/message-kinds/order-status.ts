@@ -1,13 +1,14 @@
-import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
+import type { MessageKind, MessageModel, OrderStatusData, OrderStatusMetadata } from '../types.js'
 import { Message } from '../message.js'
+import { rawToMessageModel } from '../parse.js'
 
 /**
  * Options passed to {@link OrderStatus.create}
  * @beta
  */
 export type CreateOrderStatusOptions = {
-  data: MessageKindModel<'orderstatus'>
-  metadata: Omit<MessageMetadata<'orderstatus'>, 'id' |'kind' | 'createdAt'>
+  data: OrderStatusData
+  metadata: Omit<OrderStatusMetadata, 'id' |'kind' | 'createdAt'>
 }
 
 /**
@@ -15,25 +16,54 @@ export type CreateOrderStatusOptions = {
  * messages in a given Exchange
  * @beta
  */
-export class OrderStatus extends Message<'orderstatus'> {
+export class OrderStatus extends Message {
   /** a set of valid Message kinds that can come after an order status */
   readonly validNext = new Set<MessageKind>([])
+  readonly kind = 'orderstatus'
+
+  readonly metadata: OrderStatusMetadata
+  readonly data: OrderStatusData
+
+  constructor(metadata: OrderStatusMetadata, data: OrderStatusData, signature?: string) {
+    super(metadata, data, signature)
+    this.metadata = metadata
+    this.data = data
+  }
+
+  /**
+   * Parses a json message into an OrderStatus
+   * @param rawMessage - the orderstatus to parse
+   * @throws if the orderstatus could not be parsed or is not a valid OrderStatus
+   * @returns The parsed OrderStatus
+   */
+  static async parse(rawMessage: MessageModel | string): Promise<OrderStatus> {
+    const jsonMessage = rawToMessageModel(rawMessage)
+
+    const orderStatus = new OrderStatus(
+      jsonMessage.metadata as OrderStatusMetadata,
+      jsonMessage.data as OrderStatusData,
+      jsonMessage.signature
+    )
+
+    await orderStatus.verify()
+    return orderStatus
+  }
 
   /**
    * Creates an order status with the given options
    * @param opts - options to create an order status
    */
-  static create(opts: CreateOrderStatusOptions) {
-    const metadata: MessageMetadata<'orderstatus'> = {
+  static create(opts: CreateOrderStatusOptions): OrderStatus {
+    const metadata: OrderStatusMetadata = {
       ...opts.metadata,
-      kind      : 'orderstatus' as const,
+      kind      : 'orderstatus',
       id        : Message.generateId('orderstatus'),
       createdAt : new Date().toISOString()
     }
 
-    const message = { metadata, data: opts.data }
-    Message.validateData('orderstatus', message.data)
-    return new OrderStatus(message)
+    const orderStatus = new OrderStatus(metadata, opts.data)
+    orderStatus.validateData()
+    return orderStatus
   }
 
   /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */

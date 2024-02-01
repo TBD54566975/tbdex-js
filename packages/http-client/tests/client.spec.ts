@@ -10,6 +10,7 @@ import {
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
+
 import { DevTools, Message } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
@@ -24,32 +25,36 @@ const dhtDid = await DidDhtMethod.create({
     serviceEndpoint : 'https://localhost:9000'
   }]
 })
+
+// TODO : Instead of stubbing fetch, consider using libraries like msw
 const fetchStub = sinon.stub(globalThis, 'fetch')
 const getPfiServiceEndpointStub = sinon.stub(TbdexHttpClient, 'getPfiServiceEndpoint')
-sinon.stub(Message, 'verify').resolves('123')
 
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', () => {
 
-    let mockRfq: Message<'rfq'>
-    beforeEach(async () =>
-    {
-      mockRfq = await DevTools.createRfq({
-        sender   : await DevTools.createDid(),
-        receiver : dhtDid
-      })
+  describe('sendMessage', async () => {
+    let aliceDid: PortableDid
+    let pfiDid: PortableDid
+
+    beforeEach(async () => {
+      aliceDid = await DevTools.createDid()
+      pfiDid = await DevTools.createDid()
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({ message: rfq })
         expect.fail()
       } catch(e) {
+        console.log(e)
         expect(e.name).to.equal('RequestError')
         expect(e).to.be.instanceof(RequestError)
         expect(e.message).to.include('Failed to send message')
@@ -67,26 +72,33 @@ describe('client', () => {
         })
       } as Response)
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({message: rfq })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockRfq.metadata.exchangeId}/rfq`)
+        expect(e.recipientDid).to.equal(pfiDid.did)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${rfq.metadata.exchangeId}/rfq`)
       }
     })
+
     it('should not throw errors if all is well', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
       } as Response)
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({ message: rfq })
       } catch (e) {
         expect.fail()
       }

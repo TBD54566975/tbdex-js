@@ -1,13 +1,9 @@
 import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
-import type {
-  ResourceMetadata,
+import {
   MessageModel,
-  OfferingData,
-  ResourceModel,
-  MessageKind,
-  MessageKindClass,
+  parseMessage,
 } from '@tbdex/protocol'
 
 import {
@@ -20,7 +16,7 @@ import {
   RequestTokenSigningError,
   RequestTokenVerificationError
 } from './errors/index.js'
-import { resolveDid, Offering, Resource, Message } from '@tbdex/protocol'
+import { resolveDid, Offering, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { typeid } from 'typeid-js'
 import { Jwt } from '@web5/credentials'
@@ -64,13 +60,12 @@ export class TbdexHttpClient {
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
+  static async sendMessage(opts: SendMessageOptions): Promise<void> {
     const { message } = opts
-    const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
 
-    await Message.verify(jsonMessage)
+    await message.verify()
 
-    const { to: pfiDid, exchangeId, kind } = jsonMessage.metadata
+    const { to: pfiDid, exchangeId, kind } = message.metadata
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}/${kind}`
 
@@ -79,7 +74,7 @@ export class TbdexHttpClient {
       response = await fetch(apiRoute, {
         method  : 'POST',
         headers : { 'content-type': 'application/json' },
-        body    : JSON.stringify(jsonMessage)
+        body    : JSON.stringify(message)
       })
     } catch (e) {
       throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
@@ -167,10 +162,11 @@ export class TbdexHttpClient {
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
-    for (let jsonResource of responseBody.data) {
-      const resource = await Resource.parse(jsonResource)
-      data.push(resource)
+    const responseBody = await response.json()
+    const jsonOfferings = responseBody.data as any[]
+    for (let jsonResource of jsonOfferings) {
+      const offering = await Offering.parse(jsonResource)
+      data.push(offering)
     }
 
     return data
@@ -180,7 +176,7 @@ export class TbdexHttpClient {
    * get a specific exchange from the pfi provided
    * @param _opts - options
    */
-  static async getExchange(opts: GetExchangeOptions): Promise<MessageKindClass[]> {
+  static async getExchange(opts: GetExchangeOptions): Promise<Message[]> {
     const { pfiDid, exchangeId, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
@@ -198,16 +194,16 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const data: MessageKindClass[] = []
+    const data: Message[] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: MessageModel<MessageKind>[] }
+    const responseBody = await response.json() as { data: MessageModel[] }
     for (let jsonMessage of responseBody.data) {
-      const message = await Message.parse(jsonMessage)
+      const message = await parseMessage(jsonMessage)
       data.push(message)
     }
 
@@ -219,7 +215,7 @@ export class TbdexHttpClient {
    * returns all exchanges created by requester
    * @param _opts - options
    */
-  static async getExchanges(opts: GetExchangesOptions): Promise<MessageKindClass[][]> {
+  static async getExchanges(opts: GetExchangesOptions): Promise<Message[][]> {
     const { pfiDid, filter, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
@@ -238,19 +234,19 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get exchanges from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const exchanges: MessageKindClass[][] = []
+    const exchanges: Message[][] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: MessageModel<MessageKind>[][] }
+    const responseBody = await response.json() as { data: MessageModel[][] }
     for (let jsonExchange of responseBody.data) {
-      const exchange: MessageKindClass[] = []
+      const exchange: Message[] = []
 
       for (let jsonMessage of jsonExchange) {
-        const message = await Message.parse(jsonMessage)
+        const message = await parseMessage(jsonMessage)
         exchange.push(message)
       }
 
@@ -359,9 +355,9 @@ export class TbdexHttpClient {
  * options passed to {@link TbdexHttpClient.sendMessage} method
  * @beta
  */
-export type SendMessageOptions<T extends MessageKind> = {
+export type SendMessageOptions = {
   /** the message you want to send */
-  message: Message<T> | MessageModel<T>
+  message: Message
 }
 
 /**
@@ -373,10 +369,10 @@ export type GetOfferingsOptions = {
   pfiDid: string
   filter?: {
     /** ISO 3166 currency code string */
-    payinCurrency?: OfferingData['payinCurrency']['currencyCode']
+    payinCurrency?: string
     /** ISO 3166 currency code string */
-    payoutCurrency?: OfferingData['payoutCurrency']['currencyCode']
-    id?: ResourceMetadata<any>['id']
+    payoutCurrency?: string
+    id?: string
   }
 }
 
@@ -389,7 +385,6 @@ export type GetExchangeOptions = {
   pfiDid: string
   /** the exchange you want to fetch */
   exchangeId: string
-
   /** the message author's DID */
   did: PortableDid
 }

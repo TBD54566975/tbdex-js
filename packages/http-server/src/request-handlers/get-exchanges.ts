@@ -1,9 +1,9 @@
-import type { ExchangesApi, GetCallback, GetExchangesFilter, RequestHandler } from '../types.js'
+import type { ExchangesApi, GetExchangesCallback, GetExchangesFilter, RequestHandler } from '../types.js'
 
 import { TbdexHttpClient } from '@tbdex/http-client'
 
 type GetExchangesOpts = {
-  callback: GetCallback<'exchanges'>
+  callback: GetExchangesCallback
   exchangesApi: ExchangesApi,
   pfiDid: string
 }

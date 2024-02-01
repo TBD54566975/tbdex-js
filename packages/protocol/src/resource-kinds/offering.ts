@@ -1,13 +1,14 @@
-import type { ResourceKindModel, ResourceMetadata } from '../types.js'
+import type { OfferingData, OfferingMetadata, ResourceModel } from '../types.js'
 import { Resource } from '../resource.js'
+import { rawToResourceModel } from '../parse.js'
 
 /**
  * Options passed to {@link Offering.create}
  * @beta
  */
 export type CreateOfferingOptions = {
-  data: ResourceKindModel<'offering'>
-  metadata: Omit<ResourceMetadata<'offering'>, 'id' |'kind' | 'createdAt' | 'updatedAt'>
+  data: OfferingData
+  metadata: Omit<OfferingMetadata, 'id' |'kind' | 'createdAt' | 'updatedAt'>
 }
 
 /**
@@ -16,56 +17,50 @@ export type CreateOfferingOptions = {
  * order to fulfill that offer.
  * @beta
  */
-export class Offering extends Resource<'offering'> {
+export class Offering extends Resource {
+  readonly kind = 'offering'
+  readonly metadata: OfferingMetadata
+  readonly data: OfferingData
+
+  constructor(metadata: OfferingMetadata, data: OfferingData, signature?: string) {
+    super(metadata, data, signature)
+    this.metadata = metadata
+    this.data = data
+  }
+
+  /**
+   * Parses a json resource into an Offering
+   * @param rawMessage - the Offering to parse
+   * @throws if the offering could not be parsed or is not a valid Offering
+   * @returns The parsed Offering
+   */
+  static async parse(rawMessage: ResourceModel | string): Promise<Offering> {
+    const jsonMessage = rawToResourceModel(rawMessage)
+
+    const offering = new Offering(
+      jsonMessage.metadata as OfferingMetadata,
+      jsonMessage.data as OfferingData,
+      jsonMessage.signature
+    )
+
+    await offering.verify()
+    return offering
+  }
+
   /**
    * Creates an Offering with the given options
    * @param opts - options to create an offering
    */
   static create(opts: CreateOfferingOptions) {
-    const metadata: ResourceMetadata<'offering'> = {
+    const metadata: OfferingMetadata = {
       ...opts.metadata,
       kind      : 'offering',
       id        : Resource.generateId('offering'),
       createdAt : new Date().toISOString()
     }
 
-    const message = { metadata, data: opts.data }
-    Resource.validateData('offering', message.data)
-    return new Offering(message)
-  }
-
-  /** Brief description of what is being offered. */
-  get description() {
-    return this.data.description
-  }
-
-  /** Number of payout currency units for one payin currency unit (i.e 290000 USD for 1 BTC) */
-  get payoutUnitsPerPayinUnit() {
-    return this.data.payoutUnitsPerPayinUnit
-  }
-
-  /** Details about the currency that the PFI is buying in exchange for payoutCurrency. */
-  get payinCurrency() {
-    return this.data.payinCurrency
-  }
-
-  /** Details about the currency that the PFI is buying in exchange for payinCurrency. */
-  get payoutCurrency() {
-    return this.data.payoutCurrency
-  }
-
-  /** A list of accepted payment methods that Alice can use to send payinCurrency to a PFI */
-  get payinMethods() {
-    return this.data.payinMethods
-  }
-
-  /** A list of accepted payment methods that Alice can use to receive payoutCurrency from a PFI */
-  get payoutMethods() {
-    return this.data.payoutMethods
-  }
-
-  /** Articulates the claim(s) required when submitting an RFQ for this offering. */
-  get requiredClaims() {
-    return this.data.requiredClaims
+    const offering = new Offering(metadata, opts.data)
+    offering.validateData()
+    return offering
   }
 }

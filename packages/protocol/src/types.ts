@@ -4,26 +4,14 @@ import type { PresentationDefinitionV2 } from '@web5/credentials'
 export { JsonSchema }
 
 /**
- * Type alias to represent a brand new message (signature is optional)
- * @beta
- */
-export type NewMessage<T extends MessageKind> = Omit<MessageModel<T>, 'signature'> & { signature?: string }
-
-/**
- * Type alias to represent a brand new resource (signature is optional)
- * @beta
- */
-export type NewResource<T extends ResourceKind> = Omit<ResourceModel<T>, 'signature'> & { signature?: string }
-
-/**
  * Represents the full resource object: metadata + resource kind data + signature
  * @beta
  */
-export type ResourceModel<T extends ResourceKind> = {
+export type ResourceModel = {
   /** The metadata object contains fields about the resource and is present in every tbdex resources of all types. */
-  metadata: ResourceMetadata<T>
+  metadata: ResourceMetadata
   /** The actual resource content */
-  data: ResourceKindModel<T>
+  data: ResourceData
   /** signature that verifies that authenticity and integrity of a message */
   signature?: string
 }
@@ -32,11 +20,11 @@ export type ResourceModel<T extends ResourceKind> = {
  * Resource's metadata
  * @beta
  */
-export type ResourceMetadata<T extends ResourceKind> = {
+export type ResourceMetadata = {
   /** The author's DID */
   from: string
   /** the resource kind (e.g. Offering) */
-  kind: T
+  kind: ResourceKind
   /** the resource id */
   id: string
   /** When the resource was created at. Expressed as ISO8601 */
@@ -46,24 +34,22 @@ export type ResourceMetadata<T extends ResourceKind> = {
 }
 
 /**
+ * Offering's metadata
+ * @beta
+ */
+export type OfferingMetadata = ResourceMetadata & { kind: 'offering' }
+
+/**
  * Type alias to represent a set of resource kind string keys
  * @beta
  */
-export type ResourceKind = keyof ResourceKinds
+export type ResourceKind = 'offering'
 
 /**
- * Type alias to represent the data content of a resource kind
+ * Resource's data
  * @beta
  */
-export type ResourceKindModel<T extends ResourceKind> = ResourceKinds[T]
-
-/**
- * Type alias to map a resource kind to its key string value
- * @beta
- */
-export type ResourceKinds = {
-  'offering': OfferingData
-}
+export type ResourceData = OfferingData
 
 /**
  * An Offering is used by the PFI to describe a currency pair they have to offer
@@ -116,13 +102,11 @@ export type PaymentMethod = {
  * Represents the full message object: metadata + message kind data + signature
  * @beta
  */
-export type MessageModel<T extends MessageKind> = {
+export type MessageModel = {
   /** The metadata object contains fields about the message and is present in every tbdex message. */
-  metadata: MessageMetadata<T>
+  metadata: MessageMetadata
   /** The actual message content */
-  data: MessageKindModel<T>
-  /** Private data that must not be in the main  */
-  private?: T extends 'rfq' ? Record<string, any> : never
+  data: MessageData
   /** signature that verifies that authenticity and integrity of a message */
   signature?: string
 }
@@ -131,13 +115,13 @@ export type MessageModel<T extends MessageKind> = {
  * Message's metadata
  * @beta
  */
-export type MessageMetadata<T extends MessageKind> = {
+export type MessageMetadata = {
   /** The sender's DID */
   from: string
   /** the recipient's DID */
   to: string
   /** the message kind (e.g. rfq, quote) */
-  kind: T
+  kind: MessageKind
   /** the message id */
   id: string
   /** ID for an "exchange" of messages between Alice - PFI. Uses the id of the RFQ that initiated the exchange */
@@ -147,16 +131,34 @@ export type MessageMetadata<T extends MessageKind> = {
 }
 
 /**
- * Holds private data: PII, PCI, etc.
+ * Rfq's metadata
  * @beta
  */
-export type Private = Record<string, any>
+export type RfqMetadata = MessageMetadata & { kind: 'rfq' }
 
 /**
- * Type alias to represent the data content of a message kind
+ * Quote's metadata
  * @beta
  */
-export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
+export type QuoteMetadata = MessageMetadata & { kind: 'quote' }
+
+/**
+ * Order's metadata
+ * @beta
+ */
+export type OrderMetadata = MessageMetadata & { kind: 'order' }
+
+/**
+ * OrderStatus's metadata
+ * @beta
+ */
+export type OrderStatusMetadata = MessageMetadata & { kind: 'orderstatus' }
+
+/**
+ * Close's metadata
+ * @beta
+ */
+export type CloseMetadata = MessageMetadata & { kind: 'close' }
 
 /**
  * Type alias to represent a set of message kind string keys
@@ -165,16 +167,10 @@ export type MessageKindModel<T extends keyof MessageKinds> = MessageKinds[T]
 export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderstatus' | 'close'
 
 /**
- * Type alias to map a message kind to its key string value
+ * Message's data
  * @beta
  */
-export type MessageKinds = {
-  'rfq': RfqData
-  'quote': QuoteData
-  'order': OrderData
-  'orderstatus': OrderStatusData
-  'close': CloseData
-}
+export type MessageData = RfqData | QuoteData | OrderData | OrderStatusData | CloseData
 
 /**
  * Data contained in a RFQ message
@@ -200,8 +196,11 @@ export type RfqData = {
 export type SelectedPaymentMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
   kind: string
-  /** An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema */
-  paymentDetails: Record<string, any> | string
+  /**
+   * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
+   * Omitted from the signature payload.
+   */
+  paymentDetails?: Record<string, any>
 }
 
 /**

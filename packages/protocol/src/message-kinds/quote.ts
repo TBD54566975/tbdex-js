@@ -1,13 +1,14 @@
-import type { MessageKind, MessageKindModel, MessageMetadata } from '../types.js'
+import type { MessageKind, MessageModel, QuoteData, QuoteMetadata } from '../types.js'
 import { Message } from '../message.js'
+import { rawToMessageModel } from '../parse.js'
 
 /**
  * Options passed to {@link Quote.create}
  * @beta
  */
 export type CreateQuoteOptions = {
-  data: MessageKindModel<'quote'>
-  metadata: Omit<MessageMetadata<'quote'>, 'id' |'kind' | 'createdAt'>
+  data: QuoteData
+  metadata: Omit<QuoteMetadata, 'id' |'kind' | 'createdAt'>
 }
 
 /**
@@ -15,38 +16,52 @@ export type CreateQuoteOptions = {
  * the quote expires
  * @beta
  */
-export class Quote extends Message<'quote'> {
+export class Quote extends Message {
   /** a set of valid Message kinds that can come after a quote */
   readonly validNext = new Set<MessageKind>(['order', 'close'])
+  readonly kind = 'quote'
+
+  readonly metadata: QuoteMetadata
+  readonly data: QuoteData
+
+  constructor(metadata: QuoteMetadata, data: QuoteData, signature?: string) {
+    super(metadata, data, signature)
+    this.metadata = metadata
+    this.data = data
+  }
+
+  /**
+   * Parses a json message into a Quote
+   * @param rawMessage - the quote to parse
+   * @throws if the quote could not be parsed or is not a valid Quote
+   * @returns The parsed Quote
+   */
+  static async parse(rawMessage: MessageModel | string): Promise<Quote> {
+    const jsonMessage = rawToMessageModel(rawMessage)
+
+    const quote = new Quote(
+      jsonMessage.metadata as QuoteMetadata,
+      jsonMessage.data as QuoteData,
+      jsonMessage.signature
+    )
+
+    await quote.verify()
+    return quote
+  }
 
   /**
    * Creates a quote message with the given options
    * @param opts - options to create a quote
    */
-  static create(opts: CreateQuoteOptions) {
-    const metadata: MessageMetadata<'quote'> = {
+  static create(opts: CreateQuoteOptions): Quote {
+    const metadata: QuoteMetadata = {
       ...opts.metadata,
-      kind      : 'quote' as const,
+      kind      : 'quote',
       id        : Message.generateId('quote'),
       createdAt : new Date().toISOString()
     }
-    const message = { metadata, data: opts.data }
-    Message.validateData('quote', message.data)
-    return new Quote(message)
-  }
-
-  /** When this quote expires. Expressed as ISO8601 */
-  get expiresAt() {
-    return this.data.expiresAt
-  }
-
-  /** the amount of payin currency that the PFI will receive */
-  get payin() {
-    return this.data.payin
-  }
-
-  /** the amount of payout currency that Alice will receive */
-  get payout() {
-    return this.data.payout
+    const quote = new Quote(metadata, opts.data)
+    quote.validateData()
+    return quote
   }
 }

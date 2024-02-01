@@ -1,53 +1,81 @@
-import type { MessageKind, MessageKindModel, MessageMetadata, PaymentMethod, ResourceModel, SelectedPaymentMethod } from '../types.js'
+import type { MessageKind, MessageModel, PaymentMethod, RfqData, RfqMetadata, SelectedPaymentMethod } from '../types.js'
 
 import { BigNumber } from 'bignumber.js'
 import { Offering } from '../resource-kinds/index.js'
 import { VerifiableCredential, PresentationExchange } from '@web5/credentials'
 import { Message } from '../message.js'
 import Ajv from 'ajv'
+import { rawToMessageModel } from '../parse.js'
 
 /**
  * Options passed to {@link Rfq.create}
  * @beta
  */
 export type CreateRfqOptions = {
-  data: MessageKindModel<'rfq'>
-  metadata: Omit<MessageMetadata<'rfq'>, 'id' | 'kind' | 'createdAt' | 'exchangeId'>
-  private?: Record<string, any>
+  data: RfqData
+  metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId'>
 }
 
 /**
  * Message sent by Alice to PFI to requesting for a quote (RFQ)
  * @beta
  */
-export class Rfq extends Message<'rfq'> {
+export class Rfq extends Message {
   /** a set of valid Message kinds that can come after an rfq */
   readonly validNext = new Set<MessageKind>(['quote', 'close'])
+  readonly kind = 'rfq'
 
-  /** private data (PII or PCI) */
-  _private: Record<string, any> | undefined
+  readonly metadata: RfqMetadata
+  readonly data: RfqData
+
+  constructor(metadata: RfqMetadata, data: RfqData, signature?: string) {
+    super(metadata, data, signature)
+    this.metadata = metadata
+    this.data = data
+  }
+
+  /**
+   * Parses a json message into an Rfq
+   * @param rawMessage - the rfq to parse
+   * @throws if the rfq could not be parsed or is not a valid Rfq
+   * @returns The parsed Rfq
+   */
+  static async parse(rawMessage: MessageModel | string): Promise<Rfq> {
+    const jsonMessage = rawToMessageModel(rawMessage)
+
+    const rfq = new Rfq(
+      jsonMessage.metadata as RfqMetadata,
+      jsonMessage.data as RfqData,
+      jsonMessage.signature
+    )
+
+    await rfq.verify()
+    return rfq
+  }
 
   /**
    * Creates an rfq with the given options
    * @param opts - options to create an rfq
    * @returns {@link Rfq}
    */
-  static create(opts: CreateRfqOptions) {
+  static create(opts: CreateRfqOptions): Rfq {
     const id = Message.generateId('rfq')
-    const metadata: MessageMetadata<'rfq'> = {
+    const metadata: RfqMetadata = {
       ...opts.metadata,
-      kind       : 'rfq' as const,
+      kind       : 'rfq',
       id         : id,
       exchangeId : id,
       createdAt  : new Date().toISOString()
     }
 
-    // TODO: hash `data.payinMethod.paymentDetails` and set `private`
-    // TODO: hash `data.payoutMethod.paymentDetails` and set `private`
+    const data: RfqData = {
+      ...opts.data,
+    }
 
-    const message = { metadata, data: opts.data }
-    Message.validateData('rfq', message.data)
-    return new Rfq(message)
+    const rfq = new Rfq(metadata, data)
+    rfq.validateData()
+
+    return rfq
   }
 
   /**
@@ -60,35 +88,35 @@ export class Rfq extends Message<'rfq'> {
    * @throws if {@link Rfq.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
    * @throws if {@link Rfq.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
-  async verifyOfferingRequirements(offering: Offering | ResourceModel<'offering'>) {
-    if (offering.metadata.id !== this.offeringId) {
-      throw new Error(`offering id mismatch. (rfq) ${this.offeringId} !== ${offering.metadata.id} (offering)`)
+  async verifyOfferingRequirements(offering: Offering) {
+    if (offering.metadata.id !== this.data.offeringId) {
+      throw new Error(`offering id mismatch. (rfq) ${this.data.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
     // Verifyin payin amount is less than maximum
     let payinAmount: BigNumber
     if (offering.data.payinCurrency.maxAmount) {
-      payinAmount = BigNumber(this.payinAmount)
+      payinAmount = BigNumber(this.data.payinAmount)
       const maxAmount = BigNumber(offering.data.payinCurrency.maxAmount)
 
       if (payinAmount.isGreaterThan(maxAmount)) {
-        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.payinAmount} > ${offering.data.payinCurrency.maxAmount} (offering)`)
+        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.data.payinAmount} > ${offering.data.payinCurrency.maxAmount} (offering)`)
       }
     }
 
     // Verify payin amount is more than minimum
     if (offering.data.payinCurrency.minAmount) {
-      payinAmount ??= BigNumber(this.payinAmount)
+      payinAmount ??= BigNumber(this.data.payinAmount)
       const minAmount = BigNumber(offering.data.payinCurrency.minAmount)
 
       if (payinAmount.isLessThan(minAmount)) {
-        throw new Error(`rfq payinAmount is below offering's minAmount. (rfq) ${this.payinAmount} > ${offering.data.payinCurrency.minAmount} (offering)`)
+        throw new Error(`rfq payinAmount is below offering's minAmount. (rfq) ${this.data.payinAmount} > ${offering.data.payinCurrency.minAmount} (offering)`)
       }
     }
 
     // Verify payin/payout methods
-    this.verifyPaymentMethod(this.payinMethod, offering.data.payinMethods, 'payin')
-    this.verifyPaymentMethod(this.payoutMethod, offering.data.payoutMethods, 'payout')
+    this.verifyPaymentMethod(this.data.payinMethod, offering.data.payinMethods, 'payin')
+    this.verifyPaymentMethod(this.data.payoutMethod, offering.data.payoutMethods, 'payout')
 
     await this.verifyClaims(offering)
   }
@@ -141,15 +169,15 @@ export class Rfq extends Message<'rfq'> {
    * @param offering - the offering to check against
    * @throws if rfq's claims do not fulfill the offering's requirements
    */
-  async verifyClaims(offering: Offering | ResourceModel<'offering'>): Promise<void> {
+  async verifyClaims(offering: Offering): Promise<void> {
     if (!offering.data.requiredClaims) {
       return
     }
 
-    const credentials = PresentationExchange.selectCredentials({ vcJwts: this.claims, presentationDefinition: offering.data.requiredClaims })
+    const credentials = PresentationExchange.selectCredentials({ vcJwts: this.data.claims, presentationDefinition: offering.data.requiredClaims })
 
-    if (!credentials.length) {
-      throw new Error(`claims do not fulfill the offering's requirements`)
+    if (credentials.length === 0) {
+      throw new Error('claims do not fulfill the offering\'s requirements')
     }
 
     for (let credential of credentials) {
@@ -157,39 +185,11 @@ export class Rfq extends Message<'rfq'> {
     }
   }
 
-  /** Offering which Alice would like to get a quote for */
-  get offeringId() {
-    return this.data.offeringId
-  }
-
-  /** Amount of payin currency you want to spend in order to receive payout currency */
-  get payinAmount() {
-    return this.data.payinAmount
-  }
-
-  /** Array of claims that satisfy the respective offering's requiredClaims */
-  get claims() {
-    return this.data.claims
-  }
-
-  /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
-  get payinMethod() {
-    return this.data.payinMethod
-  }
-
-  /** Selected payment method that the PFI will use to send the listed payout currency to Alice */
-  get payoutMethod() {
-    return this.data.payoutMethod
-  }
-
   /**
    * Converts this rfq message to a json object
    */
   toJSON() {
     const jsonMessage = super.toJSON()
-    if (this._private) {
-      jsonMessage['private'] = this._private
-    }
 
     return jsonMessage
   }
