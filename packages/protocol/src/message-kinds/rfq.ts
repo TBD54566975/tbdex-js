@@ -17,7 +17,7 @@ export type CreateRfqOptions = {
 }
 
 /**
- * Message sent by Alice to PFI to requesting for a quote (RFQ)
+ * Message sent by Alice to PFI to request a quote (RFQ)
  * @beta
  */
 export class Rfq extends Message {
