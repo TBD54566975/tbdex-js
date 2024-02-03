@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "strict": false,
+    "strict": true,
+    "useUnknownInCatchVariables": false,
     "lib": ["DOM", "es2022"],
     "rootDir": "./",
 

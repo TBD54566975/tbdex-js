@@ -1,6 +1,6 @@
 import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
-import type { PortableDid } from '@web5/dids'
+import type { DidDocument, PortableDid } from '@web5/dids'
 import {
   MessageModel,
   Parser,
@@ -94,56 +94,6 @@ export class TbdexHttpClient {
   }
 
   /**
-   * Discover PFIs that are anchored via did:ion. These have a type of "PFI" and an id of PFI.
-   * You can then query the endpoints for offerings.
-   */
-  static async discoverPFIs() {
-    const BASE_URL = 'https://ion.tbd.engineering'
-    const DID_TYPE_ENDPOINT = '/didtype/1669'
-    const IDENTIFIER_PREFIX = '/identifiers/'
-
-    async function fetchDIDList() {
-      const response = await fetch(BASE_URL + DID_TYPE_ENDPOINT)
-      if (!response.ok) {
-        throw new Error('Failed to fetch DID list')
-      }
-      return await response.json()
-    }
-
-    async function fetchDIDData(did) {
-      console.log(BASE_URL + IDENTIFIER_PREFIX + did)
-      const response = await fetch(BASE_URL + IDENTIFIER_PREFIX + did)
-      if (!response.ok) {
-        throw new Error('Failed to fetch DID data for ' + did)
-      }
-      return await response.json()
-    }
-
-    const ids = await fetchDIDList()
-    const promises = ids.map(id => {
-      const ionDid = 'did:ion:' + id
-      return fetchDIDData(ionDid)
-    })
-    const didDataList = await Promise.all(promises)
-
-    const pfiServiceEndpoints = didDataList.reduce((results, didData) => {
-      const services = didData.didDocument.service
-      const pfiServices = services.filter(service => service.type === 'PFI')
-
-      if (pfiServices.length > 0) {
-        results.push({
-          did             : didData.didDocument.id,
-          serviceEndpoint : pfiServices[0].serviceEndpoint
-        })
-      }
-
-      return results
-    }, [])
-
-    return pfiServiceEndpoints
-  }
-
-  /**
    * gets offerings from the pfi provided
    * @param opts - options
    * @beta
@@ -218,6 +168,7 @@ export class TbdexHttpClient {
 
   }
 
+  // TODO: Wrap Message[] in Exchange object and verify each message
   /**
    * returns all exchanges created by requester
    * @param _opts - options
@@ -268,21 +219,20 @@ export class TbdexHttpClient {
    * @param did - the pfi's DID
    */
   static async getPfiServiceEndpoint(did: string) {
+    let didDocument: DidDocument
     try {
-      const didDocument = await resolveDid(did)
-      const [didService] = didUtils.getServices({ didDocument, type: 'PFI' })
-
-      if (!didService?.serviceEndpoint) {
-        throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
-      }
-
-      return didService.serviceEndpoint
+      didDocument = await resolveDid(did)
     } catch (e) {
-      if (e instanceof MissingServiceEndpointError) {
-        throw e
-      }
-      throw new InvalidDidError(e)
+      throw new InvalidDidError(e.message)
     }
+
+    const [didService] = didUtils.getServices({ didDocument, type: 'PFI' })
+
+    if (!didService?.serviceEndpoint) {
+      throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
+    }
+
+    return didService.serviceEndpoint
   }
 
   /**
@@ -356,7 +306,8 @@ export class TbdexHttpClient {
       throw new RequestTokenAudienceMismatchError({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
     }
 
-    return requestTokenPayload.iss
+    // TODO: check iss against signer DID
+    return requestTokenPayload.iss!
   }
 }
 
