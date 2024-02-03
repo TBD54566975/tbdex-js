@@ -1,7 +1,7 @@
 export type RequestErrorParams = {
   message: string
   recipientDid: string
-  url?: string
+  url: string
   cause?: unknown
 }
 

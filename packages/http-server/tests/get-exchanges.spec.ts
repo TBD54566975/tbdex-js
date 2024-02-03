@@ -1,19 +1,21 @@
-import type { ExchangesApi, GetExchangesFilter, Message } from '../src/main.js'
 import type { Server } from 'http'
+import Sinon, * as sinon from 'sinon'
 
-import { TbdexHttpServer, Rfq, Quote, Order, OrderStatus, Close, TbdexHttpClient } from '../src/main.js'
+import { TbdexHttpServer, TbdexHttpClient, ErrorDetail, DevTools, RequestContext, GetExchangesFilter } from '../src/main.js'
 import { DidKeyMethod } from '@web5/dids'
 import { expect } from 'chai'
-
-let api = new TbdexHttpServer()
-let server: Server
+import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 
 describe('GET /exchanges', () => {
-  before(() => {
+  let server: Server
+  let api: TbdexHttpServer
+
+  beforeEach(() => {
+    api = new TbdexHttpServer()
     server = api.listen(8000)
   })
 
-  after(() => {
+  afterEach(() => {
     server.close()
     server.closeAllConnections()
   })
@@ -24,56 +26,137 @@ describe('GET /exchanges', () => {
     expect(resp.ok).to.be.false
     expect(resp.status).to.equal(401)
 
-    const respBody = await resp.json()
+    const respBody = await resp.json() as { errors: ErrorDetail[] }
     expect(respBody['errors']).to.exist
     expect(respBody['errors'].length).to.equal(1)
     expect(respBody['errors'][0]['detail']).to.include('Authorization')
   })
 
-  it(`passes the requester's did to getExchanges method`, async () => {
-    let functionReached = false
-    const alice = await DidKeyMethod.create()
-
-    const exchangesApi: ExchangesApi = {
-      getExchanges: async function (opts: { filter: GetExchangesFilter }): Promise<Message[][]> {
-        functionReached = true
-        expect(opts.filter.from).to.exist
-        expect(opts.filter.from).to.equal(alice.did)
-
-        return []
-      },
-      getExchange: function (): Promise<Message[]> {
-        throw new Error('Function not implemented.')
-      },
-      getRfq: function (): Promise<Rfq> {
-        throw new Error('Function not implemented.')
-      },
-      getQuote: function (): Promise<Quote> {
-        throw new Error('Function not implemented.')
-      },
-      getOrder: function (): Promise<Order> {
-        throw new Error('Function not implemented.')
-      },
-      getOrderStatuses: function (): Promise<OrderStatus[]> {
-        throw new Error('Function not implemented.')
-      },
-      getClose: function (): Promise<Close> {
-        throw new Error('Function not implemented.')
+  it('returns 401 if bearer token is missing from the Authorization header', async () => {
+    const resp = await fetch('http://localhost:8000/exchanges', {
+      headers: {
+        'Authorization': 'Not well formatted token'
       }
-    }
+    })
 
-    const testApi = new TbdexHttpServer({ exchangesApi, pfiDid: 'did:ex:pfi' })
-    const server = testApi.listen(8001)
-    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: 'did:ex:pfi' })
-    const resp = await fetch('http://localhost:8001/exchanges', {
+    const respBody = await resp.json() as { errors: ErrorDetail[] }
+    expect(respBody['errors']).to.exist
+    expect(respBody['errors'].length).to.equal(1)
+    expect(respBody['errors'][0]['detail']).to.include('Malformed Authorization header. Expected: Bearer TOKEN_HERE')
+  })
+
+  it('returns 401 if the bearer token is malformed in the Authorization header', async () => {
+    const resp = await fetch('http://localhost:8000/exchanges', {
+      headers: {
+        'Authorization': 'Bearer MALFORMED'
+      }
+    })
+
+    const respBody = await resp.json() as { errors: ErrorDetail[] }
+    expect(respBody['errors']).to.exist
+    expect(respBody['errors'].length).to.equal(1)
+    expect(respBody['errors'][0]['detail']).to.include('Malformed Authorization header')
+  })
+
+  describe('Passes filter to ExchangesApi.getExchanges', () => {
+    it(`passes the requester's did to the filter of ExchangesApi.getExchanges`, async () => {
+      const alice = await DidKeyMethod.create()
+
+      const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
+
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
+      const resp = await fetch('http://localhost:8000/exchanges', {
+        headers: {
+          'Authorization': `Bearer ${requestToken}`
+        }
+      })
+
+      expect(resp.ok).to.be.true
+      expect(exchangesApiSpy.calledOnce).to.be.true
+      expect(exchangesApiSpy.calledWith({
+        filter: {
+          from: alice.did
+        }
+      })).to.be.true
+
+      exchangesApiSpy.restore()
+    })
+
+    it('passes the id non-array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
+      const alice = await DidKeyMethod.create()
+
+      const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
+
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
+
+      // `id` query param contains a single string
+      const idQueryParam = '1234'
+      const resp = await fetch(`http://localhost:8000/exchanges?id=${idQueryParam}`, {
+        headers: {
+          'Authorization': `Bearer ${requestToken}`
+        }
+      })
+
+      expect(resp.ok).to.be.true
+      expect(exchangesApiSpy.calledOnce).to.be.true
+      expect(exchangesApiSpy.calledWith({
+        filter: {
+          from : alice.did,
+          id   : [idQueryParam]
+        }
+      }))
+
+      exchangesApiSpy.restore()
+    })
+
+    it('passes the id array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
+      const alice = await DidKeyMethod.create()
+
+      const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
+
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
+
+      // `id` query param contains an array
+      const idQueryParam = ['1234', '5678']
+      const resp = await fetch(`http://localhost:8000/exchanges?id=[${idQueryParam.join(',')}]`, {
+        headers: {
+          'Authorization': `Bearer ${requestToken}`
+        }
+      })
+
+      expect(resp.ok).to.be.true
+      expect(exchangesApiSpy.calledOnce).to.be.true
+      expect(exchangesApiSpy.calledWith({
+        filter: {
+          from : alice.did,
+          id   : idQueryParam
+        }
+      }))
+
+      exchangesApiSpy.restore()
+    })
+  })
+
+  it('calls the callback if it is provided', async () => {
+    const aliceDid = await DevTools.createDid()
+    const pfiDid = await DevTools.createDid()
+    const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+    await rfq.sign(aliceDid);
+    (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
+
+    const callbackSpy = Sinon.spy((_ctx: RequestContext, _filter: GetExchangesFilter) => Promise.resolve())
+    api.onGetExchanges(callbackSpy)
+
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: aliceDid, pfiDid: api.pfiDid })
+
+    const resp = await fetch(`http://localhost:8000/exchanges`, {
       headers: {
         'Authorization': `Bearer ${requestToken}`
       }
     })
+    expect(resp.status).to.equal(200)
 
-    expect(resp.ok).to.be.true
-    expect(functionReached).to.be.true
-
-    server.closeAllConnections()
+    expect(callbackSpy.callCount).to.eq(1)
+    // TODO: Check what arguments are passed to callback after we finalize its behavior
   })
 })
