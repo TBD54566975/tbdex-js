@@ -4,6 +4,7 @@ import type { PortableDid } from '@web5/dids'
 import {
   MessageModel,
   parseMessage,
+  Rfq,
 } from '@tbdex/protocol'
 
 import {
@@ -60,8 +61,8 @@ export class TbdexHttpClient {
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage(opts: SendMessageOptions): Promise<void> {
-    const { message } = opts
+  static async sendMessage<T extends Message>(opts: SendMessageOptions<T>): Promise<void> {
+    const { message, replyTo } = opts
 
     await message.verify()
 
@@ -71,10 +72,16 @@ export class TbdexHttpClient {
 
     let response: Response
     try {
+      let requestBody
+      if (message.metadata.kind == 'rfq') {
+        requestBody = JSON.stringify({ rfq: message, replyTo})
+      } else {
+        requestBody = JSON.stringify(message)
+      }
       response = await fetch(apiRoute, {
         method  : 'POST',
         headers : { 'content-type': 'application/json' },
-        body    : JSON.stringify(message)
+        body    : requestBody
       })
     } catch (e) {
       throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
@@ -355,9 +362,14 @@ export class TbdexHttpClient {
  * options passed to {@link TbdexHttpClient.sendMessage} method
  * @beta
  */
-export type SendMessageOptions = {
+export type SendMessageOptions<T extends Message> = {
   /** the message you want to send */
-  message: Message
+  message: T
+  /**
+   * A string containing a valid URI where new messages from the PFI will be sent.
+   * This field is only available as an option when sending an RFQ Message.
+   */
+  replyTo?: T extends Rfq ? string : never
 }
 
 /**

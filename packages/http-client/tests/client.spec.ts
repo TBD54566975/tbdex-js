@@ -10,7 +10,6 @@ import {
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
-
 import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
@@ -33,8 +32,7 @@ const getPfiServiceEndpointStub = sinon.stub(TbdexHttpClient, 'getPfiServiceEndp
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-
-  describe('sendMessage', async () => {
+  describe('sendMessage', () => {
     let aliceDid: PortableDid
     let pfiDid: PortableDid
 
@@ -54,7 +52,6 @@ describe('client', () => {
         await TbdexHttpClient.sendMessage({ message: rfq })
         expect.fail()
       } catch(e) {
-        console.log(e)
         expect(e.name).to.equal('RequestError')
         expect(e).to.be.instanceof(RequestError)
         expect(e.message).to.include('Failed to send message')
@@ -88,7 +85,23 @@ describe('client', () => {
       }
     })
 
-    it('should not throw errors if all is well', async () => {
+    it('should not throw errors if all is well when sending RFQ with replyTo field', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.sendMessage({message: rfq, replyTo: 'https://tbdex.io/callback'})
+      } catch (e) {
+        expect.fail()
+      }
+    })
+
+    it('should not throw errors if all is well when sending RFQ without replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
@@ -311,7 +324,7 @@ describe('client', () => {
     it('sets expiration seconds to 1 minute after the time at which it was issued', async () => {
       const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
       const decodedToken = await Jwt.verify({ jwt: requestToken })
-      expect(decodedToken.payload.exp - decodedToken.payload.iat).to.equal(60)
+      expect(decodedToken.payload.exp! - decodedToken.payload.iat!).to.equal(60)
     })
   })
 
@@ -320,7 +333,7 @@ describe('client', () => {
     let header: JwtHeaderParams
     let payload: JwtPayload
 
-    async function createRequestTokenFromPayload(payload) {
+    async function createRequestTokenFromPayload(payload: JwtPayload) {
       const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
       const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
       const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()

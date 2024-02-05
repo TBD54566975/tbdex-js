@@ -4,19 +4,23 @@ import type { ErrorDetail } from '@tbdex/http-client'
 
 import { CallbackError } from '../callback-error.js'
 
-type SubmitRfqOpts = {
+type CreateExchangeOpts = {
   callback: SubmitRfqCallback
   offeringsApi: OfferingsApi
   exchangesApi: ExchangesApi
 }
 
-export function submitRfq(options: SubmitRfqOpts): RequestHandler {
+export function createExchange(options: CreateExchangeOpts): RequestHandler {
   const { offeringsApi, exchangesApi, callback } = options
   return async function (req, res) {
     let rfq: Rfq
 
+    if (req.body.replyTo && !isValidUrl(req.body.replyTo)) {
+      return res.status(400).json({ errors: [{ detail: 'replyTo must be a valid url' }] })
+    }
+
     try {
-      rfq = await Rfq.parse(req.body)
+      rfq = await Rfq.parse(req.body.rfq)
     } catch(e) {
       const errorResponse: ErrorDetail = { detail: `Parsing of TBDex Rfq message failed: ${e.message}` }
       return res.status(400).json({ errors: [errorResponse] })
@@ -59,5 +63,14 @@ export function submitRfq(options: SubmitRfqOpts): RequestHandler {
     }
 
     return res.sendStatus(202)
+  }
+}
+
+function isValidUrl(replyToUrl: string) {
+  try {
+    new URL(replyToUrl)
+    return true
+  } catch (err) {
+    return false
   }
 }

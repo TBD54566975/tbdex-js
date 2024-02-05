@@ -1,25 +1,27 @@
 
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
+
 import { DidDhtMethod, DidIonMethod, DidKeyMethod } from '@web5/dids'
-import { VerifiableCredential } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
-import { Rfq } from './message-kinds/index.js'
+import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
+import { Message } from './main.js'
+import { VerifiableCredential } from '@web5/credentials'
 
 /**
  * Supported DID Methods
  * @beta
  */
-export type DidMethodOptions = 'key' | 'ion'
+export type DidMethodOptions = 'key' | 'ion' | 'dht'
 
 /**
  * Options passed to {@link DevTools.createRfq}
  * @beta
  */
-export type RfqOptions = {
+export type MessageOptions = {
   /**
-   * {@link @web5/dids#PortableDid} of the rfq sender. used to generate a random credential that fulfills the vcRequirements
+   * {@link @web5/dids#PortableDid} of the message sender. When generating RFQ, it is used to generate a random credential that fulfills the vcRequirements
    * of the offering returned by {@link DevTools.createOffering}
    */
   sender: PortableDid
@@ -42,9 +44,9 @@ export class DevTools {
     if (didMethod === 'key') {
       return await DidKeyMethod.create()
     } else if (didMethod === 'ion') {
-      return await DidIonMethod.create()
+      return DidIonMethod.create()
     } else if (didMethod === 'dht') {
-      return await DidDhtMethod.create()
+      return DidDhtMethod.create()
     } else {
       throw new Error(`${didMethod} method not implemented.`)
     }
@@ -174,7 +176,7 @@ export class DevTools {
    *
    * **NOTE**: generates a random credential that fulfills the offering's required claims
    */
-  static async createRfq(opts: RfqOptions) {
+  static async createRfq(opts: MessageOptions) {
     const { sender, receiver } = opts
 
     const rfqData: RfqData = await DevTools.createRfqData(opts)
@@ -186,9 +188,26 @@ export class DevTools {
   }
 
   /**
+   * Creates and returns an example Order with a generated exchangeId. Useful for testing purposes
+   * @param opts - options used to create a Message
+   * @returns Order message
+   */
+  static createOrder(opts: MessageOptions) {
+    const { sender, receiver } = opts
+
+    return Order.create({
+      metadata: {
+        from       : sender.did,
+        to         : receiver?.did ?? 'did:ex:pfi',
+        exchangeId : Message.generateId('rfq')
+      }
+    })
+  }
+
+  /**
    * creates an example RfqData. Useful for testing purposes
    */
-  static async createRfqData(opts?: RfqOptions): Promise<RfqData> {
+  static async createRfqData(opts?: MessageOptions): Promise<RfqData> {
     let vcJwt: string = ''
 
     if (opts?.sender) {
