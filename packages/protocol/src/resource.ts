@@ -24,11 +24,11 @@ export abstract class Resource {
 
   /**
    * Constructor is primarily for intended for internal use. For a better developer experience,
-   * consumers should use concrete classes to programmatically create resources (e.g. Offering class) and
-   * {@link Resource.parse} to parse stringified resources.
-   * @param jsonResource - the resource as a json object
-   * @param data - `resource.data` as a ResourceKind class instance. can be passed in as an optimization if class instance
-   * is present in calling scope
+   * consumers should use concrete classes to programmatically create and parse resources,
+   * e.g. {@link Offering.parse} and {@link Offering.create}
+   * @param metadata - {@link Resource.metadata}
+   * @param data - {@link Resource.data}
+   * @param signature - {@link Resource._signature}
    */
   protected constructor(metadata: ResourceMetadata, data: ResourceData, signature?: string) {
     this.metadata = metadata

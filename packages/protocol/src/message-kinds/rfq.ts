@@ -84,12 +84,13 @@ export class Rfq extends Message {
   /**
    * evaluates this rfq against the provided offering
    * @param offering - the offering to evaluate this rfq against
-   * @throws if {@link Rfq.data.offeringId} doesn't match the provided offering's id
-   * @throws if {@link Rfq.data.payinAmount} exceeds the provided offering's max units allowed or is below the offering's min units allowed
-   * @throws if {@link Rfq.data.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
-   * @throws if {@link Rfq.data.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
-   * @throws if {@link Rfq.data.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
-   * @throws if {@link Rfq.data.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
+   * @throws if Rfq.data.offeringId doesn't match the provided offering's id
+   * @see RfqData#offeringId
+   * @throws if payinAmount in {@link Rfq.data} exceeds the provided offering's max units allowed or is below the offering's min units allowed
+   * @throws if payinMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payinMethod kinds
+   * @throws if payinMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
+   * @throws if payoutMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payoutMethod kinds
+   * @throws if payoutMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   async verifyOfferingRequirements(offering: Offering) {
     if (offering.metadata.id !== this.data.offeringId) {
@@ -130,10 +131,10 @@ export class Rfq extends Message {
    * @param rfqPaymentMethod - The Rfq's selected payin/payout method being validated
    * @param allowedPaymentMethods - The Offering's allowed payin/payout methods
    *
-   * @throws if {@link Rfq.data.payinMethod} property `kind` cannot be validated against the provided offering's payinMethod kinds
-   * @throws if {@link Rfq.data.payinMethod} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
-   * @throws if {@link Rfq.data.payoutMethod} property `kind` cannot be validated against the provided offering's payoutMethod kinds
-   * @throws if {@link Rfq.data.payoutMethod} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
+   * @throws if payinMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payinMethod kinds
+   * @throws if payinMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
+   * @throws if payoutMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payoutMethod kinds
+   * @throws if payoutMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   private verifyPaymentMethod(
     rfqPaymentMethod: SelectedPaymentMethod,

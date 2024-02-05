@@ -1,5 +1,5 @@
 import type { MessageKind, MessageModel, MessageMetadata, MessageData } from './types.js'
-import type { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
+import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
 
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
@@ -25,6 +25,14 @@ export abstract class Message {
   /** signature that verifies that authenticity and integrity of a message */
   protected _signature: string | undefined
 
+  /**
+   * Constructor is primarily for intended for internal use. For a better developer experience,
+   * consumers should use concrete classes to programmatically create and parse messages,
+   * e.g. {@link Rfq.parse} and {@link Rfq.create}
+   * @param metadata - {@link Message.metadata}
+   * @param data - {@link Message.data}
+   * @param signature - {@link Message._signature}
+   */
   protected constructor(metadata: MessageMetadata, data: MessageData, signature?: string) {
     this.metadata = metadata
     this.data = data
