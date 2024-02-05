@@ -11,7 +11,7 @@ import {
   RequestTokenSigningError
 } from '../src/errors/index.js'
 
-import { DevTools, Message } from '@tbdex/protocol'
+import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'

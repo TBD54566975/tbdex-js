@@ -96,7 +96,7 @@ export class TbdexHttpServer {
 
   /**
    * Set up the callback for the SubmitRfq endpoint
-   * @param callback 
+   * @param callback
    */
   onSubmitRfq(callback: SubmitRfqCallback): void {
     this.callbacks['rfq'] = callback
@@ -104,7 +104,7 @@ export class TbdexHttpServer {
 
   /**
    * Set up the callback for the SubmitOrder endpoint
-   * @param callback 
+   * @param callback
    */
   onSubmitOrder(callback: SubmitOrderCallback): void {
     this.callbacks['order'] = callback
@@ -112,7 +112,7 @@ export class TbdexHttpServer {
 
   /**
    * Set up the callback for the SubmitClose endpoint
-   * @param callback 
+   * @param callback
    */
   onSubmitClose(callback: SubmitCloseCallback): void {
     this.callbacks['close'] = callback
@@ -120,7 +120,7 @@ export class TbdexHttpServer {
 
   /**
    * Set up the callback for the GetExchanges endpoint
-   * @param callback 
+   * @param callback
    */
   onGetExchanges(callback: GetExchangesCallback): void {
     this.callbacks['exchanges'] = callback
@@ -128,7 +128,7 @@ export class TbdexHttpServer {
 
   /**
    * Set up the callback for the GetOfferings endpoint
-   * @param callback 
+   * @param callback
    */
   onGetOfferings(callback: GetOfferingsCallback): void {
     this.callbacks['offerings'] = callback

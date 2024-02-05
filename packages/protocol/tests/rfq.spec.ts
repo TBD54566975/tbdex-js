@@ -182,8 +182,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          claims: [],
-          offeringId: offering.metadata.id
+          claims     : [],
+          offeringId : offering.metadata.id
         }
       })
 

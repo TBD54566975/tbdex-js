@@ -1,4 +1,4 @@
-import { Offering, OfferingData, parseResource } from '../src/main.js'
+import { Offering, parseResource } from '../src/main.js'
 import { DevTools } from '../src/dev-tools.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
@@ -9,7 +9,7 @@ describe('Offering', () => {
       const data = DevTools.createOfferingData()
 
       const offering = Offering.create({
-        metadata : { from: 'did:ex:pfi' },
+        metadata: { from: 'did:ex:pfi' },
         data,
       })
 
@@ -27,7 +27,7 @@ describe('Offering', () => {
 
       expect(() => {
         Offering.create({
-          metadata : { from: 'did:ex:pfi' },
+          metadata: { from: 'did:ex:pfi' },
           data,
         })
       }).to.throw

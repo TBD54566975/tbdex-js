@@ -45,7 +45,7 @@ export abstract class Resource {
   async sign(did: PortableDid): Promise<void> {
     this._signature = await Crypto.sign({ did, payload: this.digest(), detached: true })
   }
-  
+
 
   /**
    * Validates the resource structure and verifies the cryptographic signature
