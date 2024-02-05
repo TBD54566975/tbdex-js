@@ -12,14 +12,17 @@ import { validate } from './validator.js'
  * @beta
  */
 export abstract class Message {
-  /** a set of valid Message kinds that can come after this message in an exchange */
+  /** A set of valid Message kinds that can come after this message in an exchange */
   abstract validNext: Set<MessageKind>
 
-  /** the message kind (e.g. rfq, quote) */
+  /** The message kind (e.g. rfq, quote) */
   abstract kind: MessageKind
 
+  /** Metadata such as sender, recipient, date created, and ID */
   readonly metadata: MessageMetadata
+  /** Message kind-specific data to facilitate the exchange of assets between Alice and the PFI */
   readonly data: MessageData
+  /** signature that verifies that authenticity and integrity of a message */
   protected _signature: string | undefined
 
   protected constructor(metadata: MessageMetadata, data: MessageData, signature?: string) {

@@ -8,10 +8,10 @@ import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
 import { Offering } from './resource-kinds/index.js'
 
 /**
+ * @beta
+ *
  * Parses the json message into a message instance.
  * Performs format validation and an integrity check on the signature
- * Note: This really should be a part of {@link parseMessage} but can't be because it creates a circular dependency
- * due to each concrete MessageKind class extending Message
  * @param message - the message to parse. can either be an object or a string
  * @returns {@link Message}
  */
@@ -70,10 +70,10 @@ export async function parseMessage(rawMessage: MessageModel | string): Promise<M
 }
 
 /**
+ * @beta
+ *
  * Parses a json message into an instance of message kind's class.
  * Performs format validation and an integrity check of the signature
- * Note: This really should be a part of {@link Resource.parse} but can't be because it creates a circular dependency
- * due to each concrete MessageKind class extending Message
  * @param jsonResource - the resource to parse
  * @returns {@link Resource}
  */

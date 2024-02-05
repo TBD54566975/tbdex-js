@@ -19,9 +19,12 @@ export type CreateOrderStatusOptions = {
 export class OrderStatus extends Message {
   /** a set of valid Message kinds that can come after an order status */
   readonly validNext = new Set<MessageKind>([])
+  /** @inheritdoc */
   readonly kind = 'orderstatus'
 
+  /** @inheritdoc */
   readonly metadata: OrderStatusMetadata
+  /** OrderStatus's data containing a description of the status */
   readonly data: OrderStatusData
 
   constructor(metadata: OrderStatusMetadata, data: OrderStatusData, signature?: string) {
