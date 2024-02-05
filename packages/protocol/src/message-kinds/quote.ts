@@ -19,10 +19,10 @@ export type CreateQuoteOptions = {
 export class Quote extends Message {
   /** a set of valid Message kinds that can come after a quote */
   readonly validNext = new Set<MessageKind>(['order', 'close'])
-  /** {@inheritdoc} */
+  /** {@inheritDoc} */
   readonly kind = 'quote'
 
-  /** {@inheritdoc} */
+  /** {@inheritDoc} */
   readonly metadata: QuoteMetadata
   /**
    * Quote's data containing locked-in price and payment methods that the PFI is willing to honor

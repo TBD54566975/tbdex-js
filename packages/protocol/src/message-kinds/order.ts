@@ -17,10 +17,10 @@ export type CreateOrderOptions = {
 export class Order extends Message {
   /** a set of valid Message kinds that can come after an order */
   readonly validNext = new Set<MessageKind>(['orderstatus'])
-  /** {@inheritdoc} */
+  /** {@inheritDoc} */
   readonly kind = 'order'
 
-  /** {@inheritdoc} */
+  /** {@inheritDoc} */
   readonly metadata: OrderMetadata
   /** Order's data */
   readonly data: OrderData
