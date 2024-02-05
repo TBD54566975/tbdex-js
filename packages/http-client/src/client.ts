@@ -1,3 +1,4 @@
+import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
 import type {
@@ -9,11 +10,47 @@ import type {
   MessageKindClass,
 } from '@tbdex/protocol'
 
-import { resolveDid, Offering, Resource, Message, Crypto } from '@tbdex/protocol'
+import {
+  RequestError,
+  ResponseError,
+  InvalidDidError,
+  MissingServiceEndpointError,
+  RequestTokenMissingClaimsError,
+  RequestTokenAudienceMismatchError,
+  RequestTokenSigningError,
+  RequestTokenVerificationError
+} from './errors/index.js'
+import { resolveDid, Offering, Resource, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
-import { Convert } from '@web5/common'
-import { RequestError, ResponseError, InvalidDidError, MissingServiceEndpointError } from './errors/index.js'
+import { typeid } from 'typeid-js'
+import { Jwt } from '@web5/credentials'
+
 import queryString from 'query-string'
+import ms from 'ms'
+
+/**
+ * Parameters for generating a request token
+ * @beta
+ */
+export type GenerateRequestTokenParams = {
+  requesterDid: PortableDid
+  pfiDid: string
+}
+
+/**
+ * Parameters for verifying a request token
+ * @beta
+ */
+export type VerifyRequestTokenParams = {
+  requestToken: string
+  pfiDid: string
+}
+
+/**
+ * Required jwt claims expected in a request token
+ * @beta
+ */
+export const requestTokenRequiredClaims = ['aud', 'iss', 'exp', 'iat', 'jti']
 
 /**
  * HTTP client for interacting with TBDex PFIs
@@ -51,7 +88,7 @@ export class TbdexHttpClient {
         headers : { 'content-type': 'application/json' },
         body    : requestBody
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -117,16 +154,16 @@ export class TbdexHttpClient {
    * @beta
    */
   static async getOfferings(opts: GetOfferingsOptions): Promise<Offering[]> {
-    const { pfiDid , filter } = opts
+    const { pfiDid, filter } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
+    const queryParams = filter ? `?${queryString.stringify(filter)}` : ''
     const apiRoute = `${pfiServiceEndpoint}/offerings${queryParams}`
 
     let response: Response
     try {
       response = await fetch(apiRoute)
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get offerings from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -155,7 +192,7 @@ export class TbdexHttpClient {
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(did)
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: did, pfiDid })
 
     let response: Response
     try {
@@ -164,7 +201,7 @@ export class TbdexHttpClient {
           authorization: `Bearer ${requestToken}`
         }
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -193,9 +230,9 @@ export class TbdexHttpClient {
     const { pfiDid, filter, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const queryParams = filter ? `?${queryString.stringify(filter)}`: ''
+    const queryParams = filter ? `?${queryString.stringify(filter)}` : ''
     const apiRoute = `${pfiServiceEndpoint}/exchanges${queryParams}`
-    const requestToken = await TbdexHttpClient.generateRequestToken(did)
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: did, pfiDid })
 
     let response: Response
     try {
@@ -204,7 +241,7 @@ export class TbdexHttpClient {
           authorization: `Bearer ${requestToken}`
         }
       })
-    } catch(e) {
+    } catch (e) {
       throw new RequestError({ message: `Failed to get exchanges from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
@@ -237,7 +274,7 @@ export class TbdexHttpClient {
   static async getPfiServiceEndpoint(did: string) {
     try {
       const didDocument = await resolveDid(did)
-      const [ didService ] = didUtils.getServices({ didDocument, type: 'PFI' })
+      const [didService] = didUtils.getServices({ didDocument, type: 'PFI' })
 
       if (!didService?.serviceEndpoint) {
         throw new MissingServiceEndpointError(`${did} has no PFI service entry`)
@@ -253,27 +290,75 @@ export class TbdexHttpClient {
   }
 
   /**
-   * generates a jws to be used to authenticate GET requests
-   * @param did - the requester's did
-   */
-  static async generateRequestToken(did: PortableDid): Promise<string> {
-    // TODO: include exp property. expires 1 minute from generation time
-    // TODO: include aud property. should be DID of receipient
-    // TODO: include nbf property. not before current time
-    // TODO: include iss property. should be requester's did
-    const payload = { timestamp: new Date().toISOString() }
-    const payloadBytes = Convert.object(payload).toUint8Array()
+  * Creates and signs a request token ([JWT](https://datatracker.ietf.org/doc/html/rfc7519))
+  * that's included as the value of Authorization header for requests sent to a PFI API's
+  * endpoints that require authentication
+  *
+  * JWT payload with the following claims:
+  *  * `aud`
+  *  * `iss`
+  *  * `exp`
+  *  * `iat`
+  *  * `jti`The JWT is then signed and returned.
+  *
+  * @returns the request token (JWT)
+  * @throws {RequestTokenError} If an error occurs during the token generation.
+  */
+  static async generateRequestToken(params: GenerateRequestTokenParams): Promise<string> {
+    const now = Date.now()
+    const exp = (now + ms('1m'))
 
-    return Crypto.sign({ did: did, payload: payloadBytes, detached: false })
+    const jwtPayload: JwtPayload = {
+      aud : params.pfiDid,
+      iss : params.requesterDid.did,
+      exp : Math.floor(exp / 1000),
+      iat : Math.floor(now / 1000),
+      jti : typeid().getSuffix()
+    }
+
+    try {
+      return await Jwt.sign({ signerDid: params.requesterDid, payload: jwtPayload })
+    } catch(e) {
+      throw new RequestTokenSigningError({ message: e.message, cause: e })
+    }
   }
 
   /**
-   * validates the bearer token and verifies the cryptographic signature
-   * @throws if the token is invalid
-   * @throws see {@link @tbdex/protocol#Crypto.verify}
-   */
-  static async verify(requestToken: string): Promise<string> {
-    return Crypto.verify({ signature: requestToken })
+   * Validates and verifies the integrity of a request token ([JWT](https://datatracker.ietf.org/doc/html/rfc7519))
+   * generated by {@link generateRequestToken}. Specifically:
+   *   * verifies integrity of the JWT
+   *   * ensures all required claims are present and valid.
+   *   * ensures the token has not expired
+   *   * ensures token audience matches the expected PFI DID.
+   *
+   * @returns the requester's DID as a string if the token is valid.
+   * @throws {RequestTokenError} If the token is invalid, expired, or has been tampered with
+  */
+  static async verifyRequestToken(params: VerifyRequestTokenParams): Promise<string> {
+    let result
+
+    try {
+      result = await Jwt.verify({ jwt: params.requestToken })
+    } catch(e) {
+      throw new RequestTokenVerificationError({ message: e.message, cause: e })
+    }
+
+    const { payload: requestTokenPayload } = result
+
+    // check to ensure all expected claims are present
+    for (let claim of requestTokenRequiredClaims) {
+      if (!requestTokenPayload[claim]) {
+        throw new RequestTokenMissingClaimsError({ message: `Request token missing ${claim} claim. Expected ${requestTokenRequiredClaims}.` })
+      }
+    }
+
+    // TODO: decide if we want to ensure that the expiration date is not longer than 1 minute after the issuance date
+
+    if (requestTokenPayload.aud !== params.pfiDid) {
+      throw new RequestTokenAudienceMismatchError({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
+    }
+
+    return requestTokenPayload.iss
   }
 }
 

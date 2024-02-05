@@ -1,5 +1,23 @@
 # @tbdex/protocol
 
+## 0.24.0
+
+### Minor Changes
+
+- c471b3d: Upgrading web5 versions in protocol and http-client
+
+### Patch Changes
+
+- 550fe94: Replaces karma testing library with web-test-runner
+
+## 0.23.0
+
+### Patch Changes
+
+- a7bc582: make required claims nullable
+- 5631d32: Replace pex implementation with web5
+- c3610ed: Adds more checks to validate an RFQ against a provided Offering
+
 ## 0.22.1
 
 ### Patch Changes

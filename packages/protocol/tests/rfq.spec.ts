@@ -1,3 +1,4 @@
+import { VerifiableCredential } from '@web5/credentials'
 import type { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
@@ -66,10 +67,10 @@ describe('Rfq', () => {
 
       await rfq.sign(did)
 
-      const [base64UrlEncodedJwsHeader] = rfq.signature.split('.')
-      const jwsHeader = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
+      const [base64UrlEncodedJwsHeader] = rfq.signature!.split('.')
+      const jwsHeader: { kid?: string, alg?: string}  = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod[0].id)
+      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod![0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })
@@ -142,9 +143,9 @@ describe('Rfq', () => {
 
     beforeEach(async () => {
       const did = await DevTools.createDid()
-      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+      const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
@@ -152,6 +153,7 @@ describe('Rfq', () => {
       })
 
       offering = DevTools.createOffering()
+      const vcJwt = await vc.sign({ did })
 
       rfqOptions = {
         metadata: {
@@ -164,7 +166,7 @@ describe('Rfq', () => {
         }
       }
       rfqOptions.metadata.from = did.did
-      rfqOptions.data.claims = [signedCredential]
+      rfqOptions.data.claims = [vcJwt]
     })
 
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
@@ -287,17 +289,19 @@ describe('Rfq', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
       const did = await DevTools.createDid()
       const offering = DevTools.createOffering()
-      const { signedCredential } = await DevTools.createCredential({ // this credential fulfills the offering's required claims
+      const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
 
+      const vcJwt = await vc.sign({ did })
+
       const rfqData = await DevTools.createRfqData()
-      rfqData.claims = [signedCredential]
+      rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },
@@ -310,17 +314,19 @@ describe('Rfq', () => {
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
       const did = await DevTools.createDid()
       const offering = DevTools.createOffering()
-      const { signedCredential } = await DevTools.createCredential({
+      const vc = await VerifiableCredential.create({
         type    : 'PuupuuCredential',
-        issuer  : did,
+        issuer  : did.did,
         subject : did.did,
         data    : {
           'beep': 'boop'
         }
       })
 
+      const vcJwt = await vc.sign({ did})
+
       const rfqData = await DevTools.createRfqData()
-      rfqData.claims = [signedCredential]
+      rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
         metadata : { from: did.did, to: 'did:ex:pfi' },

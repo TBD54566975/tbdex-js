@@ -3,14 +3,11 @@ import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { PortableDid } from '@web5/dids'
 
 import { DidDhtMethod, DidIonMethod, DidKeyMethod } from '@web5/dids'
-import { utils as vcUtils } from '@web5/credentials'
 import { Offering } from './resource-kinds/index.js'
-import { Convert } from '@web5/common'
-import { Crypto } from './crypto.js'
-import { Jose } from '@web5/crypto'
 import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
 import { Message } from './main.js'
+import { VerifiableCredential } from '@web5/credentials'
 
 /**
  * Supported DID Methods
@@ -34,31 +31,6 @@ export type MessageOptions = {
   receiver?: PortableDid
 }
 
-
-/**
- * Options passed to {@link DevTools.createCredential}
- * @beta
- */
-export type CreateCredentialOptions = Omit<CreateJwtOptions, 'payload'> & {
-  /** the credential type (e.g. UniversityDegreeCredential) */
-  type: string
-  /** data to include in the credential */
-  data: Record<string, any>
-}
-
-/**
- * Options passed to {@link DevTools.createJwt}
- * @beta
- */
-export type CreateJwtOptions = {
-  /** the thing to sign */
-  payload: any,
-  /** the JWT's subject (e.g. Alice's DID) */
-  subject: string
-  /** the JWT's issuer */
-  issuer: PortableDid
-}
-
 /**
  * Utility functions for testing purposes
  * @beta
@@ -70,7 +42,7 @@ export class DevTools {
    */
   static async createDid(didMethod: DidMethodOptions = 'key') {
     if (didMethod === 'key') {
-      return DidKeyMethod.create()
+      return await DidKeyMethod.create()
     } else if (didMethod === 'ion') {
       return DidIonMethod.create()
     } else if (didMethod === 'dht') {
@@ -83,10 +55,10 @@ export class DevTools {
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
-  static createOffering(offeringData?: OfferingData): Offering {
+  static createOffering(opts?: { from?: string, offeringData?: OfferingData }): Offering {
     return Offering.create({
-      metadata : { from: 'did:ex:pfi' },
-      data     : offeringData ?? DevTools.createOfferingData()
+      metadata : { from: opts?.from ?? 'did:ex:pfi' },
+      data     : opts?.offeringData ?? DevTools.createOfferingData()
     })
   }
 
@@ -178,20 +150,18 @@ export class DevTools {
     return {
       expiresAt : new Date().toISOString(),
       payin     : {
-        currencyCode : 'BTC',
-        amount       : '0.01',
-        fee          : '0.0001'
-      },
-      payout: {
-        currencyCode : 'USD',
-        amount       : '1000.00'
-      },
-      paymentInstructions: {
-        payin: {
+        currencyCode       : 'BTC',
+        amount             : '0.01',
+        fee                : '0.0001',
+        paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
-        },
-        payout: {
+        }
+      },
+      payout: {
+        currencyCode       : 'USD',
+        amount             : '1000.00',
+        paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
         }
@@ -238,18 +208,18 @@ export class DevTools {
    * creates an example RfqData. Useful for testing purposes
    */
   static async createRfqData(opts?: MessageOptions): Promise<RfqData> {
-    let credential: any = ''
+    let vcJwt: any = ''
 
     if (opts?.sender) {
-      const { signedCredential } = await DevTools.createCredential({
+      const vc = await VerifiableCredential.create({
         type    : 'YoloCredential',
-        issuer  : opts.sender,
+        issuer  : opts.sender.did,
         subject : opts.sender.did,
         data    : {
           'beep': 'boop'
         }
       })
-      credential = signedCredential
+      vcJwt = await vc.sign({ did: opts.sender })
     }
 
     return {
@@ -270,82 +240,7 @@ export class DevTools {
         }
       },
       payinAmount : '200.00',
-      claims      : [credential]
-    }
-  }
-
-  /**
-   * creates a verifiable credential using the options provided. This method is intended for testing purposes
-   * @param opts - options used to create the credential
-   * @returns
-   */
-  static async createCredential(opts: CreateCredentialOptions) {
-    const credential = {
-      '@context'          : ['https://www.w3.org/2018/credentials/v1'],
-      'id'                : Date.now().toString(),
-      'type'              : ['VerifiableCredential', opts.type],
-      'issuer'            : opts.issuer.did,
-      'issuanceDate'      : vcUtils.getCurrentXmlSchema112Timestamp(),
-      'credentialSubject' : { id: opts.subject, ...opts.data }
-    }
-
-    const signedCredential = await DevTools.createJwt({
-      issuer  : opts.issuer,
-      subject : credential.credentialSubject.id,
-      payload : { vc: credential }
-    })
-
-    return { credential, signedCredential }
-  }
-
-  /**
-   * Creates a JWT using the options provided.
-   * It's signed with the issuer's first verification method private key JWK
-   *
-   * @param opts - options used to create the JWT
-   * @returns a compact JWT
-   */
-  static async createJwt(opts: CreateJwtOptions) {
-    const { issuer, subject, payload } = opts
-    const { privateKeyJwk } = issuer.keySet.verificationMethodKeys[0]
-
-    // build jwt header
-    const algorithmId = `${privateKeyJwk['alg']}:${privateKeyJwk['crv']}`
-    const algorithm = Crypto.algorithms[algorithmId]
-    const jwtHeader = { alg: algorithm.alg, kid: issuer.document.verificationMethod[0].id }
-    const base64urlEncodedJwtHeader = Convert.object(jwtHeader).toBase64Url()
-
-    // build jwt payload
-    const jwtPayload = { iss: issuer.did, sub: subject, ...payload }
-    const base64urlEncodedJwtPayload = Convert.object(jwtPayload).toBase64Url()
-
-    // build what will be signed
-    const toSign = `${base64urlEncodedJwtHeader}.${base64urlEncodedJwtPayload}`
-    const bytesToSign = Convert.string(toSign).toUint8Array()
-
-    // select signer based on the provided key's named curve
-    const { signer, options } = algorithm
-    const signingKey = await Jose.jwkToCryptoKey({ key: privateKeyJwk })
-
-    // generate signature
-    const signatureBytes = await signer.sign({ key: signingKey, data: bytesToSign, algorithm: options })
-    const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
-
-    return `${base64urlEncodedJwtHeader}.${base64urlEncodedJwtPayload}.${base64UrlEncodedSignature}`
-  }
-
-  /**
-   * convenience method that can be used to decode a COMPACT JWT
-   * @param compactJwt - the JWT to decode
-   * @returns
-   */
-  static decodeJwt(compactJwt) {
-    const [base64urlEncodedJwtHeader, base64urlEncodedJwtPayload, base64urlEncodedSignature] = compactJwt.split('.')
-
-    return {
-      header  : Convert.base64Url(base64urlEncodedJwtHeader).toObject(),
-      payload : Convert.base64Url(base64urlEncodedJwtPayload).toObject(),
-      base64urlEncodedSignature
+      claims      : [vcJwt]
     }
   }
 }

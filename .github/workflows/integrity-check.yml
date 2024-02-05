@@ -72,6 +72,11 @@ jobs:
           name: junit-results
           path: packages/*/results.xml
 
+      - name: Upload test coverage to Codecov
+        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Generate an access token to trigger downstream repo
         uses: actions/create-github-app-token@2986852ad836768dfea7781f31828eb3e17990fa # v1.6.2
         id: generate_token
@@ -80,9 +85,9 @@ jobs:
           app-id: ${{ secrets.CICD_ROBOT_GITHUB_APP_ID }}
           private-key: ${{ secrets.CICD_ROBOT_GITHUB_APP_PRIVATE_KEY }}
           owner: TBD54566975
-          repositories: sdk-development
+          repositories: sdk-report-runner
 
-      - name: Trigger sdk-development report build
+      - name: Trigger sdk-report-runner report build
         if: github.ref == 'refs/heads/main'
         run: |
           curl -L \
@@ -91,7 +96,7 @@ jobs:
           -H "Content-Type: application/json" \
           --fail \
           --data '{"ref": "main"}' \
-          https://api.github.com/repos/TBD54566975/sdk-development/actions/workflows/build-report.yaml/dispatches
+          https://api.github.com/repos/TBD54566975/sdk-report-runner/actions/workflows/build-report.yaml/dispatches
         env:
           APP_TOKEN: ${{ steps.generate_token.outputs.token }}
 

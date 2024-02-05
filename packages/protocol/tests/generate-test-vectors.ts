@@ -1,10 +1,11 @@
-import { DevTools, Message, Offering, Quote, Rfq } from '../src/main.js'
+import { DidKeyMethod } from '@web5/dids'
+import { VerifiableCredential } from '@web5/credentials'
+import { Close, DevTools, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import fs from 'fs'
 
 /**
  * Use this util when you are modifying or adding a new test vector to `tbdex`.
  */
-
-
 type TestVector = {
   description: string
   input: string
@@ -13,11 +14,8 @@ type TestVector = {
 }
 
 const generateParseOfferingVector = async () => {
-  const did = await DevTools.createDid()
-  const offering = Offering.create({
-    metadata : { from: did.did },
-    data     : DevTools.createOfferingData()
-  })
+  const did = await DidKeyMethod.create()
+  const offering = DevTools.createOffering({ from: did.did })
 
   await offering.sign(did)
 
@@ -30,7 +28,7 @@ const generateParseOfferingVector = async () => {
 }
 
 const generateParseQuoteVector = async () => {
-  const did = await DevTools.createDid()
+  const did = await DidKeyMethod.create()
   const quote = Quote.create({
     metadata: {
       exchangeId : Message.generateId('rfq'),
@@ -50,10 +48,40 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const did = await DevTools.createDid()
+  const did = await DidKeyMethod.create()
+  const vc = await VerifiableCredential.create({
+    type    : 'PuupuuCredential',
+    issuer  : did.did,
+    subject : did.did,
+    data    : {
+      'beep': 'boop'
+    }
+  })
+
+  const vcJwt = await vc.sign({ did })
+
   const rfq = Rfq.create({
     metadata : { from: did.did, to: 'did:ex:pfi' },
-    data     : await DevTools.createRfqData()
+    data     : {
+      offeringId  : 'abcd123',
+      payinMethod : {
+        kind           : 'DEBIT_CARD',
+        paymentDetails : {
+          'cardNumber'     : '1234567890123456',
+          'expiryDate'     : '12/22',
+          'cardHolderName' : 'Ephraim Bartholomew Winthrop',
+          'cvv'            : '123'
+        }
+      },
+      payoutMethod: {
+        kind           : 'BTC_ADDRESS',
+        paymentDetails : {
+          btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+        }
+      },
+      payinAmount : '20000.00',
+      claims      : [vcJwt]
+    }
   })
 
   await rfq.sign(did)
@@ -66,10 +94,62 @@ const generateParseRfqVector = async () => {
   }
 }
 
+const generateParseOrderVector = async () => {
+  const did = await DidKeyMethod.create()
+  const order = Order.create({
+    metadata: { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' }
+  })
+
+  await order.sign(did)
+
+  return {
+    description : 'Order parses from string',
+    input       : JSON.stringify(order),
+    output      : order.toJSON(),
+    error       : false,
+  }
+}
+
+const generateParseCloseVector = async () => {
+  const did = await DidKeyMethod.create()
+  const close = Close.create({
+    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
+    data     : {
+      reason: 'The reason for closing the exchange'
+    }
+  })
+
+  await close.sign(did)
+
+  return {
+    description : 'Close parses from string',
+    input       : JSON.stringify(close),
+    output      : close.toJSON(),
+    error       : false,
+  }
+}
+
+const generateParseOrderStatusVector = async () => {
+  const did = await DidKeyMethod.create()
+  const orderStatus = OrderStatus.create({
+    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
+    data     : {
+      orderStatus: 'wee'
+    }
+  })
+
+  await orderStatus.sign(did)
+
+  return {
+    description : 'Order Status parses from string',
+    input       : JSON.stringify(orderStatus),
+    output      : orderStatus.toJSON(),
+    error       : false,
+  }
+}
+
 /**
- * Generates TestVector objects and prints em out.
- * From there, you can prettify it and paste it into the corresponding test vector file by hand.
- * If you think this is janky, soz bro :/ it's the level of (in)convenience that works for me right now.
+ * Generates TestVector objects and overwrites the corresponding test vector files in `tbdex`.
  */
 const overWriteTestVectors = async () => {
 
@@ -77,12 +157,20 @@ const overWriteTestVectors = async () => {
   const vectorFilePair: { filename: string, vector: TestVector }[] = [
     { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
     { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
-    { filename: 'parse-rfq.json', vector: await generateParseRfqVector() }
+    { filename: 'parse-close.json', vector: await generateParseCloseVector() },
+    { filename: 'parse-rfq.json', vector: await generateParseRfqVector() },
+    { filename: 'parse-order.json', vector: await generateParseOrderVector() },
+    { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
   ]
 
   for (const { filename, vector } of vectorFilePair) {
-    console.log(filename)
-    console.log(JSON.stringify(vector, null, 2))
+    const fileLocation = `../../tbdex/hosted/test-vectors/protocol/vectors/${filename}`
+    console.log(`Overwriting ${fileLocation} with new test vector.`)
+    try {
+      fs.writeFileSync(fileLocation, JSON.stringify(vector, null, 2))
+    } catch (err) {
+      console.error(`Error writing file ${fileLocation}:`, err)
+    }
   }
 }
 

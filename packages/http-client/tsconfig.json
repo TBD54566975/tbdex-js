@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "strict": false,
-    "lib": ["DOM","es2023"],
+    "lib": ["DOM", "es2022"],
     "rootDir": "./",
+
     "allowJs": true,
     "target": "es2022",
     "module": "nodenext",

@@ -1,5 +1,33 @@
 # @tbdex/http-client
 
+## 0.24.0
+
+### Minor Changes
+
+- c471b3d: Upgrading web5 versions in protocol and http-client
+- 01fc636: JWT creation and verification
+
+### Patch Changes
+
+- 550fe94: Replaces karma testing library with web-test-runner
+- Updated dependencies [550fe94]
+- Updated dependencies [c471b3d]
+  - @tbdex/protocol@0.24.0
+
+## 0.23.0
+
+### Minor Changes
+
+- 9e1015e: Introduces custom errors types and breaking changes: functions now throw instead of return on failure
+
+### Patch Changes
+
+- 47105ca: Removes HttpResponse and ErrorResponse types from http-client package
+- Updated dependencies [a7bc582]
+- Updated dependencies [5631d32]
+- Updated dependencies [c3610ed]
+  - @tbdex/protocol@0.23.0
+
 ## 0.22.1
 
 ### Patch Changes

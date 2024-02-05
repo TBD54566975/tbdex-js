@@ -25,7 +25,7 @@ export type ResourceModel<T extends ResourceKind> = {
   /** The actual resource content */
   data: ResourceKindModel<T>
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**
@@ -121,8 +121,10 @@ export type MessageModel<T extends MessageKind> = {
   metadata: MessageMetadata<T>
   /** The actual message content */
   data: MessageKindModel<T>
+  /** Private data that must not be in the main  */
+  private?: T extends 'rfq' ? Record<string, any> : never
   /** signature that verifies that authenticity and integrity of a message */
-  signature: string
+  signature?: string
 }
 
 /**
@@ -214,8 +216,6 @@ export type QuoteData = {
   payin: QuoteDetails
   /** the amount of payout currency that Alice will receive */
   payout: QuoteDetails
-  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
-  paymentInstructions?: PaymentInstructions
 }
 
 /**
@@ -229,17 +229,8 @@ export type QuoteDetails = {
   amount: string
   /** The amount paid in fees */
   fee?: string
-}
-
-/**
- * Payment Instructions payin and payout pairs
- * @beta
- */
-export type PaymentInstructions = {
-  /** link or instruction describing how to send payin currency to the PFI. */
-  payin?: PaymentInstruction
-  /** link or Instruction describing how to get recieve payout currency from the PFI */
-  payout?: PaymentInstruction
+  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
+  paymentInstruction?: PaymentInstruction
 }
 
 /**
