@@ -10,7 +10,7 @@ import {
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
-import { DevTools, Message } from '@tbdex/protocol'
+import { DevTools, Message, Rfq } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'
@@ -31,15 +31,11 @@ sinon.stub(Message, 'verify').resolves('123')
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', () => {
+  describe('sendMessage', async () => {
+    let mockRfq: Rfq
 
-    let mockRfq: Message<'rfq'>
-    beforeEach(async () =>
-    {
-      mockRfq = await DevTools.createRfq({
-        sender   : await DevTools.createDid(),
-        receiver : dhtDid
-      })
+    beforeEach(async () => {
+      mockRfq = await DevTools.createRfq({ sender: dhtDid, receiver: dhtDid })
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
@@ -79,7 +75,19 @@ describe('client', () => {
         expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockRfq.metadata.exchangeId}/rfq`)
       }
     })
-    it('should not throw errors if all is well', async () => {
+    it('should not throw errors if all is well when sending RFQ with replyTo field', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      try {
+        await TbdexHttpClient.sendMessage({message: mockRfq, replyTo: 'https://tbdex.io/callback'})
+      } catch (e) {
+        expect.fail()
+      }
+    })
+    it('should not throw errors if all is well when sending RFQ without replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()

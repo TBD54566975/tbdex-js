@@ -65,7 +65,8 @@ export class TbdexHttpClient {
    * @throws if recipient DID does not have a PFI service entry
    */
   static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
-    const { message } = opts
+    const { message, replyTo } = opts
+
     const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
 
     await Message.verify(jsonMessage)
@@ -76,10 +77,16 @@ export class TbdexHttpClient {
 
     let response: Response
     try {
+      let requestBody
+      if (jsonMessage.metadata.kind == 'rfq') {
+        requestBody = JSON.stringify({ rfq: jsonMessage, replyTo})
+      } else {
+        requestBody = JSON.stringify(jsonMessage)
+      }
       response = await fetch(apiRoute, {
         method  : 'POST',
         headers : { 'content-type': 'application/json' },
-        body    : JSON.stringify(jsonMessage)
+        body    : requestBody
       })
     } catch (e) {
       throw new RequestError({ message: `Failed to send message to ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
@@ -362,6 +369,11 @@ export class TbdexHttpClient {
 export type SendMessageOptions<T extends MessageKind> = {
   /** the message you want to send */
   message: Message<T> | MessageModel<T>
+  /**
+   * A string containing a valid URI where new messages from the PFI will be sent.
+   * This field is only available as an option when sending an RFQ Message.
+   */
+  replyTo?: T extends 'rfq' ? string : never
 }
 
 /**

@@ -1,7 +1,7 @@
 import type { ErrorDetail } from '@tbdex/http-client'
 import type { Server } from 'http'
 
-import { TbdexHttpServer } from '../src/main.js'
+import { DevTools, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 
 let api = new TbdexHttpServer()
@@ -46,6 +46,27 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
     expect(error.detail).to.include('JSON')
+  })
+
+  it('returns a 400 if create exchange request contains a replyTo which is not a valid URL', async () => {
+    const aliceDid = await DevTools.createDid()
+    const pfiDid = await DevTools.createDid()
+    const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+    await rfq.sign(aliceDid)
+
+    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+      method : 'POST',
+      body   : JSON.stringify({ rfq: rfq, replyTo: 'foo'})
+    })
+
+    expect(resp.status).to.equal(400)
+
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
+    expect(responseBody.errors.length).to.equal(1)
+
+    const [ error ] = responseBody.errors
+    expect(error.detail).to.exist
+    expect(error.detail).to.include('replyTo must be a valid url')
   })
 
   xit('returns a 400 if request body is not a valid RFQ')
