@@ -73,5 +73,3 @@ export class Close extends Message {
     return this.data.reason
   }
 }
-
-const close = Close.create({} as CreateCloseOptions)
