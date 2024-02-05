@@ -208,7 +208,7 @@ export class DevTools {
    * creates an example RfqData. Useful for testing purposes
    */
   static async createRfqData(opts?: MessageOptions): Promise<RfqData> {
-    let vcJwt: any = ''
+    let vcJwt: string = ''
 
     if (opts?.sender) {
       const vc = await VerifiableCredential.create({
