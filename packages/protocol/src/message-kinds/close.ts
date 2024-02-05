@@ -18,10 +18,10 @@ export type CreateCloseOptions = {
 export class Close extends Message {
   /** A set of valid Message kinds that can come after a close */
   readonly validNext = new Set<MessageKind>([])
-  /** @inheritdoc */
+  /** {@inheritdoc} */
   readonly kind = 'close'
 
-  /** @inheritdoc */
+  /** {@inheritdoc} */
   readonly metadata: CloseMetadata
   /** Close's data containing a reason why the exchange was closed */
   readonly data: CloseData

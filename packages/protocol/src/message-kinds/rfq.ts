@@ -23,10 +23,10 @@ export type CreateRfqOptions = {
 export class Rfq extends Message {
   /** a set of valid Message kinds that can come after an rfq */
   readonly validNext = new Set<MessageKind>(['quote', 'close'])
-  /** @inheritdoc */
+  /** {@inheritdoc} */
   readonly kind = 'rfq'
 
-  /** @inheritdoc */
+  /** {@inheritdoc} */
   readonly metadata: RfqMetadata
   /** Rfq's data containing information to initiate an exchange between Alice and a PFI */
   readonly data: RfqData
