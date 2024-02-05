@@ -13,9 +13,13 @@ import { PortableDid } from '@web5/dids'
  * @beta
  */
 export abstract class Resource {
+  /** The resource kind (e.g. offering) */
   abstract kind: ResourceKind
+  /** Metadata such as creator, date created, date updated, and ID */
   protected metadata: ResourceMetadata
+  /** Resource kind-specific data */
   protected data: ResourceData
+  /** signature that verifies that authenticity and integrity of a message */
   private _signature: string | undefined
 
   /**

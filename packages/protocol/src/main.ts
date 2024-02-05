@@ -10,12 +10,13 @@
 
 import { Resource } from './resource.js'
 import { Message } from './message.js'
+import { parseMessage, parseResource } from './parse.js'
 
-export * from './parse.js'
 export * from './resource-kinds/index.js'
 export * from './message-kinds/index.js'
 export * from './did-resolver.js'
 export * from './dev-tools.js'
 export * from './crypto.js'
 export * from './types.js'
+export { parseMessage, parseResource }
 export { Message, Resource }
