@@ -8,7 +8,7 @@ import { rawToMessageModel } from '../parse.js'
  */
 export type CreateCloseOptions = {
   data: CloseData
-  metadata: Omit<CloseMetadata, 'id' |'kind' | 'createdAt'>
+  metadata: Omit<CloseMetadata, 'id' | 'kind' | 'createdAt'>
 }
 
 /**
@@ -18,10 +18,10 @@ export type CreateCloseOptions = {
 export class Close extends Message {
   /** A set of valid Message kinds that can come after a close */
   readonly validNext = new Set<MessageKind>([])
-  /** {@inheritDoc} */
+  /** The message kind (close) */
   readonly kind = 'close'
 
-  /** {@inheritDoc} */
+  /** Metadata such as sender, recipient, date created, and ID */
   readonly metadata: CloseMetadata
   /** Close's data containing a reason why the exchange was closed */
   readonly data: CloseData

@@ -18,9 +18,9 @@ export type CreateOfferingOptions = {
  * @beta
  */
 export class Offering extends Resource {
-  /** {@inheritDoc} */
+  /** The resource kind (offering) */
   readonly kind = 'offering'
-  /** {@inheritDoc} */
+  /** Metadata such as sender, date created, date updated, and ID */
   readonly metadata: OfferingMetadata
   /** Offering's data such as payment methods, required claims, and currencies */
   readonly data: OfferingData
