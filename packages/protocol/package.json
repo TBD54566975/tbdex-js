@@ -49,7 +49,7 @@
     }
   },
   "dependencies": {
-    "@noble/hashes": "1.3.2",
+    "@noble/hashes": "1.3.3",
     "@types/node": "^7.0.5",
     "@web5/common": "0.2.2",
     "@web5/credentials": "0.4.1",
