@@ -1,5 +1,18 @@
 # @tbdex/http-server
 
+## 0.25.0
+
+### Minor Changes
+
+- 1b48ad1: Simplify types, inheritance structure, and API
+
+### Patch Changes
+
+- Updated dependencies [552675c]
+- Updated dependencies [1b48ad1]
+  - @tbdex/protocol@0.25.0
+  - @tbdex/http-client@0.25.0
+
 ## 0.24.0
 
 ### Minor Changes
