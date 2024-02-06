@@ -95,43 +95,48 @@ export class TbdexHttpServer {
   }
 
   /**
-   * Set up the callback for the SubmitRfq endpoint
-   * @param callback
+   * Set up a callback or overwrite the existing callback for the SubmitRfq endpoint
+   * @param callback - A callback to be invoked when a valid Rfq is sent to the
+   *                   CreateExchange endpoint.
    */
   onSubmitRfq(callback: SubmitRfqCallback): void {
-    this.callbacks['rfq'] = callback
+    this.callbacks.rfq = callback
   }
 
   /**
-   * Set up the callback for the SubmitOrder endpoint
-   * @param callback
+   * Set up a callback or overwrite the existing callback for the for the SubmitOrder endpoint
+   * @param callback - A callback to be invoked when a valid Order is sent to the
+   *                   SubmitOrder endpoint.
    */
   onSubmitOrder(callback: SubmitOrderCallback): void {
-    this.callbacks['order'] = callback
+    this.callbacks.order = callback
   }
 
   /**
-   * Set up the callback for the SubmitClose endpoint
-   * @param callback
+   * Set up a callback or overwrite the existing callback for the SubmitClose endpoint.
+   * @param callback - A callback to be invoked when a valid Close is sent to the
+   *                   SubmitClose endpoint.
    */
   onSubmitClose(callback: SubmitCloseCallback): void {
-    this.callbacks['close'] = callback
+    this.callbacks.close = callback
   }
 
   /**
-   * Set up the callback for the GetExchanges endpoint
-   * @param callback
+   * Set up a callback or overwrite the existing callback for the GetExchanges endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetExchanges endpoint.
    */
   onGetExchanges(callback: GetExchangesCallback): void {
-    this.callbacks['exchanges'] = callback
+    this.callbacks.exchanges = callback
   }
 
   /**
-   * Set up the callback for the GetOfferings endpoint
-   * @param callback
+   * Set up a callback or overwrite the existing callback for the GetOfferings endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetOfferings endpoint.
    */
   onGetOfferings(callback: GetOfferingsCallback): void {
-    this.callbacks['offerings'] = callback
+    this.callbacks.offerings = callback
   }
 
   /**
