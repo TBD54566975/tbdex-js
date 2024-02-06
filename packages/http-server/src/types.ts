@@ -1,65 +1,36 @@
 import type { Request, Response } from 'express'
-import type { Close, MessageKindClass, MessageKindClasses, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
+import type { Close, Message, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
 /**
- * Union type for get requests
+ * Callback handler for GetExchanges requests
  * @beta
  */
-export type GetKind = 'exchanges' | 'offerings'
+export type GetExchangesCallback = (ctx: RequestContext, filter: GetExchangesFilter) => any
 
 /**
- * Callback handler for the get requests
+ * Callback handler for GetOfferings requests
  * @beta
  */
-export type GetCallback<T extends GetKind> = (ctx: RequestContext, filter: Filters[T]) => any
+export type GetOfferingsCallback = (ctx: RequestContext, filter: GetOfferingsFilter) => any
 
 /**
- * Map of callbacks handlers for the get requests
+ * Callback handler for the SubmitRfq requests
  * @beta
  */
-export type GetCallbacks = {
-  [Kind in GetKind]: GetCallback<Kind>
-}
+export type SubmitRfqCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering }) => Promise<void>
 
 /**
- * Union type for submit requests
+ * Callback handler for the SubmitOrder requests
  * @beta
  */
-export type SubmitKind = 'rfq' | 'order' | 'close'
+export type SubmitOrderCallback = (ctx: RequestContext, message: Order) => Promise<void>
 
 /**
- * Types for options provided to {@link SubmitCallback}
+ * Callback handler for the SubmitClose requests
  * @beta
  */
-export type SubmitCallbackOpts = {
-  'rfq': { offering: Offering }
-  'order': undefined
-  'close': undefined
-}
-
-/**
- * Callback handler for the submit requests
- * @beta
- */
-export type SubmitCallback<T extends SubmitKind> = (ctx: RequestContext, message: MessageKindClasses[T], opts: SubmitCallbackOpts[T]) => Promise<void>
-
-/**
- * Map of callbacks handlers for the submit requests
- * @beta
- */
-export type SubmitCallbacks = {
-  [Kind in SubmitKind]: SubmitCallback<Kind>
-}
-
-/**
- * Type alias for the filtering options of the get requests
- * @beta
- */
-export type Filters = {
-  'offerings': GetOfferingsFilter
-  'exchanges': GetExchangesFilter
-}
+export type SubmitCloseCallback = (ctx: RequestContext, message: Close) => Promise<void>
 
 /**
  * Filter options for retrieving a list of offerings
@@ -128,12 +99,12 @@ export interface ExchangesApi {
   /**
    * Retrieve a list of exchanges based on the given filter
    */
-  getExchanges(opts?: { filter: GetExchangesFilter }): Promise<MessageKindClass[][] | undefined>
+  getExchanges(opts?: { filter: GetExchangesFilter }): Promise<Message[][] | undefined>
 
   /**
    * Retrieve a single exchange if found
    */
-  getExchange(opts: { id: string }): Promise<MessageKindClass[] | undefined>
+  getExchange(opts: { id: string }): Promise<Message[] | undefined>
 
   /**
    * Retrieve a RFQ if found

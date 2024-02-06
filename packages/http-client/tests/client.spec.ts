@@ -10,7 +10,7 @@ import {
   RequestTokenVerificationError,
   RequestTokenSigningError
 } from '../src/errors/index.js'
-import { DevTools, Message, Rfq } from '@tbdex/protocol'
+import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'
@@ -24,26 +24,32 @@ const dhtDid = await DidDhtMethod.create({
     serviceEndpoint : 'https://localhost:9000'
   }]
 })
+
+// TODO : Instead of stubbing fetch, consider using libraries like msw
 const fetchStub = sinon.stub(globalThis, 'fetch')
 const getPfiServiceEndpointStub = sinon.stub(TbdexHttpClient, 'getPfiServiceEndpoint')
-sinon.stub(Message, 'verify').resolves('123')
 
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', async () => {
-    let mockRfq: Rfq
+  describe('sendMessage', () => {
+    let aliceDid: PortableDid
+    let pfiDid: PortableDid
 
     beforeEach(async () => {
-      mockRfq = await DevTools.createRfq({ sender: dhtDid, receiver: dhtDid })
+      aliceDid = await DevTools.createDid()
+      pfiDid = await DevTools.createDid()
     })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({ message: rfq })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -63,38 +69,49 @@ describe('client', () => {
         })
       } as Response)
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({message: rfq })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(dhtDid.did)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${mockRfq.metadata.exchangeId}/rfq`)
+        expect(e.recipientDid).to.equal(pfiDid.did)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${rfq.metadata.exchangeId}/rfq`)
       }
     })
+
     it('should not throw errors if all is well when sending RFQ with replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
       } as Response)
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq, replyTo: 'https://tbdex.io/callback'})
+        await TbdexHttpClient.sendMessage({message: rfq, replyTo: 'https://tbdex.io/callback'})
       } catch (e) {
         expect.fail()
       }
     })
+
     it('should not throw errors if all is well when sending RFQ without replyTo field', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
       } as Response)
 
+      const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+      await rfq.sign(aliceDid)
+
       try {
-        await TbdexHttpClient.sendMessage({message: mockRfq})
+        await TbdexHttpClient.sendMessage({ message: rfq })
       } catch (e) {
         expect.fail()
       }
@@ -307,7 +324,7 @@ describe('client', () => {
     it('sets expiration seconds to 1 minute after the time at which it was issued', async () => {
       const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
       const decodedToken = await Jwt.verify({ jwt: requestToken })
-      expect(decodedToken.payload.exp - decodedToken.payload.iat).to.equal(60)
+      expect(decodedToken.payload.exp! - decodedToken.payload.iat!).to.equal(60)
     })
   })
 
@@ -316,7 +333,7 @@ describe('client', () => {
     let header: JwtHeaderParams
     let payload: JwtPayload
 
-    async function createRequestTokenFromPayload(payload) {
+    async function createRequestTokenFromPayload(payload: JwtPayload) {
       const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
       const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
       const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()

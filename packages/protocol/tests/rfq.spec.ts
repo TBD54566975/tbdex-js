@@ -1,5 +1,5 @@
 import { VerifiableCredential } from '@web5/credentials'
-import type { CreateRfqOptions, Offering } from '../src/main.js'
+import { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
@@ -18,29 +18,6 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
-    })
-  })
-
-  describe('validate', () => {
-    it('throws an error if payload is not an object', () => {
-      const testCases = ['hi', [], 30, ';;;)_', true, null, undefined]
-      for (let testCase of testCases) {
-        try {
-          Rfq.validate(testCase)
-          expect.fail()
-        } catch(e) {
-          expect(e.message).to.include('must be object')
-        }
-      }
-    })
-
-    it('throws an error if required properties are missing', () => {
-      try {
-        Rfq.validate({})
-        expect.fail()
-      } catch(e) {
-        expect(e.message).to.include('required property')
-      }
     })
   })
 
@@ -108,7 +85,6 @@ describe('Rfq', () => {
     xit('throws an error if DID in kid of JWS header doesnt match metadata.from in message')
     xit('throws an error if no verification method can be found in signers DID Doc')
     xit('throws an error if verification method does not include publicKeyJwk')
-
   })
 
   describe('parse', () => {
@@ -134,6 +110,22 @@ describe('Rfq', () => {
       const parsedMessage = await Rfq.parse(jsonMessage)
 
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
+    })
+  })
+
+  describe('verifySignature', () => {
+    it('throws if signature is not present', async () => {
+      const rfq = Rfq.create({
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi' },
+        data     : await DevTools.createRfqData()
+      })
+
+      try {
+        await rfq.verifySignature()
+        expect.fail()
+      } catch (e) {
+        expect(e.message).to.contain('')
+      }
     })
   })
 
@@ -169,6 +161,52 @@ describe('Rfq', () => {
       rfqOptions.data.claims = [vcJwt]
     })
 
+    it('succeeds if Rfq satisfies Offering required claims and payin amount', async () => {
+      const rfq = Rfq.create(rfqOptions)
+      rfq.verifyOfferingRequirements(offering)
+    })
+
+    it('succeeds if Rfq satisfies required payin amount and Offering has no required claims', async () => {
+      const pfi = await DevTools.createDid()
+
+      const offeringData = DevTools.createOfferingData()
+      offeringData.requiredClaims = undefined
+      const offering = Offering.create({
+        metadata: {
+          from: pfi.did
+        },
+        data: offeringData
+      })
+
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          claims     : [],
+          offeringId : offering.metadata.id
+        }
+      })
+
+      await rfq.verifyOfferingRequirements(offering)
+    })
+
+    it('throws an error if claims do not fulfill Offering\'s requirements', async () => {
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          claims: []
+        }
+      })
+
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch (e) {
+        expect(e.message).to.contain('claims do not fulfill the offering\'s requirements')
+      }
+    })
+
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -186,7 +224,7 @@ describe('Rfq', () => {
     })
 
     it('throws an error if payinAmount exceeds the provided offering\'s maxAmount', async () => {
-      offering.payinCurrency.maxAmount = '0.01'
+      offering.data.payinCurrency.maxAmount = '0.01'
 
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -201,6 +239,26 @@ describe('Rfq', () => {
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('rfq payinAmount exceeds offering\'s maxAmount')
+      }
+    })
+
+    it('throws an error if payinAmount is less than the provided offering\'s minAmount', async () => {
+      offering.data.payinCurrency.minAmount = '100000000000.0'
+
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinAmount : '0.1',
+          offeringId  : offering.id
+        }
+      })
+
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('rfq payinAmount is below offering\'s minAmount')
       }
     })
 

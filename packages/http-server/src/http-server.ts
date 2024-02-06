@@ -1,12 +1,11 @@
 import type {
-  GetCallback,
-  GetCallbacks,
-  GetKind,
-  SubmitCallback,
-  SubmitCallbacks,
-  SubmitKind,
   OfferingsApi,
   ExchangesApi,
+  SubmitRfqCallback,
+  SubmitOrderCallback,
+  SubmitCloseCallback,
+  GetExchangesCallback,
+  GetOfferingsCallback,
 } from './types.js'
 
 import type { Express } from 'express'
@@ -19,19 +18,15 @@ import { jsonBodyParser } from './middleware/index.js'
 import { fakeExchangesApi, fakeOfferingsApi } from './fakes.js'
 
 /**
- * Union type alias for the RequestKind
- * @beta
- */
-type RequestKind = GetKind | SubmitKind
-
-/**
  * Maps the requests to their respective callbacks handlers
  * @beta
  */
 type CallbackMap = {
-  [Kind in RequestKind]?: Kind extends GetKind ? GetCallback<Kind>
-    : Kind extends SubmitKind ? SubmitCallback<Kind>
-    : never
+  exchanges?: GetExchangesCallback
+  offerings?: GetOfferingsCallback
+  rfq?: SubmitRfqCallback
+  order?: SubmitOrderCallback
+  close?: SubmitCloseCallback
 }
 
 /**
@@ -100,21 +95,48 @@ export class TbdexHttpServer {
   }
 
   /**
-   * Setup the callback for the available Submit Requests (eg. RFQ, Order, Close)
-   * @param messageKind - the kind of message to be handled
-   * @param callback - the handler for the message
+   * Set up a callback or overwrite the existing callback for the SubmitRfq endpoint
+   * @param callback - A callback to be invoked when a valid Rfq is sent to the
+   *                   CreateExchange endpoint.
    */
-  submit<T extends SubmitKind>(messageKind: T, callback: SubmitCallbacks[T]) {
-    this.callbacks[messageKind] = callback
+  onSubmitRfq(callback: SubmitRfqCallback): void {
+    this.callbacks.rfq = callback
   }
 
   /**
-   * Setup the callback for the available Get Requests (eg. offerings, exchanges)
-   * @param resourceKind - the kind of resource to be handled
-   * @param callback - the handler for the resource
+   * Set up a callback or overwrite the existing callback for the for the SubmitOrder endpoint
+   * @param callback - A callback to be invoked when a valid Order is sent to the
+   *                   SubmitOrder endpoint.
    */
-  get<T extends GetKind>(resourceKind: T, callback: GetCallbacks[T]) {
-    this.callbacks[resourceKind] = callback
+  onSubmitOrder(callback: SubmitOrderCallback): void {
+    this.callbacks.order = callback
+  }
+
+  /**
+   * Set up a callback or overwrite the existing callback for the SubmitClose endpoint.
+   * @param callback - A callback to be invoked when a valid Close is sent to the
+   *                   SubmitClose endpoint.
+   */
+  onSubmitClose(callback: SubmitCloseCallback): void {
+    this.callbacks.close = callback
+  }
+
+  /**
+   * Set up a callback or overwrite the existing callback for the GetExchanges endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetExchanges endpoint.
+   */
+  onGetExchanges(callback: GetExchangesCallback): void {
+    this.callbacks.exchanges = callback
+  }
+
+  /**
+   * Set up a callback or overwrite the existing callback for the GetOfferings endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetOfferings endpoint.
+   */
+  onGetOfferings(callback: GetOfferingsCallback): void {
+    this.callbacks.offerings = callback
   }
 
   /**

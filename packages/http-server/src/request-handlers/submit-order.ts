@@ -1,12 +1,11 @@
-import type { SubmitCallback, RequestHandler, ExchangesApi } from '../types.js'
+import type { RequestHandler, ExchangesApi, SubmitOrderCallback } from '../types.js'
 import type { ErrorDetail } from '@tbdex/http-client'
-import type { MessageKind, Quote } from '@tbdex/protocol'
+import { Order, Quote } from '@tbdex/protocol'
 
-import { Message } from '@tbdex/protocol'
 import { CallbackError } from '../callback-error.js'
 
 type SubmitOrderOpts = {
-  callback: SubmitCallback<'order'>
+  callback: SubmitOrderCallback
   exchangesApi: ExchangesApi
 }
 
@@ -14,44 +13,39 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
   const { callback, exchangesApi } = opts
 
   return async function (req, res) {
-    let message: Message<MessageKind>
+    let order: Order
 
     try {
-      message = await Message.parse(req.body)
+      order = await Order.parse(req.body)
     } catch(e) {
       const errorResponse: ErrorDetail = { detail: e.message }
       return res.status(400).json({ errors: [errorResponse] })
     }
 
-    if (!message.isOrder()) {
-      const errorResponse: ErrorDetail = { detail: 'expected request body to be a valid order' }
-      return res.status(400).json({ errors: [errorResponse] })
-    }
-
-    const exchange = await exchangesApi.getExchange({id: message.exchangeId})
+    const exchange = await exchangesApi.getExchange({id: order.exchangeId})
     if(exchange == undefined) {
-      const errorResponse: ErrorDetail = { detail: `No exchange found for ${message.exchangeId}` }
+      const errorResponse: ErrorDetail = { detail: `No exchange found for ${order.exchangeId}` }
 
       return res.status(404).json({ errors: [errorResponse] })
     }
 
     const last = exchange[exchange.length-1]
     if(!last.validNext.has('order')) {
-      const errorResponse: ErrorDetail = { detail: `cannot submit Order for an exchange where the last message is kind: ${last.kind}` }
+      const errorResponse: ErrorDetail = { detail: `Cannot submit Order for an exchange where the last message is kind: ${last.kind}` }
 
       return res.status(409).json({ errors: [errorResponse] })
     }
 
-    const quote = exchange.find((message) => message.isQuote) as Quote
+    const quote = exchange.find((message) => message.isQuote()) as Quote
     if(quote == undefined) {
-      const errorResponse: ErrorDetail = { detail: 'quote is undefined' }
+      const errorResponse: ErrorDetail = { detail: 'Quote not found' }
       return res.status(404).json({errors: [errorResponse]})
     }
 
-    if(new Date(quote.expiresAt) < new Date(message.createdAt)){
-      const errorResponse: ErrorDetail = { detail: `quote is expired` }
+    if(new Date(quote.data.expiresAt) < new Date(order.metadata.createdAt)){
+      const errorResponse: ErrorDetail = { detail: `Quote is expired` }
 
-      return res.status(400).json({ errors: [errorResponse] })
+      return res.status(410).json({ errors: [errorResponse] })
     }
 
     if (!callback) {
@@ -59,13 +53,13 @@ export function submitOrder(opts: SubmitOrderOpts): RequestHandler {
     }
 
     try {
-      await callback({ request: req, response: res }, message, undefined)
+      await callback({ request: req, response: res }, order)
       return res.sendStatus(202)
     } catch(e) {
       if (e instanceof CallbackError) {
         return res.status(e.statusCode).json({ errors: e.details })
       } else {
-        const errorDetail: ErrorDetail = { detail: 'umm idk' }
+        const errorDetail: ErrorDetail = { detail: 'Internal Server Error' }
         return res.status(500).json({ errors: [errorDetail] })
       }
     }

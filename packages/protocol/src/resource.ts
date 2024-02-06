@@ -1,5 +1,5 @@
-import type { ResourceModel, ResourceMetadata, ResourceKind, ResourceKindModel, NewResource } from './types.js'
-import type { ResourceKindClass } from './resource-kinds/index.js'
+import type { ResourceModel, ResourceMetadata, ResourceKind, ResourceData } from './types.js'
+import type { Offering } from './resource-kinds/index.js'
 
 import { typeid } from 'typeid-js'
 import { Crypto } from './crypto.js'
@@ -12,91 +12,28 @@ import { PortableDid } from '@web5/dids'
  * They are not part of the message exchange, i.e Alice cannot reply to a Resource.
  * @beta
  */
-export abstract class Resource<T extends ResourceKind> {
-  private _metadata: ResourceMetadata<T>
-  private _data: ResourceKindModel<T>
+export abstract class Resource {
+  /** The resource kind (e.g. offering) */
+  abstract kind: ResourceKind
+  /** Metadata such as creator, date created, date updated, and ID */
+  protected metadata: ResourceMetadata
+  /** Resource kind-specific data */
+  protected data: ResourceData
+  /** signature that verifies that authenticity and integrity of a message */
   private _signature: string | undefined
 
   /**
-   * used by {@link Resource.parse} to return an instance of resource kind's class. This abstraction is needed
-   * because importing the Resource Kind classes (e.g. Offering) creates a circular dependency
-   * due to each concrete Resource Kind class extending Resource. Library consumers dont have to worry about setting this
-  */
-  static factory: <T extends ResourceKind>(jsonResource: ResourceModel<T>) => ResourceKindClass
-
-  /**
    * Constructor is primarily for intended for internal use. For a better developer experience,
-   * consumers should use concrete classes to programmatically create resources (e.g. Offering class) and
-   * {@link Resource.parse} to parse stringified resources.
-   * @param jsonResource - the resource as a json object
-   * @param data - `resource.data` as a ResourceKind class instance. can be passed in as an optimization if class instance
-   * is present in calling scope
+   * consumers should use concrete classes to programmatically create and parse resources,
+   * e.g. {@link Offering.parse} and {@link Offering.create}
+   * @param metadata - {@link Resource.metadata}
+   * @param data - {@link Resource.data}
+   * @param signature - {@link Resource._signature}
    */
-  constructor(jsonResource: NewResource<T>) {
-    this._metadata = jsonResource.metadata
-    this._data = jsonResource.data
-    this._signature = jsonResource.signature
-  }
-
-  /**
-   * parses the json resource into a Resource instance. performs format validation and an integrity check on the signature
-   * @param payload - the resource to parse. can either be an object or a string
-   */
-  static async parse<T extends ResourceKind>(resource: ResourceModel<T> | string): Promise<ResourceKindClass> {
-    let jsonResource: ResourceModel<T>
-    try {
-      jsonResource = typeof resource === 'string' ? JSON.parse(resource): resource
-    } catch(e) {
-      const errorMessage = e instanceof Error ? e.message : e
-      throw new Error(`parse: Failed to parse resource. Error: ${errorMessage}`)
-    }
-
-    await Resource.verify(jsonResource)
-
-    return Resource.factory(jsonResource)
-  }
-
-  /**
-   * validates the resource and verifies the cryptographic signature
-   * @throws if the message is invalid
-   * @throws see {@link Crypto.verify}
-   * @returns Resource signer's DID
-   */
-  static async verify<T extends ResourceKind>(resource: ResourceModel<T> | Resource<T>): Promise<string> {
-    let jsonResource: ResourceModel<T> = resource instanceof Resource ? resource.toJSON() : resource
-    Resource.validate(jsonResource)
-
-    const digest = Crypto.digest({ metadata: jsonResource.metadata, data: jsonResource.data })
-    // Resource.validate() guarantees presence of signature
-    const signerDid = await Crypto.verify({ detachedPayload: digest, signature: jsonResource.signature! })
-
-    if (jsonResource.metadata.from !== signerDid) { // ensure that DID used to sign matches `from` property in metadata
-      throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
-    }
-
-    return signerDid
-  }
-
-  /**
-   * validates the resource provided against the appropriate json schemas.
-   * 2-phased validation: First validates the resource structure and then
-   * validates `data` based on the value of `metadata.kind`
-   * @param jsonResource - the resource to validate
-   *
-   * @throws `Error` if validation fails
-   */
-  static validate(jsonResource: any): void {
-    validate(jsonResource, 'resource')
-    Resource.validateData(jsonResource['metadata']['kind'], jsonResource['data'])
-  }
-
-  /**
-   * Validates `data` section of resource only. This is useful for partially validating
-   * unsigned Resources.
-   */
-  static validateData(kind: string, resourceData: any): void {
-    // validate the value of `data`
-    validate(resourceData, kind)
+  protected constructor(metadata: ResourceMetadata, data: ResourceData, signature?: string) {
+    this.metadata = metadata
+    this.data = data
+    this._signature = signature
   }
 
   /** Generates a unique id with the resource kind's prefix */
@@ -105,45 +42,90 @@ export abstract class Resource<T extends ResourceKind> {
   }
 
   /**
-   * signs the message as a jws with detached content and sets the signature property
+   * Signs the message as a jws with detached content and sets the signature property
    * @param did - the signer's DID
+   * @throws If the signature could not be produced
    */
   async sign(did: PortableDid): Promise<void> {
-    const payload = { metadata: this.metadata, data: this.data }
-    const payloadDigest = Crypto.digest(payload)
-
-    this._signature = await Crypto.sign({ did, payload: payloadDigest, detached: true })
+    this._signature = await Crypto.sign({ did, payload: this.digest(), detached: true })
   }
 
+
   /**
-   * validates the resource and verifies the cryptographic signature
-   * @throws if the resource is invalid
+   * Validates the resource structure and verifies the cryptographic signature
+   * @throws if the resource signature is invalid
+   * @throws if the signer's DID does not match Resource.metadata.from
+   * @throws if the resource structure is invalid
    * @throws see {@link Crypto.verify}
    * @returns Resource signer's DID
    */
   async verify(): Promise<string> {
-    return Resource.verify(this)
+    this.validate()
+
+    const signer = this.verifySignature()
+
+    return signer
+  }
+
+  /**
+   * Verifies the integrity of the cryptographic signature
+   * @throws if the resource signature is invalid
+   * @throws if the signer's DID does not match Resource.metadata.from
+   * @returns Resource signer's DID
+   */
+  async verifySignature(): Promise<string> {
+    if (this.signature === undefined) {
+      throw new Error('Could not verify message signature because no signature is missing')
+    }
+
+    const signer = await Crypto.verify({ detachedPayload: this.digest(), signature: this.signature })
+
+    if (this.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
+      throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
+    }
+
+    return signer
+  }
+
+  /**
+   * Computes a digest of the payload by:
+   * * JSON serializing the payload as per [RFC-8785: JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785)
+   * * sha256 hashing the serialized payload
+   *
+   * @returns The SHA-256 hash of the canonicalized payload, represented as a byte array.
+   */
+  digest(): Uint8Array {
+    return Crypto.digest({ metadata: this.metadata, data: this.data })
+  }
+
+  /**
+   * Valid structure of the resource including the presence of the signature
+   * using the official spec JSON Schemas
+   * @throws If the resource's structure does not match the JSON schemas
+   */
+  validate(): void {
+    validate(this.toJSON(), 'resource')
+    this.validateData()
+  }
+
+  /**
+   * Validates `data` section of resource only using the official TBDex JSON Schemas.
+   * This is useful for partially validating unsigned resources.
+   * @throws If the structure of the Resource's data does not match the JSON schemas
+   */
+  validateData(): void {
+    validate(this.data, this.kind)
   }
 
   /**
    * returns the message as a json object. Automatically used by `JSON.stringify` method.
    */
-  toJSON(): ResourceModel<T> {
+  toJSON(): ResourceModel {
     return {
       metadata  : this.metadata,
       data      : this.data,
       signature : this.signature
     }
-  }
-
-  /** The metadata object contains fields about the resource and is present in every tbdex resource. */
-  get metadata() {
-    return this._metadata
-  }
-
-  /** the actual resource kind's content data */
-  get data() {
-    return this._data
   }
 
   /** the resource's cryptographic signature */
@@ -154,11 +136,6 @@ export abstract class Resource<T extends ResourceKind> {
   /** the resource's id */
   get id() {
     return this.metadata.id
-  }
-
-  /** the resource kind (e.g. offering) */
-  get kind() {
-    return this.metadata.kind
   }
 
   /** The sender's DID */
@@ -177,7 +154,7 @@ export abstract class Resource<T extends ResourceKind> {
   }
 
   /** offering type guard */
-  isOffering(): this is Resource<'offering'> {
+  isOffering(): this is Offering {
     return this.metadata.kind === 'offering'
   }
 }

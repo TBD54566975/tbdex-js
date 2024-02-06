@@ -1,7 +1,7 @@
-import type { GetCallback, GetOfferingsFilter, OfferingsApi, RequestHandler } from '../types.js'
+import type { GetOfferingsCallback, GetOfferingsFilter, OfferingsApi, RequestHandler } from '../types.js'
 
 type GetOfferingsOpts = {
-  callback: GetCallback<'offerings'>
+  callback: GetOfferingsCallback
   offeringsApi: OfferingsApi
 }
 

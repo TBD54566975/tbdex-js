@@ -1,13 +1,10 @@
 import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
-import type {
-  ResourceMetadata,
+import {
   MessageModel,
-  OfferingData,
-  ResourceModel,
-  MessageKind,
-  MessageKindClass,
+  Parser,
+  Rfq,
 } from '@tbdex/protocol'
 
 import {
@@ -20,10 +17,10 @@ import {
   RequestTokenSigningError,
   RequestTokenVerificationError
 } from './errors/index.js'
-import { resolveDid, Offering, Resource, Message } from '@tbdex/protocol'
+import { resolveDid, Offering, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
 import { typeid } from 'typeid-js'
-import { Jwt } from '@web5/credentials'
+import { Jwt, JwtVerifyResult } from '@web5/credentials'
 
 import queryString from 'query-string'
 import ms from 'ms'
@@ -64,24 +61,22 @@ export class TbdexHttpClient {
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage<T extends MessageKind>(opts: SendMessageOptions<T>): Promise<void> {
+  static async sendMessage<T extends Message>(opts: SendMessageOptions<T>): Promise<void> {
     const { message, replyTo } = opts
 
-    const jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
+    await message.verify()
 
-    await Message.verify(jsonMessage)
-
-    const { to: pfiDid, exchangeId, kind } = jsonMessage.metadata
+    const { to: pfiDid, exchangeId, kind } = message.metadata
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}/${kind}`
 
     let response: Response
     try {
       let requestBody
-      if (jsonMessage.metadata.kind == 'rfq') {
-        requestBody = JSON.stringify({ rfq: jsonMessage, replyTo})
+      if (message.metadata.kind == 'rfq') {
+        requestBody = JSON.stringify({ rfq: message, replyTo})
       } else {
-        requestBody = JSON.stringify(jsonMessage)
+        requestBody = JSON.stringify(message)
       }
       response = await fetch(apiRoute, {
         method  : 'POST',
@@ -174,10 +169,11 @@ export class TbdexHttpClient {
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: ResourceModel<'offering'>[] }
-    for (let jsonResource of responseBody.data) {
-      const resource = await Resource.parse(jsonResource)
-      data.push(resource)
+    const responseBody = await response.json()
+    const jsonOfferings = responseBody.data as any[]
+    for (let jsonOffering of jsonOfferings) {
+      const offering = await Offering.parse(jsonOffering)
+      data.push(offering)
     }
 
     return data
@@ -185,9 +181,9 @@ export class TbdexHttpClient {
 
   /**
    * get a specific exchange from the pfi provided
-   * @param _opts - options
+   * @param opts - options
    */
-  static async getExchange(opts: GetExchangeOptions): Promise<MessageKindClass[]> {
+  static async getExchange(opts: GetExchangeOptions): Promise<Message[]> {
     const { pfiDid, exchangeId, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
@@ -205,16 +201,16 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const data: MessageKindClass[] = []
+    const data: Message[] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: MessageModel<MessageKind>[] }
+    const responseBody = await response.json() as { data: MessageModel[] }
     for (let jsonMessage of responseBody.data) {
-      const message = await Message.parse(jsonMessage)
+      const message = await Parser.parseMessage(jsonMessage)
       data.push(message)
     }
 
@@ -226,7 +222,7 @@ export class TbdexHttpClient {
    * returns all exchanges created by requester
    * @param _opts - options
    */
-  static async getExchanges(opts: GetExchangesOptions): Promise<MessageKindClass[][]> {
+  static async getExchanges(opts: GetExchangesOptions): Promise<Message[][]> {
     const { pfiDid, filter, did } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
@@ -245,19 +241,19 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get exchanges from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const exchanges: MessageKindClass[][] = []
+    const exchanges: Message[][] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
       throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
     }
 
-    const responseBody = await response.json() as { data: MessageModel<MessageKind>[][] }
+    const responseBody = await response.json() as { data: MessageModel[][] }
     for (let jsonExchange of responseBody.data) {
-      const exchange: MessageKindClass[] = []
+      const exchange: Message[] = []
 
       for (let jsonMessage of jsonExchange) {
-        const message = await Message.parse(jsonMessage)
+        const message = await Parser.parseMessage(jsonMessage)
         exchange.push(message)
       }
 
@@ -299,10 +295,10 @@ export class TbdexHttpClient {
   *  * `iss`
   *  * `exp`
   *  * `iat`
-  *  * `jti`The JWT is then signed and returned.
+  *  * `jti` The JWT is then signed and returned.
   *
   * @returns the request token (JWT)
-  * @throws {RequestTokenError} If an error occurs during the token generation.
+  * @throws {@link RequestTokenSigningError} If an error occurs during the token generation.
   */
   static async generateRequestToken(params: GenerateRequestTokenParams): Promise<string> {
     const now = Date.now()
@@ -325,17 +321,19 @@ export class TbdexHttpClient {
 
   /**
    * Validates and verifies the integrity of a request token ([JWT](https://datatracker.ietf.org/doc/html/rfc7519))
-   * generated by {@link generateRequestToken}. Specifically:
+   * generated by {@link TbdexHttpClient.generateRequestToken}. Specifically:
    *   * verifies integrity of the JWT
    *   * ensures all required claims are present and valid.
    *   * ensures the token has not expired
    *   * ensures token audience matches the expected PFI DID.
    *
    * @returns the requester's DID as a string if the token is valid.
-   * @throws {RequestTokenError} If the token is invalid, expired, or has been tampered with
+   * @throws {@link RequestTokenVerificationError} If the token is invalid, expired, or has been tampered with
+   * @throws {@link RequestTokenMissingClaimsError} If the token does not contain all required claims
+   * @throws {@link RequestTokenAudienceMismatchError} If the token's `aud` property does not match the PFI's DID
   */
   static async verifyRequestToken(params: VerifyRequestTokenParams): Promise<string> {
-    let result
+    let result: JwtVerifyResult
 
     try {
       result = await Jwt.verify({ jwt: params.requestToken })
@@ -366,14 +364,14 @@ export class TbdexHttpClient {
  * options passed to {@link TbdexHttpClient.sendMessage} method
  * @beta
  */
-export type SendMessageOptions<T extends MessageKind> = {
+export type SendMessageOptions<T extends Message> = {
   /** the message you want to send */
-  message: Message<T> | MessageModel<T>
+  message: T
   /**
    * A string containing a valid URI where new messages from the PFI will be sent.
    * This field is only available as an option when sending an RFQ Message.
    */
-  replyTo?: T extends 'rfq' ? string : never
+  replyTo?: T extends Rfq ? string : never
 }
 
 /**
@@ -385,10 +383,10 @@ export type GetOfferingsOptions = {
   pfiDid: string
   filter?: {
     /** ISO 3166 currency code string */
-    payinCurrency?: OfferingData['payinCurrency']['currencyCode']
+    payinCurrency?: string
     /** ISO 3166 currency code string */
-    payoutCurrency?: OfferingData['payoutCurrency']['currencyCode']
-    id?: ResourceMetadata<any>['id']
+    payoutCurrency?: string
+    id?: string
   }
 }
 
@@ -401,7 +399,6 @@ export type GetExchangeOptions = {
   pfiDid: string
   /** the exchange you want to fetch */
   exchangeId: string
-
   /** the message author's DID */
   did: PortableDid
 }

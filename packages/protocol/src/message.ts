@@ -1,144 +1,121 @@
-import type { MessageKind, MessageKindModel, MessageModel, MessageMetadata, NewMessage } from './types.js'
-import type { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
-import type { MessageKindClass } from './message-kinds/index.js'
+import type { MessageKind, MessageModel, MessageMetadata, MessageData } from './types.js'
+import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
 
-import { validate } from './validator.js'
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
 import { PortableDid } from '@web5/dids'
-
+import { validate } from './validator.js'
 
 /**
  * Representation of the protocol messages.
  * It also provides helper functions to manipulate raw messages, JSON and parsing.
  * @beta
  */
-export abstract class Message<T extends MessageKind> {
-  private _metadata: MessageMetadata<T>
-  private _data: MessageKindModel<T>
-  private _signature: string | undefined
+export abstract class Message {
+  /** A set of valid Message kinds that can come after this message in an exchange */
+  abstract validNext: Set<MessageKind>
+
+  /** The message kind (e.g. rfq, quote) */
+  abstract kind: MessageKind
+
+  /** Metadata such as sender, recipient, date created, and ID */
+  readonly metadata: MessageMetadata
+  /** Message kind-specific data to facilitate the exchange of assets between Alice and the PFI */
+  readonly data: MessageData
+  /** signature that verifies that authenticity and integrity of a message */
+  protected _signature: string | undefined
 
   /**
-   * used by {@link Message.parse} to return an instance of message kind's class. This abstraction is needed
-   * because importing the Message Kind classes (e.g. Rfq, Quote) creates a circular dependency
-   * due to each concrete MessageKind class extending Message
-  */
-  static factory: <T extends MessageKind>(jsonMessage: MessageModel<T>) => MessageKindClass
+   * Constructor is primarily for intended for internal use. For a better developer experience,
+   * consumers should use concrete classes to programmatically create and parse messages,
+   * e.g. {@link Rfq.parse} and {@link Rfq.create}
+   * @param metadata - {@link Message.metadata}
+   * @param data - {@link Message.data}
+   * @param signature - {@link Message._signature}
+   */
+  protected constructor(metadata: MessageMetadata, data: MessageData, signature?: string) {
+    this.metadata = metadata
+    this.data = data
+    this._signature = signature
+  }
 
-  constructor(jsonMessage: NewMessage<T>) {
-    this._metadata = jsonMessage.metadata
-    this._data = jsonMessage.data
-    this._signature = jsonMessage.signature
+  /** Generates a unique id with the message kind's prefix */
+  static generateId(messageKind: MessageKind): string {
+    return typeid(messageKind).toString()
   }
 
   /**
-   * parses the json message into a message instance. performs format validation and an integrity check on the signature
-   * @param message - the message to parse. can either be an object or a string
-   * @returns {@link Message}
+   * Signs the message as a jws with detached content and sets the signature property
+   * @param did - the signer's DID
+   * @throws If the signature could not be produced
    */
-  static async parse<T extends MessageKind>(message: MessageModel<T> | string): Promise<MessageKindClass> {
-    let jsonMessage: MessageModel<T>
-    try {
-      jsonMessage = typeof message === 'string' ? JSON.parse(message): message
-    } catch(e) {
-      const errorMessage = e instanceof Error ? e.message : e
-      throw new Error(`parse: Failed to parse message. Error: ${errorMessage}`)
+  async sign(did: PortableDid): Promise<void> {
+    this._signature = await Crypto.sign({ did: did, payload: this.digest(), detached: true })
+  }
+
+  /**
+   * Validates the message structure and verifies the cryptographic signature
+   * @throws if the message signature is invalid
+   * @throws if the message structure is invalid
+   * @throws see {@link Crypto.verify}
+   * @returns Signer's DID
+   */
+  async verify(): Promise<string> {
+    this.validate()
+
+    const signer = await this.verifySignature()
+
+    return signer
+  }
+
+  /**
+   * Verifies the integrity of the cryptographic signature
+   * @throws if the resource signature is invalid
+   * @throws if the signer's DID does not match Resource.metadata.from
+   * @returns Resource signer's DID
+   */
+  async verifySignature(): Promise<string> {
+    if (this.signature === undefined) {
+      throw new Error('Could not verify message signature because no signature is missing')
     }
 
-    await Message.verify(jsonMessage)
+    const signer = await Crypto.verify({ detachedPayload: this.digest(), signature: this.signature })
 
-    return Message.factory(jsonMessage)
-  }
-
-  /**
-   * validates the message and verifies the cryptographic signature
-   * @throws if the message is invalid
-   * @throws see {@link Crypto.verify}
-   * @returns Message signer's DID
-   */
-  static async verify<T extends MessageKind>(message: MessageModel<T> | Message<T>): Promise<string> {
-    let jsonMessage: MessageModel<T> = message instanceof Message ? message.toJSON() : message
-
-    Message.validate(jsonMessage)
-
-    const digest = Crypto.digest({ metadata: jsonMessage.metadata, data: jsonMessage.data })
-    // Message.validate() guarantees presence of signature
-    const signer = await Crypto.verify({ detachedPayload: digest, signature: jsonMessage.signature! })
-
-    if (jsonMessage.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
+    if (this.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
       throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
     }
 
     return signer
   }
 
-  /** Generates a unique id with the message kind's prefix */
-  static generateId(messageKind: MessageKind) {
-    return typeid(messageKind).toString()
-  }
-
   /**
-   * validates the message provided against the appropriate json schemas.
-   * 2-phased validation: First validates the message structure and then
-   * validates `data` based on the value of `metadata.kind`
-   * @param jsonMessage - the message to validate
+   * Computes a digest of the payload by:
+   * * JSON serializing the payload as per [RFC-8785: JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785)
+   * * sha256 hashing the serialized payload
    *
-   * @throws `Error` if validation fails
+   * @returns The SHA-256 hash of the canonicalized payload, represented as a byte array.
    */
-  static validate(jsonMessage: any): void {
-    // validate the message structure
-    validate(jsonMessage, 'message')
-
-    // validate the value of `data`
-    validate(jsonMessage['data'], jsonMessage['metadata']['kind'])
+  digest(): Uint8Array {
+    return Crypto.digest({ metadata: this.metadata, data: this.data })
   }
 
   /**
-   * Validates `data` section of message only. This is useful for partially validating
-   * unsigned Messages.
+   * Valid structure of the message including the presence of the signature
+   * using the official spec JSON Schemas
+   * @throws If the message's structure does not match the JSON schemas
    */
-  static validateData(kind: string, messageData: any): void {
-    // validate the value of `data`
-    validate(messageData, kind)
+  validate(): void {
+    validate(this.toJSON(), 'message')
+    this.validateData()
   }
 
   /**
-   * returns an instance of the appropriate MessageKind class based on the value of `jsonMessage.metadata.kind`
-   * @param jsonMessage - the message to parse
+   * Validates `data` section of message only using the official TBDex JSON Schemas.
+   * This is useful for partially validating unsigned messages.
+   * @throws If the structure of the messages's data does not match the JSON schemas
    */
-  static fromJson<T extends MessageKind>(jsonMessage: MessageModel<T>) {
-    return Message.factory(jsonMessage)
-  }
-
-  /**
-   * signs the message as a jws with detached content and sets the signature property
-   * @param did - the signer's DID
-   */
-  async sign(did: PortableDid): Promise<void> {
-    const payload = { metadata: this.metadata, data: this.data }
-    const payloadDigest = Crypto.digest(payload)
-
-    this._signature = await Crypto.sign({ did: did, payload: payloadDigest, detached: true })
-  }
-
-  /**
-   * validates the message and verifies the cryptographic signature
-   * @throws if the message is invalid
-   * @throws see {@link Crypto.verify}
-   * @returns Signer's DID
-   */
-  async verify(): Promise<string> {
-    return Message.verify(this)
-  }
-
-  /** The metadata object contains fields about the message and is present in every tbdex message. */
-  get metadata() {
-    return this._metadata
-  }
-
-  /** the message kind's content */
-  get data() {
-    return this._data
+  validateData(): void {
+    validate(this.data, this.kind)
   }
 
   /** the message's cryptographic signature */
@@ -154,11 +131,6 @@ export abstract class Message<T extends MessageKind> {
   /** ID for an "exchange" of messages between Alice - PFI. Uses the id of the RFQ that initiated the exchange */
   get exchangeId() {
     return this.metadata.exchangeId
-  }
-
-  /** the message kind (e.g. rfq, quote) */
-  get kind() {
-    return this.metadata.kind
   }
 
   /** The sender's DID */
@@ -206,7 +178,7 @@ export abstract class Message<T extends MessageKind> {
    * @throws if message is missing signature
    */
   toJSON() {
-    const message: MessageModel<T> = {
+    const message: MessageModel = {
       metadata  : this.metadata,
       data      : this.data,
       signature : this.signature

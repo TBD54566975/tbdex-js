@@ -1,61 +1,36 @@
-import { Offering } from '../src/main.js'
+import { Offering, Parser } from '../src/main.js'
 import { DevTools } from '../src/dev-tools.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
 
 describe('Offering', () => {
   describe('create', () => {
-    it('creates a resource', async () => {
-      const pfi = await DevTools.createDid()
+    it('creates an Offering', async () => {
+      const data = DevTools.createOfferingData()
+
       const offering = Offering.create({
-        metadata : { from: pfi.did },
-        data     : DevTools.createOfferingData()
+        metadata: { from: 'did:ex:pfi' },
+        data,
       })
 
+      expect(offering.isOffering()).to.be.true
+      expect(offering.metadata.kind).to.eq('offering')
       expect(offering.id).to.exist
       expect(offering.id).to.include('offering_')
-    })
-  })
-
-  describe('validate', () => {
-    it('throws an error if payload is not an object', () => {
-      const testCases = ['hi', [], 30, ';;;)_', true, null, undefined]
-      for (let testCase of testCases) {
-        try {
-          Offering.validate(testCase)
-          expect.fail()
-        } catch(e) {
-          expect(e.message).to.include('must be object')
-        }
-      }
+      expect(offering.metadata.createdAt).to.exist
+      expect(offering.data).to.eq(data)
     })
 
-    it('throws an error if required properties are missing', () => {
-      try {
-        Offering.validate({})
-        expect.fail()
-      } catch(e) {
-        expect(e.message).to.include('required property')
-      }
-    })
+    it('throws if the data is not valid', async () => {
+      const data = DevTools.createOfferingData()
+      delete (data as any).description
 
-    it('throws an error if additional properties are present', async () => {
-      const pfi = await DevTools.createDid()
-
-      try {
-        const offeringData = DevTools.createOfferingData();
-        (offeringData as any)['foo'] = 'bar'
-        const offering = Offering.create({
-          metadata : { from: pfi.did },
-          data     : offeringData
+      expect(() => {
+        Offering.create({
+          metadata: { from: 'did:ex:pfi' },
+          data,
         })
-        await offering.sign(pfi)
-
-        Offering.validate(offering)
-        expect.fail()
-      } catch (e) {
-        expect(e.message).to.include('additional properties')
-      }
+      }).to.throw
     })
   })
 
@@ -130,7 +105,7 @@ describe('Offering', () => {
   describe('parse', () => {
     it('throws an error if payload is not valid JSON', async () => {
       try {
-        await Offering.parse(';;;)_')
+        await Parser.parseResource(';;;)_')
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('Failed to parse resource')
@@ -147,7 +122,7 @@ describe('Offering', () => {
       await offering.sign(pfi)
 
       const jsonResource = JSON.stringify(offering)
-      const parsedResource = await Offering.parse(jsonResource)
+      const parsedResource = await Parser.parseResource(jsonResource)
 
       expect(jsonResource).to.equal(JSON.stringify(parsedResource))
     })
