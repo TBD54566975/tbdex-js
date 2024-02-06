@@ -107,6 +107,12 @@ export class Parser {
     return resource
   }
 
+  /**
+   * Util for JSON.parse-ing a stringified Tbdex Message
+   * @param rawMessage - Either a stringified Tbdex Message or an object Tbdex Message
+   * @returns A Tbdex Message as an object
+   * @throws If the stringified message could not be JSON.parse'd
+   */
   static rawToMessageModel(rawMessage: MessageModel | string): MessageModel {
     try {
       return typeof rawMessage === 'string' ? JSON.parse(rawMessage): rawMessage
@@ -116,9 +122,15 @@ export class Parser {
     }
   }
 
-  static rawToResourceModel(rawMessage: ResourceModel | string): ResourceModel {
+  /**
+   * Util for JSON.parse-ing a stringified Tbdex resource
+   * @param rawResource - Either a stringified Tbdex resource or an object Tbdex resource
+   * @returns A Tbdex message as an object
+   * @throws If the stringified resource could not be JSON.parse'd
+   */
+  static rawToResourceModel(rawResource: ResourceModel | string): ResourceModel {
     try {
-      return typeof rawMessage === 'string' ? JSON.parse(rawMessage): rawMessage
+      return typeof rawResource === 'string' ? JSON.parse(rawResource): rawResource
     } catch(e) {
       const errorMessage = e instanceof Error ? e.message : e
       throw new Error(`parse: Failed to parse resource. Error: ${errorMessage}`)
