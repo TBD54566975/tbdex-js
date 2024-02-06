@@ -1,6 +1,6 @@
 import type { OfferingData, OfferingMetadata, ResourceModel } from '../types.js'
 import { Resource } from '../resource.js'
-import { rawToResourceModel } from '../parse.js'
+import { Parser } from '../parser.js'
 
 /**
  * Options passed to {@link Offering.create}
@@ -38,7 +38,7 @@ export class Offering extends Resource {
    * @returns The parsed Offering
    */
   static async parse(rawMessage: ResourceModel | string): Promise<Offering> {
-    const jsonMessage = rawToResourceModel(rawMessage)
+    const jsonMessage = Parser.rawToResourceModel(rawMessage)
 
     const offering = new Offering(
       jsonMessage.metadata as OfferingMetadata,

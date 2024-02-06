@@ -1,6 +1,6 @@
 import type { MessageKind, MessageModel, OrderStatusData, OrderStatusMetadata } from '../types.js'
 import { Message } from '../message.js'
-import { rawToMessageModel } from '../parse.js'
+import { Parser } from '../parser.js'
 
 /**
  * Options passed to {@link OrderStatus.create}
@@ -40,7 +40,7 @@ export class OrderStatus extends Message {
    * @returns The parsed OrderStatus
    */
   static async parse(rawMessage: MessageModel | string): Promise<OrderStatus> {
-    const jsonMessage = rawToMessageModel(rawMessage)
+    const jsonMessage = Parser.rawToMessageModel(rawMessage)
 
     const orderStatus = new OrderStatus(
       jsonMessage.metadata as OrderStatusMetadata,

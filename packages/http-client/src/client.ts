@@ -3,7 +3,7 @@ import type { ErrorDetail } from './types.js'
 import type { PortableDid } from '@web5/dids'
 import {
   MessageModel,
-  parseMessage,
+  Parser,
   Rfq,
 } from '@tbdex/protocol'
 
@@ -171,8 +171,8 @@ export class TbdexHttpClient {
 
     const responseBody = await response.json()
     const jsonOfferings = responseBody.data as any[]
-    for (let jsonResource of jsonOfferings) {
-      const offering = await Offering.parse(jsonResource)
+    for (let jsonOffering of jsonOfferings) {
+      const offering = await Offering.parse(jsonOffering)
       data.push(offering)
     }
 
@@ -210,7 +210,7 @@ export class TbdexHttpClient {
 
     const responseBody = await response.json() as { data: MessageModel[] }
     for (let jsonMessage of responseBody.data) {
-      const message = await parseMessage(jsonMessage)
+      const message = await Parser.parseMessage(jsonMessage)
       data.push(message)
     }
 
@@ -253,7 +253,7 @@ export class TbdexHttpClient {
       const exchange: Message[] = []
 
       for (let jsonMessage of jsonExchange) {
-        const message = await parseMessage(jsonMessage)
+        const message = await Parser.parseMessage(jsonMessage)
         exchange.push(message)
       }
 

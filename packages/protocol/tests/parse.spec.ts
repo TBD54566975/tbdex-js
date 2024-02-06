@@ -1,7 +1,7 @@
 import { expect } from 'chai'
-import { DevTools, parseMessage, parseResource } from '../src/main.js'
+import { DevTools, Parser } from '../src/main.js'
 
-describe('parse.ts', () => {
+describe('Parser', () => {
   describe('parseMessage', async () => {
     it('throws if an unrecognized message kind is passed', async () => {
       const did = await DevTools.createDid()
@@ -14,7 +14,7 @@ describe('parse.ts', () => {
       const jsonMessage = JSON.stringify(unrecognizedMessageKind)
 
       try {
-        await parseMessage(jsonMessage)
+        await Parser.parseMessage(jsonMessage)
         expect.fail()
       } catch (e) {
         expect(e.message).to.contain('Unrecognized message kind')
@@ -34,7 +34,7 @@ describe('parse.ts', () => {
       const jsonMessage = JSON.stringify(unrecognizedResourceKind)
 
       try {
-        await parseResource(jsonMessage)
+        await Parser.parseResource(jsonMessage)
         expect.fail()
       } catch (e) {
         expect(e.message).to.contain('Unrecognized resource kind')

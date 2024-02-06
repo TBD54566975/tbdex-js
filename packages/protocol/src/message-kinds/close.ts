@@ -1,6 +1,6 @@
 import type { CloseData, CloseMetadata, MessageKind, MessageModel } from '../types.js'
 import { Message } from '../message.js'
-import { rawToMessageModel } from '../parse.js'
+import { Parser } from '../parser.js'
 
 /**
  * Options passed to {@link OrderStatus.create}
@@ -39,7 +39,7 @@ export class Close extends Message {
    * @returns The parsed Close
    */
   static async parse(rawMessage: MessageModel | string): Promise<Close> {
-    const jsonMessage = rawToMessageModel(rawMessage)
+    const jsonMessage = Parser.rawToMessageModel(rawMessage)
 
     const close = new Close(
       jsonMessage.metadata as CloseMetadata,

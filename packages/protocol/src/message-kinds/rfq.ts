@@ -5,7 +5,7 @@ import { Offering } from '../resource-kinds/index.js'
 import { VerifiableCredential, PresentationExchange } from '@web5/credentials'
 import { Message } from '../message.js'
 import Ajv from 'ajv'
-import { rawToMessageModel } from '../parse.js'
+import { Parser } from '../parser.js'
 
 /**
  * Options passed to {@link Rfq.create}
@@ -44,7 +44,7 @@ export class Rfq extends Message {
    * @returns The parsed Rfq
    */
   static async parse(rawMessage: MessageModel | string): Promise<Rfq> {
-    const jsonMessage = rawToMessageModel(rawMessage)
+    const jsonMessage = Parser.rawToMessageModel(rawMessage)
 
     const rfq = new Rfq(
       jsonMessage.metadata as RfqMetadata,
@@ -70,6 +70,8 @@ export class Rfq extends Message {
       exchangeId : id,
       createdAt  : new Date().toISOString()
     }
+
+    // TODO: hash and set private fields
 
     const data: RfqData = {
       ...opts.data,

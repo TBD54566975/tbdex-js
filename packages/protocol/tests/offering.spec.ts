@@ -1,4 +1,4 @@
-import { Offering, parseResource } from '../src/main.js'
+import { Offering, Parser } from '../src/main.js'
 import { DevTools } from '../src/dev-tools.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
@@ -33,48 +33,6 @@ describe('Offering', () => {
       }).to.throw
     })
   })
-
-  // describe('validate', () => {
-  //   it('throws an error if payload is not an object', () => {
-  //     const testCases = ['hi', [], 30, ';;;)_', true, null, undefined]
-  //     for (let testCase of testCases) {
-  //       try {
-  //         Offering.validate(testCase)
-  //         expect.fail()
-  //       } catch(e) {
-  //         expect(e.message).to.include('must be object')
-  //       }
-  //     }
-  //   })
-
-  //   it('throws an error if required properties are missing', () => {
-  //     try {
-  //       Offering.validate({})
-  //       expect.fail()
-  //     } catch(e) {
-  //       expect(e.message).to.include('required property')
-  //     }
-  //   })
-
-  //   it('throws an error if additional properties are present', async () => {
-  //     const pfi = await DevTools.createDid()
-
-  //     try {
-  //       const offeringData = DevTools.createOfferingData();
-  //       (offeringData as any)['foo'] = 'bar'
-  //       const offering = Offering.create({
-  //         metadata : { from: pfi.did },
-  //         data     : offeringData
-  //       })
-  //       await offering.sign(pfi)
-
-  //       Offering.validate(offering)
-  //       expect.fail()
-  //     } catch (e) {
-  //       expect(e.message).to.include('additional properties')
-  //     }
-  //   })
-  // })
 
   describe('sign', () => {
     it('sets signature property', async () => {
@@ -147,7 +105,7 @@ describe('Offering', () => {
   describe('parse', () => {
     it('throws an error if payload is not valid JSON', async () => {
       try {
-        await parseResource(';;;)_')
+        await Parser.parseResource(';;;)_')
         expect.fail()
       } catch(e) {
         expect(e.message).to.include('Failed to parse resource')
@@ -164,7 +122,7 @@ describe('Offering', () => {
       await offering.sign(pfi)
 
       const jsonResource = JSON.stringify(offering)
-      const parsedResource = await parseResource(jsonResource)
+      const parsedResource = await Parser.parseResource(jsonResource)
 
       expect(jsonResource).to.equal(JSON.stringify(parsedResource))
     })

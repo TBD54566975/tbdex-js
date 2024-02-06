@@ -6,12 +6,12 @@ import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vector
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 import { Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
-import { parseMessage, parseResource } from '../src/parse.js'
+import { Parser } from '../src/parser.js'
 
 describe('TbdexTestVectorsProtocol', () => {
   it('parse_close', async () => {
     // Parse with parseMessage()
-    const message = await parseMessage(ParseClose.input)
+    const message = await Parser.parseMessage(ParseClose.input)
     expect(message.isClose()).to.be.true
     expect(message.toJSON()).to.deep.eq(ParseClose.output)
 
@@ -23,7 +23,7 @@ describe('TbdexTestVectorsProtocol', () => {
 
   it('parse_offering', async() => {
     // Parse with parseResource()
-    const resource = await parseResource(ParseOffering.input)
+    const resource = await Parser.parseResource(ParseOffering.input)
     expect(resource.isOffering()).to.be.true
     expect(resource.toJSON()).to.deep.eq(ParseOffering.output)
 
@@ -35,7 +35,7 @@ describe('TbdexTestVectorsProtocol', () => {
 
   it('parse_order', async () => {
     // Parse with parseMessage()
-    const message = await parseMessage(ParseOrder.input)
+    const message = await Parser.parseMessage(ParseOrder.input)
     expect(message.isOrder()).to.be.true
     expect(message.toJSON()).to.deep.eq(ParseOrder.output)
 
@@ -47,7 +47,7 @@ describe('TbdexTestVectorsProtocol', () => {
 
   it('parse_orderstatus', async () => {
     // Parse with parseMessage()
-    const message = await parseMessage(ParseOrderStatus.input)
+    const message = await Parser.parseMessage(ParseOrderStatus.input)
     expect(message.isOrderStatus()).to.be.true
     expect(message.toJSON()).to.deep.eq(ParseOrderStatus.output)
 
@@ -59,7 +59,7 @@ describe('TbdexTestVectorsProtocol', () => {
 
   it('parse_quote', async () => {
     // Parse with parseMessage()
-    const message = await parseMessage(ParseQuote.input)
+    const message = await Parser.parseMessage(ParseQuote.input)
     expect(message.isQuote()).to.be.true
     expect(message.toJSON()).to.deep.eq(ParseQuote.output)
 
@@ -71,7 +71,7 @@ describe('TbdexTestVectorsProtocol', () => {
 
   it('parse_rfq', async () => {
     // Parse with parseMessage()
-    const message = await parseMessage(ParseRfq.input)
+    const message = await Parser.parseMessage(ParseRfq.input)
     expect(message.isRfq()).to.be.true
     expect(message.toJSON()).to.deep.eq(ParseRfq.output)
 

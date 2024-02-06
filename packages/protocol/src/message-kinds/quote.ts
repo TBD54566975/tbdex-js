@@ -1,6 +1,6 @@
 import type { MessageKind, MessageModel, QuoteData, QuoteMetadata } from '../types.js'
 import { Message } from '../message.js'
-import { rawToMessageModel } from '../parse.js'
+import { Parser } from '../parser.js'
 
 /**
  * Options passed to {@link Quote.create}
@@ -43,7 +43,7 @@ export class Quote extends Message {
    * @returns The parsed Quote
    */
   static async parse(rawMessage: MessageModel | string): Promise<Quote> {
-    const jsonMessage = rawToMessageModel(rawMessage)
+    const jsonMessage = Parser.rawToMessageModel(rawMessage)
 
     const quote = new Quote(
       jsonMessage.metadata as QuoteMetadata,
