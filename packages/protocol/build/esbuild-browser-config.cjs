@@ -6,7 +6,7 @@ module.exports = {
   sourcemap   : true,
   minify      : true,
   platform    : 'browser',
-  target      : ['chrome101', 'firefox108', 'safari16'],
+  target      : ['chrome101'],
   define      : {
     'global': 'globalThis',
   },
