@@ -39,11 +39,6 @@ type NewHttpServerOptions = {
   pfiDid: string
 }
 
-const defaults: Omit<NewHttpServerOptions, 'pfiDid'> = {
-  offeringsApi : fakeOfferingsApi,
-  exchangesApi : fakeExchangesApi
-}
-
 /**
  * TBDex HTTP Server powered by Express
  * @beta
@@ -76,12 +71,10 @@ export class TbdexHttpServer {
 
   constructor(opts?: NewHttpServerOptions) {
     this.callbacks = {}
-    opts = { ...defaults, ...opts }
-    const { offeringsApi, exchangesApi, pfiDid } = opts
 
-    this.exchangesApi = exchangesApi
-    this.offeringsApi = offeringsApi
-    this.pfiDid = pfiDid
+    this.exchangesApi = opts?.exchangesApi ?? fakeExchangesApi
+    this.offeringsApi = opts?.offeringsApi ?? fakeOfferingsApi
+    this.pfiDid = opts?.pfiDid ?? 'did:ex:pfi'
 
     // initialize api here so that consumers can attach custom endpoints
     const api = express()
