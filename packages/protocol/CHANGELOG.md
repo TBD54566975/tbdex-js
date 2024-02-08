@@ -1,5 +1,15 @@
 # @tbdex/protocol
 
+## 0.25.0
+
+### Minor Changes
+
+- 1b48ad1: Simplify types, inheritance structure, and API
+
+### Patch Changes
+
+- 552675c: Upgrade @noble/hashes to 1.3.3
+
 ## 0.24.0
 
 ### Minor Changes
