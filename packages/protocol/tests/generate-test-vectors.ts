@@ -1,6 +1,6 @@
 import { DidKeyMethod } from '@web5/dids'
 import { VerifiableCredential } from '@web5/credentials'
-import { Close, DevTools, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import { Close, DevTools, Message, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import fs from 'fs'
 
 /**
@@ -31,7 +31,7 @@ const generateParseQuoteVector = async () => {
   const did = await DidKeyMethod.create()
   const quote = Quote.create({
     metadata: {
-      exchangeId : Message.generateId('rfq'),
+      exchangeId : Message.generateId('quote'),
       from       : did.did,
       to         : 'did:ex:pfi'
     },
@@ -63,7 +63,7 @@ const generateParseRfqVector = async () => {
   const rfq = Rfq.create({
     metadata : { from: did.did, to: 'did:ex:pfi' },
     data     : {
-      offeringId  : 'abcd123',
+      offeringId  : Resource.generateId('offering'),
       payinMethod : {
         kind           : 'DEBIT_CARD',
         paymentDetails : {
@@ -97,7 +97,11 @@ const generateParseRfqVector = async () => {
 const generateParseOrderVector = async () => {
   const did = await DidKeyMethod.create()
   const order = Order.create({
-    metadata: { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' }
+    metadata: {
+      from       : did.did,
+      to         : 'did:ex:pfi',
+      exchangeId : Message.generateId('order')
+    }
   })
 
   await order.sign(did)
@@ -113,8 +117,12 @@ const generateParseOrderVector = async () => {
 const generateParseCloseVector = async () => {
   const did = await DidKeyMethod.create()
   const close = Close.create({
-    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
-    data     : {
+    metadata: {
+      from       : did.did,
+      to         : 'did:ex:pfi',
+      exchangeId : Message.generateId('close')
+    },
+    data: {
       reason: 'The reason for closing the exchange'
     }
   })
@@ -132,8 +140,12 @@ const generateParseCloseVector = async () => {
 const generateParseOrderStatusVector = async () => {
   const did = await DidKeyMethod.create()
   const orderStatus = OrderStatus.create({
-    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
-    data     : {
+    metadata: {
+      from       : did.did,
+      to         : 'did:ex:pfi',
+      exchangeId : Message.generateId('orderstatus')
+    },
+    data: {
       orderStatus: 'wee'
     }
   })
