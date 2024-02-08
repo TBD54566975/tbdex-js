@@ -36,13 +36,12 @@ type CallbackMap = {
 type NewHttpServerOptions = {
   offeringsApi?: OfferingsApi
   exchangesApi?: ExchangesApi,
-  pfiDid?: string
+  pfiDid: string
 }
 
-const defaults: NewHttpServerOptions = {
+const defaults: Omit<NewHttpServerOptions, 'pfiDid'> = {
   offeringsApi : fakeOfferingsApi,
-  exchangesApi : fakeExchangesApi,
-  pfiDid       : 'did:ex:pfi'
+  exchangesApi : fakeExchangesApi
 }
 
 /**
