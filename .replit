@@ -9,6 +9,10 @@ channel = "stable-23_11"
 language = "nodejs"
 
 [[ports]]
+localPort = 5900
+externalPort = 3001
+
+[[ports]]
 localPort = 8000
 externalPort = 80
 
