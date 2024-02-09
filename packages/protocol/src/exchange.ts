@@ -10,6 +10,8 @@ import { MessageKind } from './types.js'
  *
  * Either add messages in order one at a time using {@link Exchange.addNextMessage},
  * or add a list of unsorted messages in an exchange using {@link Exchange.addMessages}
+ * 
+ * @beta
  */
 export class Exchange {
   /** Message sent by Alice to PFI to request a quote */
@@ -80,7 +82,7 @@ export class Exchange {
 
   /**
    * Determines if the message kind is a valid next message in the current exchange
-   * @param messageKind
+   * @param messageKind - the kind of TBDex message
    * @returns true if the next message in the exchange may have kind messageKind, false otherwise
    */
   isValidNext(messageKind: MessageKind): boolean {
@@ -89,7 +91,7 @@ export class Exchange {
   }
 
   /**
-   * @returns Latest message in an exchange if there are any messages currently
+   * Latest message in an exchange if there are any messages currently
    */
   get latestMessage(): Message | undefined {
     return this.close ??
@@ -100,14 +102,14 @@ export class Exchange {
   }
 
   /**
-   * @returns The exchangeId of all messages in the Exchange
+   * The exchangeId of all messages in the Exchange
    */
   get exchangeId(): string | undefined {
     return this.rfq?.metadata?.exchangeId
   }
 
   /**
-   * @returns A sorted list of messages currently in the exchange.
+   * A sorted list of messages currently in the exchange.
    */
   get messages(): Message[] {
     const allPossibleMessages: (Message | undefined)[] = [
