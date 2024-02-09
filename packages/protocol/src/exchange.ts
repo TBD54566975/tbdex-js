@@ -10,7 +10,7 @@ import { MessageKind } from './types.js'
  *
  * Either add messages in order one at a time using {@link Exchange.addNextMessage},
  * or add a list of unsorted messages in an exchange using {@link Exchange.addMessages}
- * 
+ *
  * @beta
  */
 export class Exchange {
