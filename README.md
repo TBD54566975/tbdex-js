@@ -15,6 +15,8 @@ This multi-package repository uses [`pnpm` workspaces](https://pnpm.io/workspace
 
 ## Prerequisites
 
+You can develop web5-go on [Replit](https://replit.com/github/TBD54566975/tbdex-js).
+
 ### Cloning
 This repository uses git submodules. To clone this repo with submodules
 ```sh
