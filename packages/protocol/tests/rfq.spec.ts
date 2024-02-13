@@ -1,11 +1,5 @@
-<<<<<<< HEAD
 import { VerifiableCredential } from '@web5/credentials'
 import { CreateRfqOptions, Offering } from '../src/main.js'
-||||||| parent of c6aae4c (Handle requiredPaymentDetails undefined for RFQ verification)
-import type { CreateRfqOptions, Offering } from '../src/main.js'
-=======
-import { CreateRfqOptions, Offering } from '../src/main.js'
->>>>>>> c6aae4c (Handle requiredPaymentDetails undefined for RFQ verification)
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
@@ -285,6 +279,47 @@ describe('Rfq', () => {
       } catch(e) {
         expect(e.message).to.include('offering does not support rfq\'s payinMethod kind')
       }
+    })
+
+    it('throws an error if paymentDetails is present but offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod, // paymentDetails deliberately present
+            kind: 'CASH'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('paymentDetails must be omitted when requiredPaymentDetails is omitted')
+      }
+    })
+
+    it('succeeds if paymentDetails is omitted and offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            // paymentDetails deliberately omitted
+            kind: 'CASH'
+          }
+        }
+      })
+      await rfq.verifyOfferingRequirements(offering)
     })
 
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {

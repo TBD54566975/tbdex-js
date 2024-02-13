@@ -132,11 +132,10 @@ export class Rfq extends Message {
    *
    * @param rfqPaymentMethod - The Rfq's selected payin/payout method being validated
    * @param allowedPaymentMethods - The Offering's allowed payin/payout methods
+   * @param payDirection - Either 'payin' or 'payout', used to provide more detailed error messages.
    *
-   * @throws if payinMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payinMethod kinds
-   * @throws if payinMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payinMethod requiredPaymentDetails
-   * @throws if payoutMethod in {@link Rfq.data} property `kind` cannot be validated against the provided offering's payoutMethod kinds
-   * @throws if payoutMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
+   * @throws if rfqPaymentMethod property `kind` cannot be validated against the provided offering's paymentMethod's kinds
+   * @throws if rfqPaymentMethod property `paymentDetails` cannot be validated against the provided offering's paymentMethod's requiredPaymentDetails
    */
   private verifyPaymentMethod(
     rfqPaymentMethod: SelectedPaymentMethod,
@@ -157,8 +156,14 @@ export class Rfq extends Message {
 
     for (const paymentMethodMatch of paymentMethodMatches) {
       if (!paymentMethodMatch.requiredPaymentDetails) {
-        // The offering does not required any payment details for this kind of payment method
-        return
+        // If requiredPaymentDetails is omitted, and paymentDetails is also omitted, we have a match
+        if (!rfqPaymentMethod.paymentDetails) {
+          return
+        }
+
+        // paymentDetails is present even though requiredPaymentDetails is omitted. This is unsatisfactory.
+        invalidPaymentDetailsErrors.add(new Error('paymentDetails must be omitted when requiredPaymentDetails is omitted'))
+        continue
       }
 
       const validate = ajv.compile(paymentMethodMatch.requiredPaymentDetails)
@@ -170,9 +175,10 @@ export class Rfq extends Message {
       invalidPaymentDetailsErrors.add(validate.errors)
     }
 
-    if (invalidPaymentDetailsErrors.size > 0) {
-      throw new Error(`rfq ${payDirection}Method paymentDetails could not be validated against offering requiredPaymentDetails. Schema validation errors: ${Array.from(invalidPaymentDetailsErrors).join()}`)
-    }
+    throw new Error(
+      `rfq ${payDirection}Method paymentDetails could not be validated against offering requiredPaymentDetails. ` +
+      `Schema validation errors: ${Array.from(invalidPaymentDetailsErrors).join()}`
+    )
   }
 
   /**
