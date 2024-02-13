@@ -225,7 +225,8 @@ describe('Exchange', () => {
 
       it('cannot add Rfq, Quote, Order, OrderStatus, or Close after Close', async () => {
         const exchange = new Exchange()
-        exchange.addMessages([rfq, quote, closeByAlice])
+        exchange.addMessages([rfq, quote])
+        exchange.addNextMessage(closeByAlice)
 
         for (const message of [rfq, quote, order, orderStatus, closeByAlice]) {
           try {
