@@ -3,19 +3,85 @@ import { expect } from 'chai'
 import { Close, DevTools, Exchange, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 
 describe('Exchange', () => {
+  let aliceDid: PortableDid
+  let pfiDid: PortableDid
+  let rfq: Rfq
+  let quote: Quote
+  let closeByAlice: Close
+  let closeByPfi: Close
+  let order: Order
+  let orderStatus: OrderStatus
+
+  beforeEach(async () => {
+    aliceDid = await DevTools.createDid()
+    pfiDid = await DevTools.createDid()
+
+    rfq = Rfq.create({
+      metadata: {
+        from : aliceDid.did,
+        to   : pfiDid.did,
+      },
+      data: await DevTools.createRfqData()
+    })
+    await rfq.sign(aliceDid)
+
+    closeByAlice = Close.create({
+      metadata: {
+        from       : aliceDid.did,
+        to         : pfiDid.did,
+        exchangeId : rfq.metadata.exchangeId,
+      },
+      data: {
+        reason: 'I dont like u anymore'
+      }
+    })
+    await closeByAlice.sign(aliceDid)
+
+    quote = Quote.create({
+      metadata: {
+        from       : pfiDid.did,
+        to         : aliceDid.did,
+        exchangeId : rfq.metadata.exchangeId
+      },
+      data: DevTools.createQuoteData()
+    })
+    await quote.sign(pfiDid)
+
+    closeByPfi = Close.create({
+      metadata: {
+        from       : pfiDid.did,
+        to         : aliceDid.did,
+        exchangeId : rfq.metadata.exchangeId,
+      },
+      data: {
+        reason: 'I dont like u anymore'
+      }
+    })
+    await closeByPfi.sign(pfiDid)
+
+    order = Order.create({
+      metadata: {
+        from       : aliceDid.did,
+        to         : pfiDid.did,
+        exchangeId : rfq.metadata.exchangeId
+      },
+    })
+    await order.sign(aliceDid)
+
+    orderStatus = OrderStatus.create({
+      metadata: {
+        from       : pfiDid.did,
+        to         : aliceDid.did,
+        exchangeId : rfq.metadata.exchangeId,
+      },
+      data: {
+        orderStatus: 'Done'
+      }
+    })
+  })
+
   describe('addMessages', () => {
     it('adds an Rfq', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-      const rfq = Rfq.create({
-        metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
-        },
-        data: await DevTools.createRfqData()
-      })
-      await rfq.sign(aliceDid)
-
       const exchange = new Exchange()
       exchange.addMessages([rfq])
 
@@ -23,48 +89,6 @@ describe('Exchange', () => {
     })
 
     it('adds a list of messages in an exchange even if the list is out of order', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-
-      const rfq = Rfq.create({
-        metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
-        },
-        data: await DevTools.createRfqData()
-      })
-      await rfq.sign(aliceDid)
-
-      const quote = Quote.create({
-        metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
-          exchangeId : rfq.metadata.exchangeId
-        },
-        data: DevTools.createQuoteData()
-      })
-      await quote.sign(pfiDid)
-
-      const order = Order.create({
-        metadata: {
-          from       : aliceDid.did,
-          to         : pfiDid.did,
-          exchangeId : rfq.metadata.exchangeId
-        },
-      })
-      await order.sign(aliceDid)
-
-      const orderStatus = OrderStatus.create({
-        metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
-          exchangeId : rfq.metadata.exchangeId
-        },
-        data: { orderStatus: 'Order complete' }
-      })
-      await orderStatus.sign(pfiDid)
-
-
       const exchange = new Exchange()
 
       // Messages are listed out of order
@@ -79,27 +103,6 @@ describe('Exchange', () => {
     it('throws if the messages listed do not form a valid exchange', async () => {
       // scenario: We try to add messages RFQ and Order, without a Quote
 
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-
-      const rfq = Rfq.create({
-        metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
-        },
-        data: await DevTools.createRfqData()
-      })
-      await rfq.sign(aliceDid)
-
-      const order = Order.create({
-        metadata: {
-          from       : aliceDid.did,
-          to         : pfiDid.did,
-          exchangeId : rfq.metadata.exchangeId
-        },
-      })
-      await order.sign(aliceDid)
-
       const exchange = new Exchange()
       try {
         exchange.addMessages([rfq, order])
@@ -110,18 +113,6 @@ describe('Exchange', () => {
     })
 
     it('throws if the messages listed do not have matching exchange_id', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-
-      const rfq = Rfq.create({
-        metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
-        },
-        data: await DevTools.createRfqData()
-      })
-      await rfq.sign(aliceDid)
-
       const quote = Quote.create({
         metadata: {
           from       : pfiDid.did,
@@ -144,15 +135,6 @@ describe('Exchange', () => {
     it('throws if the messages listed have timestamp after Close', async () => {
       const aliceDid = await DevTools.createDid()
       const pfiDid = await DevTools.createDid()
-
-      const rfq = Rfq.create({
-        metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
-        },
-        data: await DevTools.createRfqData()
-      })
-      await rfq.sign(aliceDid)
 
       const close = Close.create({
         metadata: {
@@ -188,82 +170,6 @@ describe('Exchange', () => {
 
   describe('addNextMessage', () => {
     describe('message sequence', () => {
-      let aliceDid: PortableDid
-      let pfiDid: PortableDid
-      let rfq: Rfq
-      let quote: Quote
-      let closeByAlice: Close
-      let closeByPfi: Close
-      let order: Order
-      let orderStatus: OrderStatus
-      beforeEach(async () => {
-        aliceDid = await DevTools.createDid()
-        pfiDid = await DevTools.createDid()
-
-        rfq = Rfq.create({
-          metadata: {
-            from : aliceDid.did,
-            to   : pfiDid.did,
-          },
-          data: await DevTools.createRfqData()
-        })
-        await rfq.sign(aliceDid)
-
-        closeByAlice = Close.create({
-          metadata: {
-            from       : aliceDid.did,
-            to         : pfiDid.did,
-            exchangeId : rfq.metadata.exchangeId,
-          },
-          data: {
-            reason: 'I dont like u anymore'
-          }
-        })
-        await closeByAlice.sign(aliceDid)
-
-        quote = Quote.create({
-          metadata: {
-            from       : pfiDid.did,
-            to         : aliceDid.did,
-            exchangeId : rfq.metadata.exchangeId
-          },
-          data: DevTools.createQuoteData()
-        })
-        await quote.sign(pfiDid)
-
-        closeByPfi = Close.create({
-          metadata: {
-            from       : pfiDid.did,
-            to         : aliceDid.did,
-            exchangeId : rfq.metadata.exchangeId,
-          },
-          data: {
-            reason: 'I dont like u anymore'
-          }
-        })
-        await closeByPfi.sign(pfiDid)
-
-        order = Order.create({
-          metadata: {
-            from       : aliceDid.did,
-            to         : pfiDid.did,
-            exchangeId : rfq.metadata.exchangeId
-          },
-        })
-        await order.sign(aliceDid)
-
-        orderStatus = OrderStatus.create({
-          metadata: {
-            from       : pfiDid.did,
-            to         : aliceDid.did,
-            exchangeId : rfq.metadata.exchangeId,
-          },
-          data: {
-            orderStatus: 'Done'
-          }
-        })
-      })
-
       it('can add an Rfq first but not other message kinds first', async () => {
         const exchange = new Exchange()
         for (const message of [quote, closeByAlice, closeByPfi, order, orderStatus]) {
@@ -317,6 +223,20 @@ describe('Exchange', () => {
         expect(exchange.close).to.deep.eq(closeByPfi)
       })
 
+      it('cannot add Rfq, Quote, Order, OrderStatus, or Close after Close', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote, closeByAlice])
+
+        for (const message of [rfq, quote, order, orderStatus, closeByAlice]) {
+          try {
+            exchange.addNextMessage(message)
+            expect.fail()
+          } catch (e) {
+            expect(e.message).to.contain('is not a valid next message')
+          }
+        }
+      })
+
       it('can add an Order after Quote', async () => {
         const exchange = new Exchange()
 
@@ -326,6 +246,20 @@ describe('Exchange', () => {
         expect(exchange.order).to.deep.eq(order)
       })
 
+      it('cannot add Rfq, Quote, or OrderStatus after Quote', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote])
+
+        for (const message of [rfq, quote, orderStatus]) {
+          try {
+            exchange.addNextMessage(message)
+            expect.fail()
+          } catch (e) {
+            expect(e.message).to.contain('is not a valid next message')
+          }
+        }
+      })
+
       it('can add an OrderStatus after Order', async () => {
         const exchange = new Exchange()
 
@@ -333,6 +267,20 @@ describe('Exchange', () => {
 
         exchange.addNextMessage(orderStatus)
         expect(exchange.orderstatus).to.deep.eq(orderStatus)
+      })
+
+      it('cannot add Rfq, Quote, Order, or Close after Order', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote, order])
+
+        for (const message of [rfq, quote, order, closeByAlice]) {
+          try {
+            exchange.addNextMessage(message)
+            expect.fail()
+          } catch (e) {
+            expect(e.message).to.contain('is not a valid next message')
+          }
+        }
       })
     })
   })
