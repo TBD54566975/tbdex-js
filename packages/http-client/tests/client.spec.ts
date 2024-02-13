@@ -257,7 +257,7 @@ describe('client', () => {
       }
     })
 
-    it('returns exchanges array if response is ok', async () => {
+    it('returns empty exchanges array if response is ok and body is empty array', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve({ data: [] })
