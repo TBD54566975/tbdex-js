@@ -2,11 +2,10 @@
 name: Publish Docs to GH Pages
 
 on:
-  workflow_run:
-    workflows: ["Create GH Release"]
-    types:
-      - completed
+  # Manual trigger
   workflow_dispatch:
+  # Call from the publishing workflow
+  workflow_call:
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -25,7 +24,7 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
-          submodules: 'true'
+          submodules: "true"
 
       - name: install pnpm
         uses: pnpm/action-setup@v2
