@@ -64,6 +64,17 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish `next` preview
+        if: steps.changesets.outputs.published != 'true' && steps.changesets.outputs.pullRequestNumber != '' && steps.changesets.outputs.hasChangesets == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          git checkout main
+          pnpm changeset version --snapshot next
+          pnpm changeset publish --no-git-tag --tag next
+
   publish-docs:
     needs: release
     name: Publish Docs
