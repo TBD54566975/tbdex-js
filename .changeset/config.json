@@ -1,6 +1,9 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
-  "changelog": "@changesets/cli/changelog",
+  "changelog": [
+    "@changesets/changelog-github",
+    { "repo": "TBD54566975/tbdex-js" }
+  ],
   "commit": false,
   "fixed": [["@tbdex/protocol", "@tbdex/http-client", "@tbdex/http-server"]],
   "linked": [],
