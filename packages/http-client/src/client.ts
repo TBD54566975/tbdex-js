@@ -24,6 +24,7 @@ import { Jwt, JwtVerifyResult } from '@web5/credentials'
 
 import queryString from 'query-string'
 import ms from 'ms'
+import { RequestTokenIssuerSignerMismatchError } from './errors/request-token-error.js'
 
 /**
  * Parameters for generating a request token
@@ -291,7 +292,7 @@ export class TbdexHttpClient {
       throw new RequestTokenVerificationError({ message: e.message, cause: e })
     }
 
-    const { payload: requestTokenPayload } = result
+    const { header: requestTokenHeader, payload: requestTokenPayload } = result
 
     // check to ensure all expected claims are present
     for (let claim of requestTokenRequiredClaims) {
@@ -306,8 +307,16 @@ export class TbdexHttpClient {
       throw new RequestTokenAudienceMismatchError({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
     }
 
-    // TODO: check iss against signer DID
-    return requestTokenPayload.iss!
+    const issuer = requestTokenPayload.iss!
+    const signerKid = requestTokenHeader.kid!
+    const didDocument = await resolveDid(issuer)
+    const issuerDid = didDocument.id
+
+    if (!signerKid.includes(issuerDid)) {
+      throw new RequestTokenIssuerSignerMismatchError({ message: 'Request token issuer does not match signer' })
+    }
+
+    return issuerDid
   }
 }
 

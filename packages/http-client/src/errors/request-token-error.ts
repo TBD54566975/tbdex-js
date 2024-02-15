@@ -66,3 +66,15 @@ export class RequestTokenAudienceMismatchError extends RequestTokenError {
     Object.setPrototypeOf(this, RequestTokenAudienceMismatchError.prototype)
   }
 }
+
+/**
+   * Error thrown when a request token payload iss does not match request token header kid
+   * @beta
+   */
+export class RequestTokenIssuerSignerMismatchError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, RequestTokenIssuerSignerMismatchError.prototype)
+  }
+}
