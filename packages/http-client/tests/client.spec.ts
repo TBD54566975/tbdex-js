@@ -8,11 +8,12 @@ import {
   RequestTokenMissingClaimsError,
   RequestTokenAudienceMismatchError,
   RequestTokenVerificationError,
-  RequestTokenSigningError
+  RequestTokenSigningError,
+  RequestTokenIssuerSignerMismatchError
 } from '../src/errors/index.js'
 import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
-import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
+import { JwkParamsEcPrivate, JwkParamsOkpPrivate, JwtHeaderParams, JwtPayload, Secp256k1 } from '@web5/crypto'
 import { Convert } from '@web5/common'
 import { Jwt } from '@web5/credentials'
 
@@ -328,19 +329,20 @@ describe('client', () => {
     })
   })
 
-  describe('verifyRequestToken', () => {
+  describe.only('verifyRequestToken', () => {
     let pfiPortableDid: PortableDid
+    let alicePortableDid: PortableDid
     let header: JwtHeaderParams
     let payload: JwtPayload
 
-    async function createRequestTokenFromPayload(payload: JwtPayload) {
-      const privateKeyJwk = pfiPortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
-      const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
+    async function createRequestToken(payload: JwtPayload, jwtHeader?: JwtHeaderParams) {
+      const privateKeyJwk = alicePortableDid.keySet.verificationMethodKeys![0].privateKeyJwk as JwkParamsEcPrivate | JwkParamsOkpPrivate
+      const base64UrlEncodedHeader = Convert.object(jwtHeader ?? header).toBase64Url()
       const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
 
       const toSign = `${base64UrlEncodedHeader}.${base64UrlEncodedPayload}`
       const toSignBytes = Convert.string(toSign).toUint8Array()
-      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk as PrivateKeyJwk, data: toSignBytes })
+      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk, data: toSignBytes })
       const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
       return `${toSign}.${base64UrlEncodedSignature}`
@@ -348,6 +350,7 @@ describe('client', () => {
 
     before(async () => {
       pfiPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
+      alicePortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
       header = { typ: 'JWT', alg: 'ES256K', kid: pfiPortableDid.document.verificationMethod![0].id }
     })
 
@@ -355,7 +358,7 @@ describe('client', () => {
       payload = {
         iat : Math.floor(Date.now() / 1000),
         aud : pfiPortableDid.did,
-        iss : 'did:key:1234',
+        iss : alicePortableDid.did,
         exp : Math.floor(Date.now() / 1000 + 60),
         jti : 'randomnonce'
       }
@@ -374,7 +377,7 @@ describe('client', () => {
         const initialClaim = payload[claim]
         try {
           delete payload[claim]
-          const requestToken = await createRequestTokenFromPayload(payload)
+          const requestToken = await createRequestToken(payload)
           await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
           expect.fail()
         } catch(e) {
@@ -387,7 +390,7 @@ describe('client', () => {
     it('throws RequestTokenAudienceMismatchError if aud claim does not match pfi did', async () => {
       try {
         payload.aud = 'squirtle'
-        const requestToken = await createRequestTokenFromPayload(payload)
+        const requestToken = await createRequestToken(payload)
         await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
         expect.fail()
       } catch(e) {
@@ -395,8 +398,29 @@ describe('client', () => {
         expect(e.message).to.include('Request token contains invalid audience')
       }
     })
+    it.only('throws RequestTokenIssuerSignerMismatchError if request token header kid does not match up with request token claimset iss', async () => {
+      try {
+        const bobPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
+        payload = {
+          iat : Math.floor(Date.now() / 1000),
+          aud : pfiPortableDid.did,
+          iss : bobPortableDid.did,
+          exp : Math.floor(Date.now() / 1000 + 60),
+          jti : 'randomnonce'
+        }
+        // token is signed by Alice, but claims to be issued by Bob
+        const requestToken = await createRequestToken(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+        expect.fail()
+      }
+      catch(e) {
+        console.log('message!!!', e, e.message)
+        expect(e).to.be.instanceof(RequestTokenIssuerSignerMismatchError)
+        expect(e.message).to.include('Request token issuer does not match signer')
+      }
+    })
     it('returns requester\'s DID if request token is valid', async () => {
-      const requestToken = await createRequestTokenFromPayload(payload)
+      const requestToken = await createRequestToken(payload)
       const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
       expect(iss).to.equal('did:key:1234')
     })
