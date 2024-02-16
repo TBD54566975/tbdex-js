@@ -97,7 +97,7 @@ describe('Exchange', () => {
       expect(exchange.rfq).to.deep.eq(rfq)
       expect(exchange.quote).to.deep.eq(quote)
       expect(exchange.order).to.deep.eq(order)
-      expect(exchange.orderstatus).to.deep.eq(orderStatus)
+      expect(exchange.orderstatus).to.deep.eq([orderStatus])
     })
 
     it('throws if the messages listed do not form a valid exchange', async () => {
@@ -264,7 +264,7 @@ describe('Exchange', () => {
         exchange.addMessages([rfq, quote, order])
 
         exchange.addNextMessage(orderStatus)
-        expect(exchange.orderstatus).to.deep.eq(orderStatus)
+        expect(exchange.orderstatus).to.deep.eq([orderStatus])
       })
 
       it('cannot add Rfq, Quote, Order, or Close after Order', async () => {

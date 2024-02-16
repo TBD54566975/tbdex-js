@@ -170,6 +170,9 @@ importers:
       '@types/chai':
         specifier: 4.3.6
         version: 4.3.6
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.17
       '@types/express':
         specifier: 4.17.17
         version: 4.17.17
@@ -182,12 +185,18 @@ importers:
       '@types/node':
         specifier: 20.9.4
         version: 20.9.4
+      '@types/sinon':
+        specifier: ^17.0.3
+        version: 17.0.3
       chai:
         specifier: 4.3.10
         version: 4.3.10
       rimraf:
         specifier: 5.0.1
         version: 5.0.1
+      sinon:
+        specifier: 17.0.1
+        version: 17.0.1
       supertest:
         specifier: 6.3.3
         version: 6.3.3
@@ -1227,6 +1236,12 @@ packages:
       '@types/node': 7.10.14
     dev: true
 
+  /@types/cors@2.8.17:
+    resolution: {integrity: sha512-8CGDvrBj1zgo2qE+oS3pOCyYNqCPryMWY2bGfwA0dcfopWGgxs+78df0Rs3rc9THP4JkOhLsAa+15VdpAqkcUA==}
+    dependencies:
+      '@types/node': 7.10.14
+    dev: true
+
   /@types/debounce@1.2.4:
     resolution: {integrity: sha512-jBqiORIzKDOToaF63Fm//haOCHuwQuLa2202RK4MozpA6lh93eCBc+/8+wZn5OzjJt3ySdc+74SXWXB55Ewtyw==}
     dev: true
@@ -1404,6 +1419,12 @@ packages:
 
   /@types/sinon@17.0.2:
     resolution: {integrity: sha512-Zt6heIGsdqERkxctIpvN5Pv3edgBrhoeb3yHyxffd4InN0AX2SVNKSrhdDZKGQICVOxWP/q4DyhpfPNMSrpIiA==}
+    dependencies:
+      '@types/sinonjs__fake-timers': 8.1.5
+    dev: true
+
+  /@types/sinon@17.0.3:
+    resolution: {integrity: sha512-j3uovdn8ewky9kRBG19bOwaZbexJu/XjtkHyjvUgt4xfPFz18dcORIMqnYh66Fx3Powhcr85NT5+er3+oViapw==}
     dependencies:
       '@types/sinonjs__fake-timers': 8.1.5
     dev: true
