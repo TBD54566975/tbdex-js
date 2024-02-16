@@ -38,7 +38,7 @@ describe('Offering', () => {
     it('sets signature property', async () => {
       const pfi = await DevTools.createDid()
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 
@@ -52,7 +52,7 @@ describe('Offering', () => {
     it('includes alg and kid in jws header', async () => {
       const pfi = await DevTools.createDid()
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 
@@ -70,7 +70,7 @@ describe('Offering', () => {
     it('does not throw an exception if resource integrity is intact', async () => {
       const pfi = await DevTools.createDid()
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 
@@ -81,7 +81,7 @@ describe('Offering', () => {
     it('throws an error if no signature is present on the resource provided', async () => {
       const pfi = await DevTools.createDid()
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 
@@ -115,7 +115,7 @@ describe('Offering', () => {
     it('returns a Resource instance if parsing is successful', async () => {
       const pfi = await DevTools.createDid()
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 

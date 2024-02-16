@@ -32,7 +32,7 @@ describe('Crypto', () => {
       const token = await Crypto.sign({ did: alice, payload: payloadBytes, detached: true })
 
       const did = await Crypto.verify({ signature: token, detachedPayload: payloadBytes })
-      expect(alice.did).to.equal(did)
+      expect(alice.uri).to.equal(did)
     }).timeout(30_000)
   })
 })

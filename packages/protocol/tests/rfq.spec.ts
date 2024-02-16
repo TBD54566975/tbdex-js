@@ -10,7 +10,7 @@ describe('Rfq', () => {
     it('creates an rfq', async () => {
       const alice = await DevTools.createDid()
       const message = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: alice.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -25,7 +25,7 @@ describe('Rfq', () => {
     it('sets signature property', async () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -38,7 +38,7 @@ describe('Rfq', () => {
     it('includes alg and kid in jws header', async () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -56,7 +56,7 @@ describe('Rfq', () => {
     it('does not throw an exception if message integrity is intact', async () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -67,7 +67,7 @@ describe('Rfq', () => {
     it('throws an error if no signature is present on the message provided', async () => {
       const alice = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: alice.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -100,7 +100,7 @@ describe('Rfq', () => {
     it('returns an instance of Message if parsing is successful', async () => {
       const did = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -137,8 +137,8 @@ describe('Rfq', () => {
       const did = await DevTools.createDid()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : did.uri,
+        subject : did.uri,
         data    : {
           'beep': 'boop'
         }
@@ -157,7 +157,7 @@ describe('Rfq', () => {
           offeringId: offering.id,
         }
       }
-      rfqOptions.metadata.from = did.did
+      rfqOptions.metadata.from = did.uri
       rfqOptions.data.claims = [vcJwt]
     })
 
@@ -173,7 +173,7 @@ describe('Rfq', () => {
       offeringData.requiredClaims = undefined
       const offering = Offering.create({
         metadata: {
-          from: pfi.did
+          from: pfi.uri
         },
         data: offeringData
       })
@@ -349,8 +349,8 @@ describe('Rfq', () => {
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : did.uri,
+        subject : did.uri,
         data    : {
           'beep': 'boop'
         }
@@ -362,7 +362,7 @@ describe('Rfq', () => {
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
@@ -374,8 +374,8 @@ describe('Rfq', () => {
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({
         type    : 'PuupuuCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : did.uri,
+        subject : did.uri,
         data    : {
           'beep': 'boop'
         }
@@ -387,7 +387,7 @@ describe('Rfq', () => {
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: did.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 

@@ -6,7 +6,7 @@ describe('Parser', () => {
     it('throws if an unrecognized message kind is passed', async () => {
       const did = await DevTools.createDid()
       const unrecognizedMessageKind = {
-        metadata  : { from: did.did, to: 'did:ex:pfi' },
+        metadata  : { from: did.uri, to: 'did:ex:pfi' },
         data      : {},
         signature : '1234',
       }
@@ -26,7 +26,7 @@ describe('Parser', () => {
     it('throws if an unrecognized resource kind is passed', async () => {
       const did = await DevTools.createDid()
       const unrecognizedResourceKind = {
-        metadata  : { from: did.did, to: 'did:ex:pfi' },
+        metadata  : { from: did.uri, to: 'did:ex:pfi' },
         data      : {},
         signature : '1234',
       }

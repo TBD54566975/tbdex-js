@@ -1,8 +1,8 @@
 
 import type { OfferingData, QuoteData, RfqData } from './types.js'
-import type { PortableDid } from '@web5/dids'
+import type { BearerDid } from '@web5/dids'
 
-import { DidDhtMethod, DidIonMethod, DidKeyMethod } from '@web5/dids'
+import { DidDht, DidIon, DidKey, DidJwk } from '@web5/dids'
 import { Offering } from './resource-kinds/index.js'
 import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
@@ -13,7 +13,7 @@ import { VerifiableCredential } from '@web5/credentials'
  * Supported DID Methods
  * @beta
  */
-export type DidMethodOptions = 'key' | 'ion' | 'dht'
+export type DidMethodOptions = 'key' | 'ion' | 'dht' | 'jwk'
 
 /**
  * Options passed to {@link DevTools.createRfq}
@@ -21,14 +21,14 @@ export type DidMethodOptions = 'key' | 'ion' | 'dht'
  */
 export type MessageOptions = {
   /**
-   * {@link @web5/dids#PortableDid} of the message sender. When generating RFQ, it is used to generate a random credential that fulfills the vcRequirements
+   * {@link @web5/dids#BearerDid} of the message sender. When generating RFQ, it is used to generate a random credential that fulfills the vcRequirements
    * of the offering returned by {@link DevTools.createOffering}
    */
-  sender: PortableDid
+  sender: BearerDid
   /**
-   * {@link @web5/dids#PortableDid} of the rfq receiver.
+   * {@link @web5/dids#BearerDid} of the rfq receiver.
    */
-  receiver?: PortableDid
+  receiver?: BearerDid
 }
 
 /**
@@ -42,11 +42,13 @@ export class DevTools {
    */
   static async createDid(didMethod: DidMethodOptions = 'key') {
     if (didMethod === 'key') {
-      return await DidKeyMethod.create()
+      return await DidKey.create()
     } else if (didMethod === 'ion') {
-      return DidIonMethod.create()
+      return DidIon.create()
     } else if (didMethod === 'dht') {
-      return DidDhtMethod.create()
+      return DidDht.create()
+    } else if (didMethod === 'jwk') {
+      return DidJwk.create()
     } else {
       throw new Error(`${didMethod} method not implemented.`)
     }
@@ -182,7 +184,7 @@ export class DevTools {
     const rfqData: RfqData = await DevTools.createRfqData(opts)
 
     return Rfq.create({
-      metadata : { from: sender.did, to: receiver?.did ?? 'did:ex:pfi' },
+      metadata : { from: sender.uri, to: receiver?.uri ?? 'did:ex:pfi' },
       data     : rfqData
     })
   }
@@ -197,8 +199,8 @@ export class DevTools {
 
     return Order.create({
       metadata: {
-        from       : sender.did,
-        to         : receiver?.did ?? 'did:ex:pfi',
+        from       : sender.uri,
+        to         : receiver?.uri ?? 'did:ex:pfi',
         exchangeId : Message.generateId('rfq')
       }
     })
@@ -213,8 +215,8 @@ export class DevTools {
     if (opts?.sender) {
       const vc = await VerifiableCredential.create({
         type    : 'YoloCredential',
-        issuer  : opts.sender.did,
-        subject : opts.sender.did,
+        issuer  : opts.sender.uri,
+        subject : opts.sender.uri,
         data    : {
           'beep': 'boop'
         }

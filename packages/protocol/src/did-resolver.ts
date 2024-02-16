@@ -1,6 +1,6 @@
-import type { DidDocument, DidService, VerificationMethod } from '@web5/dids'
+import type { DidDocument, DidService, DidVerificationMethod } from '@web5/dids'
 
-import { DidResolver as Web5DidResolver, DidKeyMethod, DidIonMethod, DidDhtMethod } from '@web5/dids'
+import { DidResolver as Web5DidResolver, DidKey, DidIon, DidDht, DidJwk, DidWeb } from '@web5/dids'
 
 /**
  * Can be used to resolve did:ion and did:key DIDs
@@ -8,7 +8,7 @@ import { DidResolver as Web5DidResolver, DidKeyMethod, DidIonMethod, DidDhtMetho
  * @beta
  */
 export const DidResolver = new Web5DidResolver({
-  didResolvers: [DidIonMethod, DidKeyMethod, DidDhtMethod]
+  didResolvers: [DidKey, DidIon, DidDht, DidJwk, DidWeb]
 })
 
 /**
@@ -34,7 +34,7 @@ export async function resolveDid(did: string): Promise<DidDocument> {
  * A DID Resource is either a DID Document, a DID Verification method or a DID Service
  * @beta
  */
-export type DidResource = DidDocument | VerificationMethod | DidService
+export type DidResource = DidDocument | DidVerificationMethod | DidService
 
 /**
  * type guard for {@link @web5/dids#VerificationMethod}
@@ -42,6 +42,6 @@ export type DidResource = DidDocument | VerificationMethod | DidService
  * @returns true if the didResource is a `VerificationMethod`
  * @beta
  */
-export function isVerificationMethod(didResource: DidResource | null): didResource is VerificationMethod {
+export function isVerificationMethod(didResource: DidResource | null): didResource is DidVerificationMethod {
   return !!didResource && 'id' in didResource && 'type' in didResource && 'controller' in didResource
 }

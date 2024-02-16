@@ -1,4 +1,4 @@
-import { DidKeyMethod } from '@web5/dids'
+import { DidKey } from '@web5/dids'
 import { VerifiableCredential } from '@web5/credentials'
 import { Close, DevTools, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import fs from 'fs'
@@ -14,8 +14,8 @@ type TestVector = {
 }
 
 const generateParseOfferingVector = async () => {
-  const did = await DidKeyMethod.create()
-  const offering = DevTools.createOffering({ from: did.did })
+  const did = await DidKey.create()
+  const offering = DevTools.createOffering({ from: did.uri })
 
   await offering.sign(did)
 
@@ -28,11 +28,11 @@ const generateParseOfferingVector = async () => {
 }
 
 const generateParseQuoteVector = async () => {
-  const did = await DidKeyMethod.create()
+  const did = await DidKey.create()
   const quote = Quote.create({
     metadata: {
       exchangeId : Message.generateId('rfq'),
-      from       : did.did,
+      from       : did.uri,
       to         : 'did:ex:pfi'
     },
     data: DevTools.createQuoteData()
@@ -48,11 +48,11 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const did = await DidKeyMethod.create()
+  const did = await DidKey.create()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
-    issuer  : did.did,
-    subject : did.did,
+    issuer  : did.uri,
+    subject : did.uri,
     data    : {
       'beep': 'boop'
     }
@@ -61,7 +61,7 @@ const generateParseRfqVector = async () => {
   const vcJwt = await vc.sign({ did })
 
   const rfq = Rfq.create({
-    metadata : { from: did.did, to: 'did:ex:pfi' },
+    metadata : { from: did.uri, to: 'did:ex:pfi' },
     data     : {
       offeringId  : 'abcd123',
       payinMethod : {
@@ -95,9 +95,9 @@ const generateParseRfqVector = async () => {
 }
 
 const generateParseOrderVector = async () => {
-  const did = await DidKeyMethod.create()
+  const did = await DidKey.create()
   const order = Order.create({
-    metadata: { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' }
+    metadata: { from: did.uri, to: 'did:ex:pfi', exchangeId: 'abcd123' }
   })
 
   await order.sign(did)
@@ -111,9 +111,9 @@ const generateParseOrderVector = async () => {
 }
 
 const generateParseCloseVector = async () => {
-  const did = await DidKeyMethod.create()
+  const did = await DidKey.create()
   const close = Close.create({
-    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
+    metadata : { from: did.uri, to: 'did:ex:pfi', exchangeId: 'abcd123' },
     data     : {
       reason: 'The reason for closing the exchange'
     }
@@ -130,9 +130,9 @@ const generateParseCloseVector = async () => {
 }
 
 const generateParseOrderStatusVector = async () => {
-  const did = await DidKeyMethod.create()
+  const did = await DidKey.create()
   const orderStatus = OrderStatus.create({
-    metadata : { from: did.did, to: 'did:ex:pfi', exchangeId: 'abcd123' },
+    metadata : { from: did.uri, to: 'did:ex:pfi', exchangeId: 'abcd123' },
     data     : {
       orderStatus: 'wee'
     }
