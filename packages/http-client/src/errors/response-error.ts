@@ -1,9 +1,17 @@
 import type { ErrorDetail } from '../types.js'
 
+/**
+ * Params for creating ResponseError
+ * @beta
+ */
 export type ResponseErrorParams = {
+  /** HTTP status code of the error */
   statusCode: number
+  /** Array of ErrorDetails */
   details: ErrorDetail[]
+  /** String DID of the recipient of the error */
   recipientDid: string
+  /** URL where the error was thrown */
   url: string
 }
 

@@ -1,3 +1,7 @@
+/**
+ * Parameters for creating a RequestError
+ * @beta
+ */
 export type RequestErrorParams = {
   message: string
   recipientDid: string
@@ -10,7 +14,9 @@ export type RequestErrorParams = {
  * @beta
  */
 export class RequestError extends Error {
+  /** string DID of the recipient */
   public readonly recipientDid: string
+  /** URL of the request */
   public readonly url: string
 
   constructor(params: RequestErrorParams) {

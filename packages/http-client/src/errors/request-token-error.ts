@@ -1,5 +1,9 @@
 // TODO: decide whether this should be a ValidationError
 
+/**
+ * Params for creating RequestTokenError
+ * @beta
+ */
 export type RequestTokenErrorParams = {
     message: string
     cause?: unknown
