@@ -374,7 +374,6 @@ describe('client', () => {
           await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiDid.uri })
           expect.fail()
         } catch(e) {
-          console.log(e)
           expect(e).to.be.instanceof(RequestTokenMissingClaimsError)
           expect(e.message).to.include(`Request token missing ${claim} claim.`)
         }
