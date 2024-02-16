@@ -220,7 +220,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 202 if close is created by pfi', async () => {
-    // scenario: Alice creates an exchange and submits a Close message
+    // scenario: Alice creates an exchange and PFI submits a Close message
 
     const alice = await DevTools.createDid()
     const pfi = await DevTools.createDid()
