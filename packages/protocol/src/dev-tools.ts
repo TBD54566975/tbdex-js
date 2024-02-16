@@ -2,7 +2,7 @@
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { BearerDid } from '@web5/dids'
 
-import { DidDht, DidIon, DidKey, DidJwk } from '@web5/dids'
+import { DidDht, DidJwk } from '@web5/dids'
 import { Offering } from './resource-kinds/index.js'
 import { Order, Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
@@ -13,7 +13,7 @@ import { VerifiableCredential } from '@web5/credentials'
  * Supported DID Methods
  * @beta
  */
-export type DidMethodOptions = 'key' | 'ion' | 'dht' | 'jwk'
+export type DidMethodOptions = 'dht' | 'jwk'
 
 /**
  * Options passed to {@link DevTools.createRfq}
@@ -38,17 +38,13 @@ export type MessageOptions = {
 export class DevTools {
   /**
    * creates and returns a DID
-   * @param didMethod - the type of DID to create. defaults to did:key
+   * @param didMethod - the type of DID to create. defaults to did:jwk
    */
-  static async createDid(didMethod: DidMethodOptions = 'key') {
-    if (didMethod === 'key') {
-      return await DidKey.create()
-    } else if (didMethod === 'ion') {
-      return DidIon.create()
+  static async createDid(didMethod: DidMethodOptions = 'jwk'): Promise<BearerDid> {
+    if (didMethod === 'jwk') {
+      return await DidJwk.create()
     } else if (didMethod === 'dht') {
-      return DidDht.create()
-    } else if (didMethod === 'jwk') {
-      return DidJwk.create()
+      return await DidDht.create()
     } else {
       throw new Error(`${didMethod} method not implemented.`)
     }

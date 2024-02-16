@@ -1,6 +1,6 @@
 import type { DidDocument, DidService, DidVerificationMethod } from '@web5/dids'
 
-import { DidResolver as Web5DidResolver, DidKey, DidIon, DidDht, DidJwk, DidWeb } from '@web5/dids'
+import { DidResolver as Web5DidResolver, DidDht, DidJwk, DidWeb } from '@web5/dids'
 
 /**
  * Can be used to resolve did:ion and did:key DIDs
@@ -8,7 +8,7 @@ import { DidResolver as Web5DidResolver, DidKey, DidIon, DidDht, DidJwk, DidWeb 
  * @beta
  */
 export const DidResolver = new Web5DidResolver({
-  didResolvers: [DidKey, DidIon, DidDht, DidJwk, DidWeb]
+  didResolvers: [DidDht, DidJwk, DidWeb]
 })
 
 /**

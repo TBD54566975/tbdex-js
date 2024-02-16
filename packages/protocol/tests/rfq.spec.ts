@@ -8,9 +8,9 @@ import { expect } from 'chai'
 describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
-      const alice = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const message = Rfq.create({
-        metadata : { from: alice.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -23,51 +23,51 @@ describe('Rfq', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       expect(rfq.signature).to.not.be.undefined
       expect(typeof rfq.signature).to.equal('string')
     })
 
     it('includes alg and kid in jws header', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       const [base64UrlEncodedJwsHeader] = rfq.signature!.split('.')
       const jwsHeader: { kid?: string, alg?: string}  = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod![0].id)
+      expect(jwsHeader['kid']).to.equal(aliceDid.document.verificationMethod![0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })
 
   describe('verify', () => {
     it('does not throw an exception if message integrity is intact', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
       await rfq.verify()
     })
 
     it('throws an error if no signature is present on the message provided', async () => {
-      const alice = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -98,13 +98,13 @@ describe('Rfq', () => {
     })
 
     it('returns an instance of Message if parsing is successful', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       const jsonMessage = JSON.stringify(rfq)
       const parsedMessage = await Rfq.parse(jsonMessage)
@@ -134,18 +134,18 @@ describe('Rfq', () => {
     let rfqOptions: CreateRfqOptions
 
     beforeEach(async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.uri,
-        subject : did.uri,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
       offering = DevTools.createOffering()
-      const vcJwt = await vc.sign({ did })
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       rfqOptions = {
         metadata: {
@@ -157,7 +157,7 @@ describe('Rfq', () => {
           offeringId: offering.id,
         }
       }
-      rfqOptions.metadata.from = did.uri
+      rfqOptions.metadata.from = aliceDid.uri
       rfqOptions.data.claims = [vcJwt]
     })
 
@@ -167,7 +167,7 @@ describe('Rfq', () => {
     })
 
     it('succeeds if Rfq satisfies required payin amount and Offering has no required claims', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DevTools.createDid('dht')
 
       const offeringData = DevTools.createOfferingData()
       offeringData.requiredClaims = undefined
@@ -345,24 +345,24 @@ describe('Rfq', () => {
 
   describe('verifyClaims', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.uri,
-        subject : did.uri,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
-      const vcJwt = await vc.sign({ did })
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       const rfqData = await DevTools.createRfqData()
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
@@ -370,24 +370,24 @@ describe('Rfq', () => {
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({
         type    : 'PuupuuCredential',
-        issuer  : did.uri,
-        subject : did.uri,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
-      const vcJwt = await vc.sign({ did})
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       const rfqData = await DevTools.createRfqData()
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 

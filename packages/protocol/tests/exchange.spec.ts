@@ -14,7 +14,7 @@ describe('Exchange', () => {
 
   beforeEach(async () => {
     aliceDid = await DevTools.createDid()
-    pfiDid = await DevTools.createDid()
+    pfiDid = await DevTools.createDid('dht')
 
     rfq = Rfq.create({
       metadata: {
@@ -133,9 +133,6 @@ describe('Exchange', () => {
     })
 
     it('throws if the messages listed have timestamp after Close', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-
       const close = Close.create({
         metadata: {
           from       : aliceDid.uri,
@@ -288,8 +285,6 @@ describe('Exchange', () => {
 
   describe('messages', () => {
     it('returns the list of messages in the exchange', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
 
       const rfq = Rfq.create({
         metadata: {

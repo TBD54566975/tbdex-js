@@ -2,7 +2,7 @@ import type { ExchangesApi, GetExchangesFilter, Message } from '../src/main.js'
 import type { Server } from 'http'
 
 import { TbdexHttpServer, Rfq, Quote, Order, OrderStatus, Close, TbdexHttpClient } from '../src/main.js'
-import { DidKey } from '@web5/dids'
+import { DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 
 let api = new TbdexHttpServer()
@@ -32,7 +32,7 @@ describe('GET /exchanges', () => {
 
   it(`passes the requester's did to getExchanges method`, async () => {
     let functionReached = false
-    const alice = await DidKey.create()
+    const alice = await DidJwk.create()
 
     const exchangesApi: ExchangesApi = {
       getExchanges: async function (opts: { filter: GetExchangesFilter }): Promise<Message[][]> {

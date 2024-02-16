@@ -8,13 +8,13 @@ import type {
 
 import { sha256 } from '@noble/hashes/sha256'
 import { Convert } from '@web5/common'
-import { LocalKeyManager as CryptoApi } from '@web5/crypto'
+import { LocalKeyManager } from '@web5/crypto'
 import { DidResolver, isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
 import { BearerDid, DidVerificationMethod } from '@web5/dids'
 
-const crypto = new CryptoApi()
+const keyManager = new LocalKeyManager()
 
 /**
  * Options passed to {@link Crypto.sign}
@@ -39,44 +39,11 @@ export type VerifyOptions = {
   signature: string
 }
 
-// /**
-//  * Used as value for each supported named curved listed in {@link Crypto.algorithms}
-//  * @beta
-//  */
-// type SignerValue<T extends CryptoAlgorithm> = {
-//   signer: EcdsaAlgorithm | EdDsaAlgorithm,
-//   options: T,
-//   alg: JwsHeader['alg'],
-//   crv: JsonWebKey['crv']
-// }
-
-// const secp256k1Signer: SignerValue<EcdsaAlgorithm> = {
-//   signer  : new EcdsaAlgorithm(),
-//   options : { name: 'ECDSA' },
-//   alg     : 'ES256K',
-//   crv     : 'secp256k1'
-// }
-
-// const ed25519Signer: SignerValue<EdDsaAlgorithm> = {
-//   signer  : new EdDsaAlgorithm(),
-//   options : { name: 'EdDSA' },
-//   alg     : 'EdDSA',
-//   crv     : 'Ed25519'
-// }
-
 /**
  * Cryptographic utility functions, such as hashing, signing, and verifying
  * @beta
  */
 export class Crypto {
-  /** supported cryptographic algorithms. keys are `${alg}:${crv}`. */
-  // static algorithms: { [alg: string]: SignerValue<Web5Crypto.EcdsaOptions | Web5Crypto.EdDsaOptions> } = {
-  //   'ES256K:'          : secp256k1Signer,
-  //   'ES256K:secp256k1' : secp256k1Signer,
-  //   ':secp256k1'       : secp256k1Signer,
-  //   'EdDSA:Ed25519'    : ed25519Signer
-  // }
-
   /**
    * Computes a digest of the payload by:
    * * JSON serializing the payload as per [RFC-8785: JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785)
@@ -103,17 +70,6 @@ export class Crypto {
     const { did, payload, detached } = opts
 
     const signer = await did.getSigner()
-
-    // const privateKeyJwk = did.keySet.verificationMethodKeys?.[0]?.privateKeyJwk as JwkParamsEcPrivate | JwkParamsOkpPrivate
-
-    // const algorithmName = privateKeyJwk?.['alg'] || ''
-    // let namedCurve = Crypto.extractNamedCurve(privateKeyJwk)
-    // const algorithmId = `${algorithmName}:${namedCurve}`
-
-    // const algorithm = this.algorithms[algorithmId]
-    // if (!algorithm) {
-    //   throw new Error(`Algorithm (${algorithmId}) not supported`)
-    // }
 
     let verificationMethodId = signer.keyId
     if (verificationMethodId.startsWith('#')) {
@@ -192,10 +148,7 @@ export class Crypto {
 
     const signatureBytes = Convert.base64Url(base64UrlEncodedSignature).toUint8Array()
 
-    // const algorithmId = `${jwsHeader['alg']}:${Crypto.extractNamedCurve(publicKeyJwk)}`
-    // const { signer, options } = Crypto.algorithms[algorithmId]
-
-    const isLegit = await crypto.verify({ key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
+    const isLegit = await keyManager.verify({ key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
 
     if (!isLegit) {
       throw new Error('Signature verification failed: Integrity mismatch')
