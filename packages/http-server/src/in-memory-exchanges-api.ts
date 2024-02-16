@@ -36,7 +36,7 @@ export class InMemoryExchangesApi implements ExchangesApi {
     } else {
       // filter only has `from`
       this.exchangeMessagesMap.forEach((exchange, _id) => {
-        // You definitely shouldn't use FakeExchangesApi in production.
+        // You definitely shouldn't use InMemoryExchangesApi in production.
         // This will get really slow
         if (exchange?.rfq?.from === opts.filter.from) {
           exchanges.push(exchange)
@@ -69,10 +69,7 @@ export class InMemoryExchangesApi implements ExchangesApi {
 
   async getOrderStatuses(opts: { exchangeId: string }): Promise<OrderStatus[]> {
     const exchange = this.exchangeMessagesMap.get(opts.exchangeId)
-    if (exchange?.orderstatus === undefined) {
-      return []
-    }
-    return [exchange.orderstatus]
+    return exchange?.orderstatus ?? []
   }
 
   async getClose(opts: { exchangeId: string }): Promise<Close | undefined> {

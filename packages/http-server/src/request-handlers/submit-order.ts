@@ -10,7 +10,7 @@ type SubmitOrderOpts = {
   exchangesApi: ExchangesApi
 }
 
-export async function submitOrder(req: Request, res: Response, opts: SubmitOrderOpts): Promise<any> {
+export async function submitOrder(req: Request, res: Response, opts: SubmitOrderOpts): Promise<void> {
   const { callback, exchangesApi } = opts
 
   let order: Order
@@ -19,14 +19,16 @@ export async function submitOrder(req: Request, res: Response, opts: SubmitOrder
     order = await Order.parse(req.body)
   } catch(e) {
     const errorResponse: ErrorDetail = { detail: 'Request body was not a valid Order message' }
-    return res.status(400).json({ errors: [errorResponse] })
+    res.status(400).json({ errors: [errorResponse] })
+    return
   }
 
   const exchange = await exchangesApi.getExchange({id: order.exchangeId})
   if(exchange == undefined) {
     const errorResponse: ErrorDetail = { detail: `No exchange found for ${order.exchangeId}` }
 
-    return res.status(404).json({ errors: [errorResponse] })
+    res.status(404).json({ errors: [errorResponse] })
+    return
   }
 
   if(!exchange.isValidNext('order')) {
@@ -34,28 +36,31 @@ export async function submitOrder(req: Request, res: Response, opts: SubmitOrder
       detail: `Cannot submit Order for an exchange where the last message is kind: ${exchange.latestMessage!.metadata}`
     }
 
-    return res.status(409).json({ errors: [errorResponse] })
+    res.status(409).json({ errors: [errorResponse] })
+    return
   }
 
   if(new Date(exchange.quote!.data.expiresAt) < new Date()){
     const errorResponse: ErrorDetail = { detail: 'Quote is expired' }
 
-    return res.status(410).json({ errors: [errorResponse] })
+    res.status(410).json({ errors: [errorResponse] })
+    return
   }
 
   if (!callback) {
-    return res.sendStatus(202)
+    res.sendStatus(202)
+    return
   }
 
   try {
     await callback({ request: req, response: res }, order)
-    return res.sendStatus(202)
+    res.sendStatus(202)
   } catch(e) {
     if (e instanceof CallbackError) {
-      return res.status(e.statusCode).json({ errors: e.details })
+      res.status(e.statusCode).json({ errors: e.details })
     } else {
       const errorDetail: ErrorDetail = { detail: 'Internal Server Error' }
-      return res.status(500).json({ errors: [errorDetail] })
+      res.status(500).json({ errors: [errorDetail] })
     }
   }
 }

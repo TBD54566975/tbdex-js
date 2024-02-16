@@ -10,7 +10,7 @@ type SubmitCloseOpts = {
   exchangesApi: ExchangesApi
 }
 
-export async function submitClose(req: Request, res: Response, opts: SubmitCloseOpts): Promise<any> {
+export async function submitClose(req: Request, res: Response, opts: SubmitCloseOpts): Promise<void> {
   const { callback, exchangesApi } = opts
 
   let close: Close
@@ -19,7 +19,8 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
     close = await Close.parse(req.body)
   } catch(e) {
     const errorResponse: ErrorDetail = { detail: 'Request body was not a valid Close message' }
-    return res.status(400).json({ errors: [errorResponse] })
+    res.status(400).json({ errors: [errorResponse] })
+    return
   }
 
   // Ensure that an exchange exists to be closed
@@ -28,7 +29,8 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
   if(exchange === undefined || exchange.messages.length === 0) {
     const errorResponse: ErrorDetail = { detail: `No exchange found for ${close.exchangeId}` }
 
-    return res.status(404).json({ errors: [errorResponse] })
+    res.status(404).json({ errors: [errorResponse] })
+    return
   }
 
   // Ensure this exchange can be Closed
@@ -37,7 +39,8 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
       detail: `cannot submit Close for an exchange where the last message is kind: ${exchange.latestMessage!.metadata.kind}`
     }
 
-    return res.status(409).json({ errors: [errorResponse] })
+    res.status(409).json({ errors: [errorResponse] })
+    return
   }
 
   // Ensure that Close is from either Alice or PFI
@@ -51,22 +54,24 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
       detail: `Only the creator and receiver of an exchange may close the exchange`
     }
 
-    return res.status(400).json({ errors: [errorResponse] })
+    res.status(400).json({ errors: [errorResponse] })
+    return
   }
 
   if (!callback) {
-    return res.sendStatus(202)
+    res.sendStatus(202)
+    return
   }
 
   try {
     await callback({ request: req, response: res }, close)
-    return res.sendStatus(202)
+    res.sendStatus(202)
   } catch(e) {
     if (e instanceof CallbackError) {
-      return res.status(e.statusCode).json({ errors: e.details })
+      res.status(e.statusCode).json({ errors: e.details })
     } else {
       const errorDetail: ErrorDetail = { detail: 'Internal Server Error' }
-      return res.status(500).json({ errors: [errorDetail] })
+      res.status(500).json({ errors: [errorDetail] })
     }
   }
 }

@@ -9,25 +9,28 @@ type GetExchangesOpts = {
   pfiDid: string
 }
 
-export async function getExchanges(request: Request, response: Response, opts: GetExchangesOpts) {
+export async function getExchanges(request: Request, response: Response, opts: GetExchangesOpts): Promise<void> {
   const { callback, exchangesApi, pfiDid } = opts
 
   const authzHeader = request.headers['authorization']
   if (!authzHeader) {
-    return response.status(401).json({ errors: [{ detail: 'Authorization header required' }] })
+    response.status(401).json({ errors: [{ detail: 'Authorization header required' }] })
+    return
   }
 
   const [_, requestToken] = authzHeader.split('Bearer ')
 
   if (!requestToken) {
-    return response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
+    response.status(401).json({ errors: [{ detail: 'Malformed Authorization header. Expected: Bearer TOKEN_HERE' }] })
+    return
   }
 
   let requesterDid: string
   try {
     requesterDid = await TbdexHttpClient.verifyRequestToken({ requestToken: requestToken, pfiDid })
   } catch(e) {
-    return response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
+    response.status(401).json({ errors: [{ detail: `Malformed Authorization header: ${e}` }] })
+    return
   }
 
   const queryParams: GetExchangesFilter = {
@@ -50,5 +53,5 @@ export async function getExchanges(request: Request, response: Response, opts: G
     const _result = await callback({ request, response }, queryParams)
   }
 
-  return response.status(200).json({ data: exchanges })
+  response.status(200).json({ data: exchanges })
 }

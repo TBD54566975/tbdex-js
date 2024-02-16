@@ -6,7 +6,7 @@ type GetOfferingsOpts = {
   offeringsApi: OfferingsApi
 }
 
-export async function getOfferings(request: Request, response: Response, opts: GetOfferingsOpts): Promise<any> {
+export async function getOfferings(request: Request, response: Response, opts: GetOfferingsOpts): Promise<void> {
   const { callback, offeringsApi } = opts
 
   const filter: GetOfferingsFilter = {
@@ -25,5 +25,5 @@ export async function getOfferings(request: Request, response: Response, opts: G
     await callback({ request, response }, filter)
   }
 
-  return response.status(200).json({ data: offerings })
+  response.status(200).json({ data: offerings })
 }
