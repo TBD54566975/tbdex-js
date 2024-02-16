@@ -1,10 +1,11 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
 
-import { TbdexHttpServer, TbdexHttpClient, ErrorDetail, DevTools, RequestContext, GetExchangesFilter } from '../src/main.js'
-import { DidKeyMethod } from '@web5/dids'
+import { TbdexHttpServer, RequestContext, GetExchangesFilter } from '../src/main.js'
+import { DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
+import { DevTools, ErrorDetail, TbdexHttpClient } from '@tbdex/http-client'
 
 describe('GET /exchanges', () => {
   let server: Server
@@ -60,7 +61,7 @@ describe('GET /exchanges', () => {
 
   describe('Passes filter to ExchangesApi.getExchanges', () => {
     it(`passes the requester's did to the filter of ExchangesApi.getExchanges`, async () => {
-      const alice = await DidKeyMethod.create()
+      const alice = await DidJwk.create()
 
       const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
 
@@ -75,7 +76,7 @@ describe('GET /exchanges', () => {
       expect(exchangesApiSpy.calledOnce).to.be.true
       expect(exchangesApiSpy.calledWith({
         filter: {
-          from: alice.did
+          from: alice.uri
         }
       })).to.be.true
 
@@ -83,7 +84,7 @@ describe('GET /exchanges', () => {
     })
 
     it('passes the id non-array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
-      const alice = await DidKeyMethod.create()
+      const alice = await DidJwk.create()
 
       const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
 
@@ -101,7 +102,7 @@ describe('GET /exchanges', () => {
       expect(exchangesApiSpy.calledOnce).to.be.true
       expect(exchangesApiSpy.calledWith({
         filter: {
-          from : alice.did,
+          from : alice.uri,
           id   : [idQueryParam]
         }
       }))
@@ -110,7 +111,7 @@ describe('GET /exchanges', () => {
     })
 
     it('passes the id array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
-      const alice = await DidKeyMethod.create()
+      const alice = await DidJwk.create()
 
       const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
 
@@ -128,7 +129,7 @@ describe('GET /exchanges', () => {
       expect(exchangesApiSpy.calledOnce).to.be.true
       expect(exchangesApiSpy.calledWith({
         filter: {
-          from : alice.did,
+          from : alice.uri,
           id   : idQueryParam
         }
       }))

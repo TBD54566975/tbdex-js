@@ -57,8 +57,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     const pfiDid = await DevTools.createDid()
     const order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : '123'
       }
     })
@@ -108,8 +108,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     const order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : Message.generateId('rfq'),
       },
     })
@@ -135,8 +135,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     const pfiDid = await DevTools.createDid()
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -145,8 +145,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     const order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
     })
@@ -174,16 +174,16 @@ describe('POST /exchanges/:exchangeId/order', () => {
     // Add an exchange which has a Quote that expired 10 seconds ago
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
     await rfq.sign(aliceDid)
     const quote = Quote.create({
       metadata: {
-        from       : pfiDid.did,
-        to         : aliceDid.did,
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
       data: {
@@ -197,8 +197,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
     const order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
     })
@@ -226,16 +226,16 @@ describe('POST /exchanges/:exchangeId/order', () => {
     // Add an exchange of Rfq and Quote to the exchangesApi
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
     await rfq.sign(aliceDid)
     const quote = Quote.create({
       metadata: {
-        from       : pfiDid.did,
-        to         : aliceDid.did,
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
       data: {
@@ -251,8 +251,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     // Create order that is valid within the existing exchange
     const order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
     })
@@ -274,16 +274,16 @@ describe('POST /exchanges/:exchangeId/order', () => {
       // Add an exchange of Rfq and Quote to the exchangesApi
       const rfq = Rfq.create({
         metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did
+          from : aliceDid.uri,
+          to   : pfiDid.uri
         },
         data: await DevTools.createRfqData()
       })
       await rfq.sign(aliceDid)
       const quote = Quote.create({
         metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
+          from       : pfiDid.uri,
+          to         : aliceDid.uri,
           exchangeId : rfq.metadata.exchangeId,
         },
         data: {
@@ -299,8 +299,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
       // Create order that is valid within the existing exchange
       const order = Order.create({
         metadata: {
-          from       : aliceDid.did,
-          to         : pfiDid.did,
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
           exchangeId : rfq.metadata.exchangeId,
         },
       })

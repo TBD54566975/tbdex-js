@@ -6,7 +6,7 @@ import { Crypto, DevTools } from '../src/main.js'
 describe('Crypto', () => {
   describe('sign / verify', () => {
     it('works with did:ion', async () => {
-      const alice = await DevTools.createDid('ion')
+      const alice = await DevTools.createDid()
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
 
@@ -15,7 +15,7 @@ describe('Crypto', () => {
     }).timeout(30_000)
 
     it('works with did:key', async () => {
-      const alice = await DevTools.createDid('key')
+      const alice = await DevTools.createDid()
 
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
@@ -25,14 +25,14 @@ describe('Crypto', () => {
     })
 
     it('works with detached content', async () => {
-      const alice = await DevTools.createDid('ion')
+      const alice = await DevTools.createDid()
       const payload = { timestamp: new Date().toISOString() }
       const payloadBytes = Convert.object(payload).toUint8Array()
 
       const token = await Crypto.sign({ did: alice, payload: payloadBytes, detached: true })
 
       const did = await Crypto.verify({ signature: token, detachedPayload: payloadBytes })
-      expect(alice.did).to.equal(did)
+      expect(alice.uri).to.equal(did)
     }).timeout(30_000)
   })
 })

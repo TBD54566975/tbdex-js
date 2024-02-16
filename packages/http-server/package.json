@@ -9,7 +9,7 @@
   },
   "license": "Apache-2.0",
   "type": "module",
-  "version": "0.25.0",
+  "version": "0.26.0",
   "module": "./dist/main.js",
   "types": "./dist/types/main.d.ts",
   "files": [
@@ -23,8 +23,8 @@
   "dependencies": {
     "@tbdex/http-client": "workspace:*",
     "@tbdex/protocol": "workspace:*",
-    "@web5/dids": "0.2.2",
-    "cors": "^2.8.5",
+    "@web5/dids": "0.4.0",
+    "cors": "2.8.5",
     "express": "4.18.2"
   },
   "devDependencies": {

@@ -6,7 +6,6 @@ import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import Sinon from 'sinon'
 
-const did = await DevTools.createDid()
 
 describe('POST /exchanges/:exchangeId/close', () => {
   let api: TbdexHttpServer
@@ -74,15 +73,17 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {
+    const alice = await DevTools.createDid()
+    const pfi = await DevTools.createDid()
     const close = Close.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : alice.uri,
+        to         : pfi.uri,
         exchangeId : '123'
       },
       data: {}
     })
-    await close.sign(did)
+    await close.sign(alice)
     const resp = await fetch('http://localhost:8000/exchanges/123/close', {
       method : 'POST',
       body   : JSON.stringify(close)
@@ -109,8 +110,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     await rfq.sign(alice)
     const close = Close.create({
       metadata: {
-        from       : alice.did,
-        to         : pfi.did,
+        from       : alice.uri,
+        to         : pfi.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
@@ -123,13 +124,13 @@ describe('POST /exchanges/:exchangeId/close', () => {
 
     const close2 = Close.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : alice.uri,
+        to         : pfi.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
     })
-    await close2.sign(did)
+    await close2.sign(alice)
     const resp = await fetch('http://localhost:8000/exchanges/123/close', {
       method : 'POST',
       body   : JSON.stringify(close2)
@@ -161,8 +162,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     // Create but do not sign Close message
     const close = Close.create({
       metadata: {
-        from       : alice.did,
-        to         : pfi.did,
+        from       : alice.uri,
+        to         : pfi.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
@@ -202,8 +203,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     // Close message signed by Alice
     const close = Close.create({
       metadata: {
-        from       : alice.did,
-        to         : pfi.did,
+        from       : alice.uri,
+        to         : pfi.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
@@ -236,8 +237,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     // Close message signed by PFI
     const close = Close.create({
       metadata: {
-        from       : pfi.did,
-        to         : alice.did,
+        from       : pfi.uri,
+        to         : alice.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
@@ -270,8 +271,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     // Close message signed by the imposter
     const close = Close.create({
       metadata: {
-        from       : imposter.did,
-        to         : pfi.did,
+        from       : imposter.uri,
+        to         : pfi.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: {}
@@ -301,8 +302,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       // Close message signed by Alice
       const close = Close.create({
         metadata: {
-          from       : alice.did,
-          to         : pfi.did,
+          from       : alice.uri,
+          to         : pfi.uri,
           exchangeId : Message.generateId('rfq')
         },
         data: {}
@@ -337,8 +338,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       // Close message signed by Alice
       const close = Close.create({
         metadata: {
-          from       : alice.did,
-          to         : pfi.did,
+          from       : alice.uri,
+          to         : pfi.uri,
           exchangeId : rfq.metadata.exchangeId
         },
         data: {}

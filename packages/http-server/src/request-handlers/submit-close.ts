@@ -33,6 +33,8 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
     return
   }
 
+  console.log('exchange.isValidNext(close.metadata.kind)::::', exchange.isValidNext(close.metadata.kind))
+
   // Ensure this exchange can be Closed
   if(!exchange.isValidNext(close.metadata.kind)) {
     const errorResponse: ErrorDetail = {

@@ -5,7 +5,7 @@ import { DevTools, RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
-import { PortableDid } from '@web5/dids'
+import { BearerDid } from '@web5/dids'
 import Sinon from 'sinon'
 
 describe('POST /exchanges/:exchangeId/rfq', () => {
@@ -55,7 +55,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
   it('returns a 400 if create exchange request contains a replyTo which is not a valid URL', async () => {
     const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const pfiDid = await DevTools.createDid('dht')
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
 
@@ -150,8 +150,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     // deliberately omit (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did,
+        from : aliceDid.uri,
+        to   : pfiDid.uri,
       },
       data: {
         ...await DevTools.createRfqData(),
@@ -187,8 +187,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     // Create Rfq which doesn't contain the required claims
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did,
+        from : aliceDid.uri,
+        to   : pfiDid.uri,
       },
       data: {
         ...await DevTools.createRfqData(),
@@ -214,8 +214,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   describe('RFQ satisfies all requirements', () => {
-    let aliceDid: PortableDid
-    let pfiDid: PortableDid
+    let aliceDid: BearerDid
+    let pfiDid: BearerDid
     let offering: Offering
     let rfq: Rfq
 
@@ -226,7 +226,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       // Add offering with no required claims to api.offeringsApi
       offering = Offering.create({
         metadata: {
-          from: pfiDid.did,
+          from: pfiDid.uri,
         },
         data: {
           ...DevTools.createOfferingData(),
@@ -277,8 +277,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       // Create Rfq which satisfies Offering requirements
       rfq = Rfq.create({
         metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
+          from : aliceDid.uri,
+          to   : pfiDid.uri,
         },
         data: {
           ...DevTools.createRfqData(),
