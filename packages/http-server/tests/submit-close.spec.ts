@@ -57,8 +57,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   it(`returns a 404 if the exchange doesn't exist`, async () => {
     const close = Close.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : did.uri,
+        to         : did.uri,
         exchangeId : '123'
       },
       data: {}
@@ -82,8 +82,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   it(`returns a 409 if close is not allowed based on the exchange's current state`, async () => {
     const close = Close.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : did.uri,
+        to         : did.uri,
         exchangeId : '123'
       },
       data: {}
@@ -95,8 +95,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
 
     const close2 = Close.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : did.uri,
+        to         : did.uri,
         exchangeId : '123'
       },
       data: {}

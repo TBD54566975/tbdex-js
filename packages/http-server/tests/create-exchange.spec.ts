@@ -50,7 +50,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
   it('returns a 400 if create exchange request contains a replyTo which is not a valid URL', async () => {
     const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const pfiDid = await DevTools.createDid('dht')
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
 

@@ -1,10 +1,10 @@
-import { PortableDid } from '@web5/dids'
+import { BearerDid } from '@web5/dids'
 import { expect } from 'chai'
 import { Close, DevTools, Exchange, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 
 describe('Exchange', () => {
-  let aliceDid: PortableDid
-  let pfiDid: PortableDid
+  let aliceDid: BearerDid
+  let pfiDid: BearerDid
   let rfq: Rfq
   let quote: Quote
   let closeByAlice: Close
@@ -14,12 +14,12 @@ describe('Exchange', () => {
 
   beforeEach(async () => {
     aliceDid = await DevTools.createDid()
-    pfiDid = await DevTools.createDid()
+    pfiDid = await DevTools.createDid('dht')
 
     rfq = Rfq.create({
       metadata: {
-        from : aliceDid.did,
-        to   : pfiDid.did,
+        from : aliceDid.uri,
+        to   : pfiDid.uri,
       },
       data: await DevTools.createRfqData()
     })
@@ -27,8 +27,8 @@ describe('Exchange', () => {
 
     closeByAlice = Close.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
       data: {
@@ -39,8 +39,8 @@ describe('Exchange', () => {
 
     quote = Quote.create({
       metadata: {
-        from       : pfiDid.did,
-        to         : aliceDid.did,
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId
       },
       data: DevTools.createQuoteData()
@@ -49,8 +49,8 @@ describe('Exchange', () => {
 
     closeByPfi = Close.create({
       metadata: {
-        from       : pfiDid.did,
-        to         : aliceDid.did,
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
       data: {
@@ -61,8 +61,8 @@ describe('Exchange', () => {
 
     order = Order.create({
       metadata: {
-        from       : aliceDid.did,
-        to         : pfiDid.did,
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId
       },
     })
@@ -70,8 +70,8 @@ describe('Exchange', () => {
 
     orderStatus = OrderStatus.create({
       metadata: {
-        from       : pfiDid.did,
-        to         : aliceDid.did,
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
       },
       data: {
@@ -115,8 +115,8 @@ describe('Exchange', () => {
     it('throws if the messages listed do not have matching exchange_id', async () => {
       const quote = Quote.create({
         metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
+          from       : pfiDid.uri,
+          to         : aliceDid.uri,
           exchangeId : Message.generateId('rfq')
         },
         data: DevTools.createQuoteData()
@@ -133,13 +133,10 @@ describe('Exchange', () => {
     })
 
     it('throws if the messages listed have timestamp after Close', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
-
       const close = Close.create({
         metadata: {
-          from       : aliceDid.did,
-          to         : pfiDid.did,
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
           exchangeId : rfq.metadata.exchangeId,
         },
         data: {
@@ -150,8 +147,8 @@ describe('Exchange', () => {
 
       const quote = Quote.create({
         metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
+          from       : pfiDid.uri,
+          to         : aliceDid.uri,
           exchangeId : rfq.metadata.exchangeId
         },
         data: DevTools.createQuoteData()
@@ -288,13 +285,11 @@ describe('Exchange', () => {
 
   describe('messages', () => {
     it('returns the list of messages in the exchange', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
 
       const rfq = Rfq.create({
         metadata: {
-          from : aliceDid.did,
-          to   : pfiDid.did,
+          from : aliceDid.uri,
+          to   : pfiDid.uri,
         },
         data: await DevTools.createRfqData()
       })
@@ -302,8 +297,8 @@ describe('Exchange', () => {
 
       const quote = Quote.create({
         metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
+          from       : pfiDid.uri,
+          to         : aliceDid.uri,
           exchangeId : rfq.metadata.exchangeId
         },
         data: DevTools.createQuoteData()
@@ -312,8 +307,8 @@ describe('Exchange', () => {
 
       const order = Order.create({
         metadata: {
-          from       : aliceDid.did,
-          to         : pfiDid.did,
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
           exchangeId : rfq.metadata.exchangeId
         },
       })
@@ -321,8 +316,8 @@ describe('Exchange', () => {
 
       const orderStatus = OrderStatus.create({
         metadata: {
-          from       : pfiDid.did,
-          to         : aliceDid.did,
+          from       : pfiDid.uri,
+          to         : aliceDid.uri,
           exchangeId : rfq.metadata.exchangeId,
         },
         data: {
