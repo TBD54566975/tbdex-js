@@ -52,8 +52,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   it(`returns a 404 if the exchange doesn't exist`, async () => {
     const order = Order.create({
       metadata: {
-        from       : did.did,
-        to         : did.did,
+        from       : did.uri,
+        to         : did.uri,
         exchangeId : '123'
       }
     })
