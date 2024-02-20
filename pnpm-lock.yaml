@@ -70,8 +70,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0
       '@web5/dids':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.4.1
+        version: 0.4.1
       ms:
         specifier: 2.1.3
         version: 2.1.3
@@ -158,8 +158,8 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/dids':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.4.1
+        version: 0.4.1
       cors:
         specifier: 2.8.5
         version: 2.8.5
@@ -222,8 +222,8 @@ importers:
         specifier: 0.4.0
         version: 0.4.0
       '@web5/dids':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.4.1
+        version: 0.4.1
       ajv:
         specifier: 8.12.0
         version: 8.12.0
@@ -1961,6 +1961,19 @@ packages:
 
   /@web5/dids@0.4.0:
     resolution: {integrity: sha512-e+QcrKWlWPJVBbpz4QKrdcgPoj+uC8YUXt4tGKj1mC4kV0rCtIioMLw9Djg+54pp3VXl3eGKxju98UEddyZwqA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@decentralized-identity/ion-sdk': 1.0.1
+      '@dnsquery/dns-packet': 6.1.1
+      '@web5/common': 0.2.3
+      '@web5/crypto': 0.4.0
+      bencode: 4.0.0
+      level: 8.0.0
+      ms: 2.1.3
+    dev: false
+
+  /@web5/dids@0.4.1:
+    resolution: {integrity: sha512-EY55euXdDfdFMef2k8DeOrGmStBRhwvoai/JuJbUdCGDpvgwdoZWXPkGEkFr4VZQsfR7R7rNFMlsYw3VRPUVJw==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@decentralized-identity/ion-sdk': 1.0.1
