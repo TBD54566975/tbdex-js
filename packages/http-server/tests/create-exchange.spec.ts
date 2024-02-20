@@ -1,12 +1,13 @@
-import { ErrorDetail, Offering, Rfq } from '@tbdex/http-client'
+import { ErrorDetail, Offering, Order, Rfq } from '@tbdex/http-client'
 import type { Server } from 'http'
 
 import { DevTools, RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
-import { BearerDid } from '@web5/dids'
+import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import Sinon from 'sinon'
+import { Message } from '@tbdex/protocol'
 
 describe('POST /exchanges/:exchangeId/rfq', () => {
   let api: TbdexHttpServer
@@ -54,8 +55,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if create exchange request contains a replyTo which is not a valid URL', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid('dht')
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidDht.create()
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
 
@@ -75,10 +76,16 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if request body is not a valid RFQ', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
-    const order = await DevTools.createOrder({ sender: aliceDid, receiver: pfiDid })
+    const order = Order.create({
+      metadata: {
+        from       : aliceDid.uri,
+        to         : pfiDid.uri,
+        exchangeId : Message.generateId('rfq')
+      }
+    })
     await order.sign(aliceDid)
 
     const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
@@ -97,8 +104,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if request body if integrity check fails', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     // deliberately omit rfq.sign(aliceDid)
@@ -119,8 +126,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 409 if request body if RFQ already exists', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid);
@@ -143,8 +150,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if request body if offering doesnt exist', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     const offering = DevTools.createOffering()
     // deliberately omit (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
@@ -176,8 +183,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it(`returns a 400 if request body if RFQ does not fulfill offering's requirements`, async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     // Add offering to api.offeringsApi
     const offering = DevTools.createOffering()
@@ -220,8 +227,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     let rfq: Rfq
 
     beforeEach(async () => {
-      aliceDid = await DevTools.createDid()
-      pfiDid = await DevTools.createDid()
+      aliceDid = await DidJwk.create()
+      pfiDid = await DidJwk.create()
 
       // Add offering with no required claims to api.offeringsApi
       offering = Offering.create({

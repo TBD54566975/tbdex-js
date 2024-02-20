@@ -2,8 +2,6 @@ import type {
   JwsHeaderParams,
   JwkParamsEcPublic,
   JwkParamsOkpPublic,
-  PrivateKeyJwk,
-  PublicKeyJwk,
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
@@ -76,9 +74,7 @@ export class Crypto {
       verificationMethodId = `${did.uri}${verificationMethodId}`
     }
 
-
-
-    const jwsHeader: JwsHeader = { alg: signer.algorithm, kid: verificationMethodId }
+    const jwsHeader: JwsHeaderParams = { alg: signer.algorithm, kid: verificationMethodId }
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
     const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 
@@ -157,22 +153,4 @@ export class Crypto {
     const [did] = jwsHeader.kid.split('#')
     return did
   }
-
-  /**
-   * Gets crv property from a PublicKeyJwk or PrivateKeyJwk. Returns empty string if crv is undefined.
-   */
-  static extractNamedCurve(jwk: PrivateKeyJwk | PublicKeyJwk | undefined): string {
-    if (jwk && 'crv' in jwk) {
-      return jwk.crv
-    } else {
-      return ''
-    }
-  }
 }
-
-/**
- * monkey patch of JwsHeaderParams to include `EdDSA` as a valid alg
- * **NOTE**: Remove this once upstream `@web5/crypto` package is fixed
- * @internal
- */
-type JwsHeader = Omit<JwsHeaderParams, 'alg'> & { alg: JwsHeaderParams['alg'] | 'EdDSA' }

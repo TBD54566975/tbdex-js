@@ -5,6 +5,7 @@ import { Close, DevTools, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import Sinon from 'sinon'
+import { DidJwk } from '@web5/dids'
 
 
 describe('POST /exchanges/:exchangeId/close', () => {
@@ -53,8 +54,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 400 if request body is not a valid close object', async () => {
-    const alice = await DevTools.createDid()
-    const rfq = DevTools.createRfq({
+    const alice = await DidJwk.create()
+    const rfq = await DevTools.createRfq({
       sender: alice
     })
     const resp = await fetch('http://localhost:8000/exchanges/123/close', {
@@ -73,8 +74,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
     const close = Close.create({
       metadata: {
         from       : alice.uri,
@@ -100,8 +101,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it(`returns a 409 if close is not allowed based on the exchange's current state`, async () => {
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({
       sender   : alice,
@@ -147,8 +148,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 400 if request body if integrity check fails', async () => {
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({
       sender   : alice,
@@ -188,8 +189,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   it('returns a 202 if close is created by alice', async () => {
     // scenario: Alice creates an exchange and submits a Close message
 
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({
       sender   : alice,
@@ -222,8 +223,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
   it('returns a 202 if close is created by pfi', async () => {
     // scenario: Alice creates an exchange and PFI submits a Close message
 
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({
       sender   : alice,
@@ -255,9 +256,9 @@ describe('POST /exchanges/:exchangeId/close', () => {
 
   it('returns a 400 if the close is created by neither alice nor pfi', async () => {
 
-    const alice = await DevTools.createDid()
-    const pfi = await DevTools.createDid()
-    const imposter = await DevTools.createDid()
+    const alice = await DidJwk.create()
+    const pfi = await DidJwk.create()
+    const imposter = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({
       sender   : alice,
@@ -296,8 +297,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
 
   describe('onSubmitClose callback', () => {
     it('does not call the callback if the close is is not valid for the current exchange', async () => {
-      const alice = await DevTools.createDid()
-      const pfi = await DevTools.createDid()
+      const alice = await DidJwk.create()
+      const pfi = await DidJwk.create()
 
       // Close message signed by Alice
       const close = Close.create({
@@ -323,8 +324,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
 
     it('returns a 202 if the provided callback succeeds and passes correct arguments to callback', async () => {
-      const alice = await DevTools.createDid()
-      const pfi = await DevTools.createDid()
+      const alice = await DidJwk.create()
+      const pfi = await DidJwk.create()
 
       const rfq = await DevTools.createRfq({
         sender   : alice,

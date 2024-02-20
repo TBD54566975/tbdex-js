@@ -1,4 +1,4 @@
-import { BearerDid } from '@web5/dids'
+import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { Close, DevTools, Exchange, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 
@@ -13,8 +13,8 @@ describe('Exchange', () => {
   let orderStatus: OrderStatus
 
   beforeEach(async () => {
-    aliceDid = await DevTools.createDid()
-    pfiDid = await DevTools.createDid('dht')
+    aliceDid = await DidJwk.create()
+    pfiDid = await DidDht.create()
 
     rfq = Rfq.create({
       metadata: {
