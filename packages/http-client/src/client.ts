@@ -1,6 +1,6 @@
 import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
-import type { DidDocument, PortableDid } from '@web5/dids'
+import type { DidDocument, BearerDid } from '@web5/dids'
 import {
   MessageModel,
   Parser,
@@ -30,7 +30,7 @@ import ms from 'ms'
  * @beta
  */
 export type GenerateRequestTokenParams = {
-  requesterDid: PortableDid
+  requesterDid: BearerDid
   pfiDid: string
 }
 
@@ -251,19 +251,20 @@ export class TbdexHttpClient {
   * @throws {@link RequestTokenSigningError} If an error occurs during the token generation.
   */
   static async generateRequestToken(params: GenerateRequestTokenParams): Promise<string> {
+    const { pfiDid, requesterDid } = params
     const now = Date.now()
     const exp = (now + ms('1m'))
 
     const jwtPayload: JwtPayload = {
-      aud : params.pfiDid,
-      iss : params.requesterDid.did,
+      aud : pfiDid,
+      iss : requesterDid.uri,
       exp : Math.floor(exp / 1000),
       iat : Math.floor(now / 1000),
       jti : typeid().getSuffix()
     }
 
     try {
-      return await Jwt.sign({ signerDid: params.requesterDid, payload: jwtPayload })
+      return await Jwt.sign({ signerDid: requesterDid, payload: jwtPayload })
     } catch(e) {
       throw new RequestTokenSigningError({ message: e.message, cause: e })
     }
@@ -351,7 +352,7 @@ export type GetExchangeOptions = {
   /** the exchange you want to fetch */
   exchangeId: string
   /** the message author's DID */
-  did: PortableDid
+  did: BearerDid
 }
 
 /**
@@ -361,7 +362,7 @@ export type GetExchangeOptions = {
 export type GetExchangesOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
-  did: PortableDid,
+  did: BearerDid,
   filter?: {
     id: string | string[]
   }
