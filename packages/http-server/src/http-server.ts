@@ -8,14 +8,15 @@ import type {
   GetOfferingsCallback,
 } from './types.js'
 
-import type { Express } from 'express'
+import type { Express, Request, Response } from 'express'
 
 import express from 'express'
 import cors from 'cors'
 
 import { getExchanges, getOfferings, submitOrder, submitClose, createExchange } from './request-handlers/index.js'
 import { jsonBodyParser } from './middleware/index.js'
-import { fakeExchangesApi, fakeOfferingsApi } from './fakes.js'
+import { InMemoryOfferingsApi } from './in-memory-offerings-api.js'
+import { InMemoryExchangesApi } from './in-memory-exchanges-api.js'
 
 /**
  * Maps the requests to their respective callbacks handlers
@@ -36,13 +37,7 @@ type CallbackMap = {
 type NewHttpServerOptions = {
   offeringsApi?: OfferingsApi
   exchangesApi?: ExchangesApi,
-  pfiDid?: string
-}
-
-const defaults: NewHttpServerOptions = {
-  offeringsApi : fakeOfferingsApi,
-  exchangesApi : fakeExchangesApi,
-  pfiDid       : 'did:ex:pfi'
+  pfiDid: string
 }
 
 /**
@@ -77,12 +72,10 @@ export class TbdexHttpServer {
 
   constructor(opts?: NewHttpServerOptions) {
     this.callbacks = {}
-    opts = { ...defaults, ...opts }
-    const { offeringsApi, exchangesApi, pfiDid } = opts
 
-    this.exchangesApi = exchangesApi
-    this.offeringsApi = offeringsApi
-    this.pfiDid = pfiDid
+    this.exchangesApi = opts?.exchangesApi ?? new InMemoryExchangesApi()
+    this.offeringsApi = opts?.offeringsApi ?? new InMemoryOfferingsApi()
+    this.pfiDid = opts?.pfiDid ?? 'did:ex:pfi'
 
     // initialize api here so that consumers can attach custom endpoints
     const api = express()
@@ -147,25 +140,42 @@ export class TbdexHttpServer {
   listen(port: number | string, callback?: () => void) {
     const { offeringsApi, exchangesApi, pfiDid } = this
 
-    this.api.post('/exchanges/:exchangeId/rfq', createExchange({
-      callback: this.callbacks['rfq'], offeringsApi, exchangesApi,
-    }))
+    this.api.post('/exchanges/:exchangeId/rfq', (req: Request, res: Response) =>
+      createExchange(req, res, {
+        callback: this.callbacks['rfq'],
+        offeringsApi,
+        exchangesApi,
+      })
+    )
 
-    this.api.post('/exchanges/:exchangeId/order', submitOrder({
-      callback: this.callbacks['order'], exchangesApi
-    }))
+    this.api.post('/exchanges/:exchangeId/order', (req: Request, res: Response) =>
+      submitOrder(req, res, {
+        callback: this.callbacks['order'],
+        exchangesApi
+      })
+    )
 
-    this.api.post('/exchanges/:exchangeId/close', submitClose({
-      callback: this.callbacks['close'], exchangesApi
-    }))
+    this.api.post('/exchanges/:exchangeId/close', (req: Request, res: Response) =>
+      submitClose(req, res,{
+        callback: this.callbacks.close,
+        exchangesApi,
+      })
+    )
 
-    this.api.get('/exchanges', getExchanges({
-      callback: this.callbacks['exchanges'], exchangesApi, pfiDid
-    }))
+    this.api.get('/exchanges', (req: Request, res: Response) =>
+      getExchanges(req, res, {
+        callback: this.callbacks.exchanges,
+        exchangesApi,
+        pfiDid,
+      })
+    )
 
-    this.api.get('/offerings', getOfferings({
-      callback: this.callbacks['offerings'], offeringsApi
-    }))
+    this.api.get('/offerings', (req, res) =>
+      getOfferings(req, res, {
+        callback: this.callbacks['offerings'],
+        offeringsApi
+      })
+    )
 
     // TODO: support hostname and backlog arguments
     return this.api.listen(port, callback)

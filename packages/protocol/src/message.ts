@@ -3,7 +3,7 @@ import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
 
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
-import { PortableDid } from '@web5/dids'
+import { BearerDid } from '@web5/dids'
 import { validate } from './validator.js'
 
 /**
@@ -49,8 +49,8 @@ export abstract class Message {
    * @param did - the signer's DID
    * @throws If the signature could not be produced
    */
-  async sign(did: PortableDid): Promise<void> {
-    this._signature = await Crypto.sign({ did: did, payload: this.digest(), detached: true })
+  async sign(did: BearerDid): Promise<void> {
+    this._signature = await Crypto.sign({ did, payload: this.digest(), detached: true })
   }
 
   /**
