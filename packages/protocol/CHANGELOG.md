@@ -1,5 +1,11 @@
 # @tbdex/protocol
 
+## 0.26.1
+
+### Patch Changes
+
+- 5e9a7a2: Add external id to message metadata
+
 ## 0.26.0
 
 ### Minor Changes
