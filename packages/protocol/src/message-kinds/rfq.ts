@@ -163,16 +163,16 @@ export class Rfq extends Message {
 
         // paymentDetails is present even though requiredPaymentDetails is omitted. This is unsatisfactory.
         invalidPaymentDetailsErrors.add(new Error('paymentDetails must be omitted when requiredPaymentDetails is omitted'))
-        continue
+      } else {
+        // requiredPaymentDetails is present, so Rfq's payment details must match
+        const validate = ajv.compile(paymentMethodMatch.requiredPaymentDetails)
+        const isValid = validate(rfqPaymentMethod.paymentDetails)
+        if (isValid) {
+          // Selected payment method matches one of the offering's allowed payment methods
+          return
+        }
+        invalidPaymentDetailsErrors.add(validate.errors)
       }
-
-      const validate = ajv.compile(paymentMethodMatch.requiredPaymentDetails)
-      const isValid = validate(rfqPaymentMethod.paymentDetails)
-      if (isValid) {
-        // Selected payment method matches one of the offering's allowed payment methods
-        return
-      }
-      invalidPaymentDetailsErrors.add(validate.errors)
     }
 
     throw new Error(
