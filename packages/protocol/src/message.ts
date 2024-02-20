@@ -148,6 +148,11 @@ export abstract class Message {
     return this.metadata.createdAt
   }
 
+  /** the external ID */
+  get externalId() {
+    return this.metadata.externalId
+  }
+
   /** Rfq type guard */
   isRfq(): this is Rfq {
     return this.metadata.kind === 'rfq'

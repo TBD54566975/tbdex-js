@@ -1,5 +1,5 @@
 import { VerifiableCredential } from '@web5/credentials'
-import { Close, DevTools, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import { Close, DevTools, Message, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import fs from 'fs'
 
 /**
@@ -62,7 +62,7 @@ const generateParseRfqVector = async () => {
   const rfq = Rfq.create({
     metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
     data     : {
-      offeringId  : 'abcd123',
+      offeringId  : Resource.generateId('offering'),
       payinMethod : {
         kind           : 'DEBIT_CARD',
         paymentDetails : {
@@ -96,7 +96,7 @@ const generateParseRfqVector = async () => {
 const generateParseOrderVector = async () => {
   const aliceDid = await DevTools.createDid()
   const order = Order.create({
-    metadata: { from: aliceDid.uri, to: 'did:ex:pfi', exchangeId: 'abcd123' }
+    metadata: { from: aliceDid.uri, to: 'did:ex:pfi', exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
   })
 
   await order.sign(aliceDid)
@@ -112,7 +112,7 @@ const generateParseOrderVector = async () => {
 const generateParseCloseVector = async () => {
   const pfiDid = await DevTools.createDid('dht')
   const close = Close.create({
-    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: 'abcd123' },
+    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: Message.generateId('rfq') },
     data     : {
       reason: 'The reason for closing the exchange'
     }
@@ -131,7 +131,7 @@ const generateParseCloseVector = async () => {
 const generateParseOrderStatusVector = async () => {
   const pfiDid = await DevTools.createDid()
   const orderStatus = OrderStatus.create({
-    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: 'abcd123' },
+    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: Message.generateId('rfq') },
     data     : {
       orderStatus: 'wee'
     }

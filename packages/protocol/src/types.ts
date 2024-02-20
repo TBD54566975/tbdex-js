@@ -128,6 +128,8 @@ export type MessageMetadata = {
   exchangeId: string
   /** Message creation time. Expressed as ISO8601 */
   createdAt: string
+  /** Arbitrary ID for the caller to associate with the message. Optional */
+  externalId?: string
 }
 
 /**
