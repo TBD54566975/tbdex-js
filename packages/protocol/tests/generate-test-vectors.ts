@@ -96,7 +96,7 @@ const generateParseRfqVector = async () => {
 const generateParseOrderVector = async () => {
   const aliceDid = await DevTools.createDid()
   const order = Order.create({
-    metadata: { from: aliceDid.uri, to: 'did:ex:pfi', exchangeId: Message.generateId('rfq') }
+    metadata: { from: aliceDid.uri, to: 'did:ex:pfi', exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
   })
 
   await order.sign(aliceDid)
