@@ -22,7 +22,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 400 if no request body is provided', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method: 'POST'
     })
 
@@ -37,7 +37,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 400 if request body is not a valid json object', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : '!@!#'
     })
@@ -63,7 +63,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
       }
     })
     await order.sign(aliceDid)
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(order)
     })
@@ -87,7 +87,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(rfq)
     })
@@ -115,7 +115,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     // deliberately omit await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(order)
     })
@@ -152,7 +152,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(order)
     })
@@ -204,7 +204,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(order)
     })
@@ -258,7 +258,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+    const resp = await fetch('http://localhost:8000/exchanges/order', {
       method : 'POST',
       body   : JSON.stringify(order)
     })
@@ -310,7 +310,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
       api.onSubmitOrder(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/order', {
+      const resp = await fetch('http://localhost:8000/exchanges/order', {
         method : 'POST',
         body   : JSON.stringify(order)
       })

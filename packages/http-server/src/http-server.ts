@@ -140,7 +140,7 @@ export class TbdexHttpServer {
   listen(port: number | string, callback?: () => void) {
     const { offeringsApi, exchangesApi, pfiDid } = this
 
-    this.api.post('/exchanges/:exchangeId/rfq', (req: Request, res: Response) =>
+    this.api.post('/exchanges/rfq', (req: Request, res: Response) =>
       createExchange(req, res, {
         callback: this.callbacks['rfq'],
         offeringsApi,
@@ -148,14 +148,14 @@ export class TbdexHttpServer {
       })
     )
 
-    this.api.post('/exchanges/:exchangeId/order', (req: Request, res: Response) =>
+    this.api.post('/exchanges/order', (req: Request, res: Response) =>
       submitOrder(req, res, {
         callback: this.callbacks['order'],
         exchangesApi
       })
     )
 
-    this.api.post('/exchanges/:exchangeId/close', (req: Request, res: Response) =>
+    this.api.post('/exchanges/close', (req: Request, res: Response) =>
       submitClose(req, res,{
         callback: this.callbacks.close,
         exchangesApi,

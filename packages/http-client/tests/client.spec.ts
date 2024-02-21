@@ -77,7 +77,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(pfiDid.uri)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${rfq.metadata.exchangeId}/rfq`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/rfq`)
       }
     })
 

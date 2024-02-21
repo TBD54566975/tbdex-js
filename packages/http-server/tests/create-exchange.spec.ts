@@ -23,7 +23,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if no request body is provided', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method: 'POST'
     })
 
@@ -38,7 +38,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
   })
 
   it('returns a 400 if request body is not a valid json object', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : '!@!#'
     })
@@ -59,7 +59,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq: rfq, replyTo: 'foo' })
     })
@@ -81,7 +81,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const order = await DevTools.createOrder({ sender: aliceDid, receiver: pfiDid })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq: order })
     })
@@ -103,7 +103,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     // deliberately omit rfq.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq })
     })
@@ -127,7 +127,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq })
     })
@@ -160,7 +160,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     })
     await rfq.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq })
     })
@@ -198,7 +198,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     })
     await rfq.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+    const resp = await fetch('http://localhost:8000/exchanges/rfq', {
       method : 'POST',
       body   : JSON.stringify({ rfq })
     })
@@ -303,7 +303,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     })
 
     it('returns a 202 if RFQ is accepted', async () => {
-      const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+      const resp = await fetch('http://localhost:8000/exchanges/rfq', {
         method : 'POST',
         body   : JSON.stringify({ rfq })
       })
@@ -318,7 +318,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
         })
       api.onSubmitRfq(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+      const resp = await fetch('http://localhost:8000/exchanges/rfq', {
         method : 'POST',
         body   : JSON.stringify({ rfq })
       })
@@ -343,7 +343,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
       const replyTo = 'https://tbdex.io/example'
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+      const resp = await fetch('http://localhost:8000/exchanges/rfq', {
         method : 'POST',
         body   : JSON.stringify({ rfq, replyTo })
       })

@@ -22,7 +22,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 400 if no request body is provided', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method: 'POST'
     })
 
@@ -37,7 +37,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 400 if request body is not a valid json object', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : '!@!#'
     })
@@ -57,7 +57,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     const rfq = DevTools.createRfq({
       sender: alice
     })
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(rfq)
     })
@@ -84,7 +84,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       data: {}
     })
     await close.sign(alice)
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -131,7 +131,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       data: {}
     })
     await close2.sign(alice)
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close2)
     })
@@ -170,7 +170,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
 
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -211,7 +211,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(alice)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -245,7 +245,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(pfi)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -279,7 +279,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(imposter)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/close', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -313,7 +313,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       const callbackSpy = Sinon.spy(() => Promise.resolve())
       api.onSubmitClose(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+      const resp = await fetch('http://localhost:8000/exchanges/close', {
         method : 'POST',
         body   : JSON.stringify(close)
       })
@@ -349,7 +349,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       const callbackSpy = Sinon.spy(() => Promise.resolve())
       api.onSubmitClose(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+      const resp = await fetch('http://localhost:8000/exchanges/close', {
         method : 'POST',
         body   : JSON.stringify(close)
       })

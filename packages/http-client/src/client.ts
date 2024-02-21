@@ -66,9 +66,9 @@ export class TbdexHttpClient {
 
     await message.verify()
 
-    const { to: pfiDid, exchangeId, kind } = message.metadata
+    const { to: pfiDid, kind } = message.metadata
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}/${kind}`
+    const apiRoute = `${pfiServiceEndpoint}/exchanges/${kind}`
 
     let response: Response
     try {
