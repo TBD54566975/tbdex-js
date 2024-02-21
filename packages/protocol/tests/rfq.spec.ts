@@ -429,7 +429,7 @@ describe('Rfq', () => {
       const pfi = await DevTools.createDid()
 
       const offering = Offering.create({
-        metadata : { from: pfi.did },
+        metadata : { from: pfi.uri },
         data     : offeringData,
       })
       await offering.sign(pfi)
@@ -446,8 +446,8 @@ describe('Rfq', () => {
       }
       const rfq = Rfq.create({
         metadata: {
-          from : alice.did,
-          to   : pfi.did,
+          from : alice.uri,
+          to   : pfi.uri,
         },
         data: rfqData,
       })
