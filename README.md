@@ -89,17 +89,17 @@ Prior to merging your branch into main, and given you have relevant semantic ver
 
 **You can stop here!** It is recommended to merge your branch into main with the `.changeset/*.md` files, at which point, the Changeset GitHub Action will automatically pick up those changes and open a PR to automate the `pnpm changeset version` execution. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36). This command will do two things: update the version numbers in the relevant `package.json` files & also aggregate Summary notes into the relevant `CHANGELOG.md` files. In keeping with the staged commit analogy, this is akin to the actual commit.
 
-## Cutting Releases
+## Publishing Releases
 
-When a changeset PR is merged to main we will automatically create a GitHub release using the workflow [Create GH Release](./.github/workflows/create-gh-release.yml).
+Just merge the [Version Packages PR](https://github.com/TBD54566975/tbdex-js/pulls?q=is%3Apr+author%3Aapp%2Fgithub-actions+%22Version+Packages%22+) when you are ready to publish the new versions!
+
+When these PRs are merged to main we will automatically publish to NPM and create corresponding git tags with the changelog notes, and mirror each tag to a GitHub release per package.
 
 > [!NOTE]
 >
-> This is done by detecting the merged PR branch name: `changeset-release/main`.
+> This is all achieved by the Changesets GitHub action being used in the [Release Workflow](./.github/workflows/release.yml).
 
-Also, by creating the GH release, the packages will be automatically published to npm. So this way the engineer can simply just merge the changeset PR and the new GH Release and packages version will be automagically published to npm!
-
-## Steps for a new release publish
+## Recapping the steps for a new release publish
 
 Recap of the above changesets, plus the release process:
 
@@ -107,9 +107,9 @@ Recap of the above changesets, plus the release process:
 2. `changeset-bot` will automatically [comment on the PR](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942) with a reminder & recommendations for semver
 3. Run `pnpm changeset` locally and push changes (`.changet/*.md`)
 4. Merge PR into `main`
-5. Profit from the release automation:
-   - [Create GH Release Workflow](./.github/workflows/create-gh-release.yml) will automatically create a new [GitHub Release](https://github.com/TBD54566975/tbdex-js/releases)
-   - [NPM Publish Workflow](./.github/workflows/npm-publish.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions)
+5. Profit from the automated release pipeline:
+   - [Release Workflow](./.github/workflows/release.yml) will create a new Version Package PR, or update the existing one
+   - When maintainers are ready to publish the new changes, they will merge that PR and the very same [Release Workflow](./.github/workflows/release.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions), and publish the docs to https://tbd54566975.github.io/tbdex-js/
 
 ## Working with the `tbdex` submodule
 
