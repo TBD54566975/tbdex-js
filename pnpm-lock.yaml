@@ -237,8 +237,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       typeid-js:
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.5.0
+        version: 0.5.0
     devDependencies:
       '@types/sinon':
         specifier: 17.0.2
@@ -6724,6 +6724,12 @@ packages:
       uuidv7: 0.4.4
     dev: false
 
+  /typeid-js@0.5.0:
+    resolution: {integrity: sha512-wgEWd5Ejd2gvb68y+5wWcjZmrJqPFX4rMV6Fi6CN5luzD9Wjaf9v1g3qfpGzaWahXcmlnA0cCPDP4Kr0F630xA==}
+    dependencies:
+      uuidv7: 0.6.3
+    dev: false
+
   /typescript@5.2.2:
     resolution: {integrity: sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==}
     engines: {node: '>=14.17'}
@@ -6825,6 +6831,11 @@ packages:
 
   /uuidv7@0.4.4:
     resolution: {integrity: sha512-jjRGChg03uGp9f6wQYSO8qXkweJwRbA5WRuEQE8xLIiehIzIIi23qZSzsyvZPCPoFqkeLtZuz7Plt1LGukAInA==}
+    hasBin: true
+    dev: false
+
+  /uuidv7@0.6.3:
+    resolution: {integrity: sha512-zV3eW2NlXTsun/aJ7AixxZjH/byQcH/r3J99MI0dDEkU2cJIBJxhEWUHDTpOaLPRNhebPZoeHuykYREkI9HafA==}
     hasBin: true
     dev: false
 
