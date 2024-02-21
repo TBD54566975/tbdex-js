@@ -281,6 +281,47 @@ describe('Rfq', () => {
       }
     })
 
+    it('throws an error if paymentDetails is present but offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod, // paymentDetails deliberately present
+            kind: 'CASH'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('paymentDetails must be omitted when requiredPaymentDetails is omitted')
+      }
+    })
+
+    it('succeeds if paymentDetails is omitted and offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            // paymentDetails deliberately omitted
+            kind: 'CASH'
+          }
+        }
+      })
+      await rfq.verifyOfferingRequirements(offering)
+    })
+
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -340,6 +381,79 @@ describe('Rfq', () => {
       } catch(e) {
         expect(e.message).to.include('rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails')
       }
+    })
+
+    it('accepts selected payment method if it matches one but not all of the Offerings requiredPaymentDetails of matching kind', async () => {
+      // scenario: An offering has two payin methods with kind 'card'. One payin method requires property 'cardNumber' and 'pin' in the RFQ's selected
+      //           payin method. The second payin method only requires 'cardNumber'. An RFQ has selected payin method with kind 'card' and only
+      //           payment detail 'cardNumber', so it matches the Offering's second payin method but not the first. The RFQ is valid against the offering.
+      const offeringData = DevTools.createOfferingData()
+
+      // Supply Offering with two payin methods of kind 'card'.
+      // The first requires 'cardNumber' and 'pin'. The second only requires 'cardNumber'.
+      offeringData.requiredClaims = undefined
+      offeringData.payinMethods = [
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              },
+              pin: {
+                type: 'string'
+              },
+            },
+            required             : ['cardNumber', 'pin'],
+            additionalProperties : false
+          }
+        },
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              }
+            },
+            required             : ['cardNumber'],
+            additionalProperties : false
+          }
+        }
+      ]
+
+      const pfi = await DevTools.createDid()
+
+      const offering = Offering.create({
+        metadata : { from: pfi.uri },
+        data     : offeringData,
+      })
+      await offering.sign(pfi)
+
+      // Construct RFQ with a payin method that has payin detail 'cardNumber'
+      const alice = await DevTools.createDid()
+      const rfqData = await DevTools.createRfqData()
+      rfqData.offeringId = offering.metadata.id
+      rfqData.payinMethod = {
+        kind           : 'card',
+        paymentDetails : {
+          cardNumber: '1234'
+        }
+      }
+      const rfq = Rfq.create({
+        metadata: {
+          from : alice.uri,
+          to   : pfi.uri,
+        },
+        data: rfqData,
+      })
+      await rfq.sign(alice)
+
+      await rfq.verifyOfferingRequirements(offering)
     })
   })
 
