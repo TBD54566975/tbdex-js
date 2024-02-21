@@ -72,7 +72,8 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           git checkout main
-          pnpm changeset version --snapshot next
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          pnpm changeset version --snapshot next-$SHORT_SHA
           pnpm changeset publish --no-git-tag --tag next
 
   publish-docs:
