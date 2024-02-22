@@ -308,9 +308,7 @@ export class TbdexHttpClient {
     }
 
     const signerKid = requestTokenHeader.kid!
-    const issuer = requestTokenPayload.iss!
-    const didDocument = await resolveDid(issuer)
-    const issuerDid = didDocument.id
+    const issuerDid = requestTokenPayload.iss!
 
     if (!signerKid.includes(issuerDid)) {
       throw new RequestTokenIssuerSignerMismatchError({ message: 'Request token issuer does not match signer' })
