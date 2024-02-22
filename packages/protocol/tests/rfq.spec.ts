@@ -8,9 +8,9 @@ import { expect } from 'chai'
 describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
-      const alice = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const message = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -23,51 +23,51 @@ describe('Rfq', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       expect(rfq.signature).to.not.be.undefined
       expect(typeof rfq.signature).to.equal('string')
     })
 
     it('includes alg and kid in jws header', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       const [base64UrlEncodedJwsHeader] = rfq.signature!.split('.')
       const jwsHeader: { kid?: string, alg?: string}  = Convert.base64Url(base64UrlEncodedJwsHeader).toObject()
 
-      expect(jwsHeader['kid']).to.equal(did.document.verificationMethod![0].id)
+      expect(jwsHeader['kid']).to.equal(aliceDid.document.verificationMethod![0].id)
       expect(jwsHeader['alg']).to.exist
     })
   })
 
   describe('verify', () => {
     it('does not throw an exception if message integrity is intact', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
       await rfq.verify()
     })
 
     it('throws an error if no signature is present on the message provided', async () => {
-      const alice = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: alice.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -98,13 +98,13 @@ describe('Rfq', () => {
     })
 
     it('returns an instance of Message if parsing is successful', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
-      await rfq.sign(did)
+      await rfq.sign(aliceDid)
 
       const jsonMessage = JSON.stringify(rfq)
       const parsedMessage = await Rfq.parse(jsonMessage)
@@ -134,18 +134,18 @@ describe('Rfq', () => {
     let rfqOptions: CreateRfqOptions
 
     beforeEach(async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
       offering = DevTools.createOffering()
-      const vcJwt = await vc.sign({ did })
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       rfqOptions = {
         metadata: {
@@ -157,7 +157,7 @@ describe('Rfq', () => {
           offeringId: offering.id,
         }
       }
-      rfqOptions.metadata.from = did.did
+      rfqOptions.metadata.from = aliceDid.uri
       rfqOptions.data.claims = [vcJwt]
     })
 
@@ -167,13 +167,13 @@ describe('Rfq', () => {
     })
 
     it('succeeds if Rfq satisfies required payin amount and Offering has no required claims', async () => {
-      const pfi = await DevTools.createDid()
+      const pfi = await DevTools.createDid('dht')
 
       const offeringData = DevTools.createOfferingData()
       offeringData.requiredClaims = undefined
       const offering = Offering.create({
         metadata: {
-          from: pfi.did
+          from: pfi.uri
         },
         data: offeringData
       })
@@ -281,6 +281,47 @@ describe('Rfq', () => {
       }
     })
 
+    it('throws an error if paymentDetails is present but offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            ...rfqOptions.data.payinMethod, // paymentDetails deliberately present
+            kind: 'CASH'
+          }
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('paymentDetails must be omitted when requiredPaymentDetails is omitted')
+      }
+    })
+
+    it('succeeds if paymentDetails is omitted and offering\'s requiredPaymentDetails is omitted', async () => {
+      offering.data.payinMethods = [{
+        kind: 'CASH',
+        // requiredPaymentDetails deliberately omitted
+      }]
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          payinMethod: {
+            // paymentDetails deliberately omitted
+            kind: 'CASH'
+          }
+        }
+      })
+      await rfq.verifyOfferingRequirements(offering)
+    })
+
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
       const rfq = Rfq.create({
         ...rfqOptions,
@@ -341,28 +382,101 @@ describe('Rfq', () => {
         expect(e.message).to.include('rfq payoutMethod paymentDetails could not be validated against offering requiredPaymentDetails')
       }
     })
+
+    it('accepts selected payment method if it matches one but not all of the Offerings requiredPaymentDetails of matching kind', async () => {
+      // scenario: An offering has two payin methods with kind 'card'. One payin method requires property 'cardNumber' and 'pin' in the RFQ's selected
+      //           payin method. The second payin method only requires 'cardNumber'. An RFQ has selected payin method with kind 'card' and only
+      //           payment detail 'cardNumber', so it matches the Offering's second payin method but not the first. The RFQ is valid against the offering.
+      const offeringData = DevTools.createOfferingData()
+
+      // Supply Offering with two payin methods of kind 'card'.
+      // The first requires 'cardNumber' and 'pin'. The second only requires 'cardNumber'.
+      offeringData.requiredClaims = undefined
+      offeringData.payinMethods = [
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              },
+              pin: {
+                type: 'string'
+              },
+            },
+            required             : ['cardNumber', 'pin'],
+            additionalProperties : false
+          }
+        },
+        {
+          kind                   : 'card',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type: 'string'
+              }
+            },
+            required             : ['cardNumber'],
+            additionalProperties : false
+          }
+        }
+      ]
+
+      const pfi = await DevTools.createDid()
+
+      const offering = Offering.create({
+        metadata : { from: pfi.uri },
+        data     : offeringData,
+      })
+      await offering.sign(pfi)
+
+      // Construct RFQ with a payin method that has payin detail 'cardNumber'
+      const alice = await DevTools.createDid()
+      const rfqData = await DevTools.createRfqData()
+      rfqData.offeringId = offering.metadata.id
+      rfqData.payinMethod = {
+        kind           : 'card',
+        paymentDetails : {
+          cardNumber: '1234'
+        }
+      }
+      const rfq = Rfq.create({
+        metadata: {
+          from : alice.uri,
+          to   : pfi.uri,
+        },
+        data: rfqData,
+      })
+      await rfq.sign(alice)
+
+      await rfq.verifyOfferingRequirements(offering)
+    })
   })
 
   describe('verifyClaims', () => {
     it(`does not throw an exception if an rfq's claims fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
         type    : 'SanctionsCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
-      const vcJwt = await vc.sign({ did })
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       const rfqData = await DevTools.createRfqData()
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
@@ -370,24 +484,24 @@ describe('Rfq', () => {
     })
 
     it(`throws an exception if an rfq's claims dont fulfill the provided offering's requirements`, async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({
         type    : 'PuupuuCredential',
-        issuer  : did.did,
-        subject : did.did,
+        issuer  : aliceDid.uri,
+        subject : aliceDid.uri,
         data    : {
           'beep': 'boop'
         }
       })
 
-      const vcJwt = await vc.sign({ did})
+      const vcJwt = await vc.sign({ did: aliceDid })
 
       const rfqData = await DevTools.createRfqData()
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: did.did, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 

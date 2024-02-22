@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { DidDhtMethod, DidKeyMethod, PortableDid } from '@web5/dids'
+import { DidDht, DidJwk, BearerDid } from '@web5/dids'
 import { TbdexHttpClient, requestTokenRequiredClaims } from '../src/client.js'
 import {
   RequestError,ResponseError,
@@ -13,18 +13,21 @@ import {
 } from '../src/errors/index.js'
 import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
-import { JwtHeaderParams, JwtPayload, PrivateKeyJwk, Secp256k1 } from '@web5/crypto'
+import { JwtHeaderParams, JwtPayload } from '@web5/crypto'
 import { Convert } from '@web5/common'
 import { Jwt } from '@web5/credentials'
 
-const dhtDid = await DidDhtMethod.create({
-  publish  : true,
-  services : [{
-    type            : 'PFI',
-    id              : 'pfi',
-    serviceEndpoint : 'https://localhost:9000'
-  }]
+const pfiDid: BearerDid = await DidDht.create({
+  options: {
+    services: [{
+      type            : 'PFI',
+      id              : 'pfi',
+      serviceEndpoint : 'https://localhost:9000'
+    }]
+  }
 })
+
+const aliceDid: BearerDid = await DidJwk.create()
 
 // TODO : Instead of stubbing fetch, consider using libraries like msw
 const fetchStub = sinon.stub(globalThis, 'fetch')
@@ -34,13 +37,6 @@ describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('sendMessage', () => {
-    let aliceDid: PortableDid
-    let pfiDid: PortableDid
-
-    beforeEach(async () => {
-      aliceDid = await DevTools.createDid()
-      pfiDid = await DevTools.createDid()
-    })
 
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
@@ -81,7 +77,7 @@ describe('client', () => {
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(pfiDid.did)
+        expect(e.recipientDid).to.equal(pfiDid.uri)
         expect(e.url).to.equal(`https://localhost:9000/exchanges/${rfq.metadata.exchangeId}/rfq`)
       }
     })
@@ -125,7 +121,7 @@ describe('client', () => {
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
       try {
-        await TbdexHttpClient.getOfferings({ pfiDid: dhtDid.did })
+        await TbdexHttpClient.getOfferings({ pfiDid: pfiDid.uri })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -146,14 +142,14 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.getOfferings({ pfiDid: dhtDid.did })
+        await TbdexHttpClient.getOfferings({ pfiDid: pfiDid.uri })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.recipientDid).to.equal(pfiDid.uri)
         expect(e.url).to.equal('https://localhost:9000/offerings')
       }
     })
@@ -164,7 +160,7 @@ describe('client', () => {
         json : () => Promise.resolve({ data: [] })
       } as Response)
 
-      const offerings = await TbdexHttpClient.getOfferings({ pfiDid: dhtDid.did })
+      const offerings = await TbdexHttpClient.getOfferings({ pfiDid: pfiDid.uri })
       expect(offerings).to.have.length(0)
     })
   })
@@ -175,7 +171,7 @@ describe('client', () => {
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
       try {
-        await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+        await TbdexHttpClient.getExchange({ pfiDid: pfiDid.uri, exchangeId: '123', did: pfiDid })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -196,14 +192,14 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+        await TbdexHttpClient.getExchange({ pfiDid: pfiDid.uri, exchangeId: '123', did: pfiDid })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.recipientDid).to.equal(pfiDid.uri)
         expect(e.url).to.equal('https://localhost:9000/exchanges/123')
       }
     })
@@ -214,7 +210,7 @@ describe('client', () => {
         json : () => Promise.resolve({ data: [] })
       } as Response)
 
-      const exchanges = await TbdexHttpClient.getExchange({ pfiDid: dhtDid.did, exchangeId: '123', did: dhtDid })
+      const exchanges = await TbdexHttpClient.getExchange({ pfiDid: pfiDid.uri, exchangeId: '123', did: pfiDid })
       expect(exchanges).to.have.length(0)
     })
   })
@@ -225,7 +221,7 @@ describe('client', () => {
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
       try {
-        await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+        await TbdexHttpClient.getExchanges({ pfiDid: pfiDid.uri, did: pfiDid })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -246,14 +242,14 @@ describe('client', () => {
       } as Response)
 
       try {
-        await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+        await TbdexHttpClient.getExchanges({ pfiDid: pfiDid.uri, did: pfiDid })
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
         expect(e).to.be.instanceof(ResponseError)
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
-        expect(e.recipientDid).to.equal(dhtDid.did)
+        expect(e.recipientDid).to.equal(pfiDid.uri)
         expect(e.url).to.equal('https://localhost:9000/exchanges')
       }
     })
@@ -264,7 +260,7 @@ describe('client', () => {
         json : () => Promise.resolve({ data: [] })
       } as Response)
 
-      const exchanges = await TbdexHttpClient.getExchanges({ pfiDid: dhtDid.did, did: dhtDid })
+      const exchanges = await TbdexHttpClient.getExchanges({ pfiDid: pfiDid.uri, did: pfiDid })
       expect(exchanges).to.have.length(0)
     })
   })
@@ -286,10 +282,8 @@ describe('client', () => {
       }
     })
     it('throws MissingServiceEndpointError if did has no PFI service endpoint', async () => {
-      const keyDid = await DidKeyMethod.create()
-
       try {
-        await TbdexHttpClient.getPfiServiceEndpoint(keyDid.did)
+        await TbdexHttpClient.getPfiServiceEndpoint(aliceDid.uri)
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('MissingServiceEndpointError')
@@ -298,75 +292,83 @@ describe('client', () => {
       }
     })
     it('returns pfi service endpoint if all is well', async () => {
-      const serviceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(dhtDid.did)
+      const serviceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid.uri)
       expect(serviceEndpoint).to.equal('https://localhost:9000')
     })
   })
 
   describe('generateRequestToken', () => {
-    let requesterPortableDid: PortableDid
+    let requesterBearerDid: BearerDid
     before(async () => {
-      requesterPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
-    })
-    it('throws a RequestTokenSigningError if requesterDid is not a valid PortableDid', async () => {
-      try {
-        await TbdexHttpClient.generateRequestToken({ requesterDid: {did: '', document: { id: '' }, keySet: {}}, pfiDid: '' })
-        expect.fail()
-      } catch (e) {
-        expect(e).to.be.instanceOf(RequestTokenSigningError)
-      }
+      requesterBearerDid = await DidJwk.create()
     })
     it('includes all expected claims', async () => {
-      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterBearerDid, pfiDid: 'did:key:1234' })
       const decodedToken = await Jwt.verify({ jwt: requestToken })
       expect(decodedToken.payload).to.have.all.keys(requestTokenRequiredClaims)
     })
     // TODO: decide if we want to ensure that the expiration date is not longer than 1 minute after the issuance date
     it('sets expiration seconds to 1 minute after the time at which it was issued', async () => {
-      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterPortableDid, pfiDid: 'did:key:1234' })
+      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: requesterBearerDid, pfiDid: 'did:key:1234' })
       const decodedToken = await Jwt.verify({ jwt: requestToken })
       expect(decodedToken.payload.exp! - decodedToken.payload.iat!).to.equal(60)
     })
   })
 
   describe('verifyRequestToken', () => {
-    let pfiPortableDid: PortableDid
-    let alicePortableDid: PortableDid
+    let pfiBearerDid: BearerDid
+    let aliceBearerDid: BearerDid
     let header: JwtHeaderParams
     let payload: JwtPayload
 
-    async function createRequestTokenFromPayload(payload: JwtPayload) {
-      const privateKeyJwk = alicePortableDid.keySet.verificationMethodKeys![0].privateKeyJwk
+    /*
+    ** helper function to help alice generate a valid request token to send to a pfi
+    */
+    async function createAndSignRequestToken(payload: JwtPayload) {
+      const signer = await aliceBearerDid.getSigner()
+      header = { typ: 'JWT', alg: signer.algorithm, kid: signer.keyId }
       const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
       const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
 
       const toSign = `${base64UrlEncodedHeader}.${base64UrlEncodedPayload}`
       const toSignBytes = Convert.string(toSign).toUint8Array()
-      const signatureBytes = await Secp256k1.sign({ key: privateKeyJwk as PrivateKeyJwk, data: toSignBytes })
+      const signatureBytes = await signer.sign({ data: toSignBytes })
       const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
       return `${toSign}.${base64UrlEncodedSignature}`
     }
 
     before(async () => {
-      pfiPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
-      alicePortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
-      header = { typ: 'JWT', alg: 'ES256K', kid: alicePortableDid.document.verificationMethod![0].id }
+      pfiBearerDid = await DidDht.create()
+      aliceBearerDid = await DidDht.create()
+      header = { typ: 'JWT', alg: 'ES256K', kid: aliceBearerDid.document.verificationMethod![0].id }
     })
 
     beforeEach(() => {
       payload = {
         iat : Math.floor(Date.now() / 1000),
-        aud : pfiPortableDid.did,
-        iss : alicePortableDid.did,
+        aud : pfiBearerDid.uri,
+        iss : aliceBearerDid.uri,
         exp : Math.floor(Date.now() / 1000 + 60),
         jti : 'randomnonce'
       }
     })
 
+    it('throws a RequestTokenSigningError if token cannot be signed', async () => {
+      const jwtSigner = sinon.stub(Jwt, 'sign')
+      jwtSigner.throws()
+      try {
+        await TbdexHttpClient.generateRequestToken({ requesterDid: aliceBearerDid, pfiDid: ''})
+        expect.fail()
+      } catch (e) {
+        expect(e).to.be.instanceOf(RequestTokenSigningError)
+      }
+      jwtSigner.restore()
+    })
+
     it('throws RequestTokenVerificationError if request token is not a valid jwt', async () => {
       try {
-        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiPortableDid.did })
+        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiBearerDid.uri })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenVerificationError)
@@ -377,8 +379,8 @@ describe('client', () => {
         const initialClaim = payload[claim]
         try {
           delete payload[claim]
-          const requestToken = await createRequestTokenFromPayload(payload)
-          await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+          const requestToken = await createAndSignRequestToken(payload)
+          await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
           expect.fail()
         } catch(e) {
           expect(e).to.be.instanceof(RequestTokenMissingClaimsError)
@@ -390,8 +392,8 @@ describe('client', () => {
     it('throws RequestTokenAudienceMismatchError if aud claim does not match pfi did', async () => {
       try {
         payload.aud = 'squirtle'
-        const requestToken = await createRequestTokenFromPayload(payload)
-        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+        const requestToken = await createAndSignRequestToken(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenAudienceMismatchError)
@@ -400,10 +402,10 @@ describe('client', () => {
     })
     it('throws RequestTokenIssuerSignerMismatchError if iss claim does not match kid header', async () => {
       try {
-        const bobPortableDid = await DidKeyMethod.create({ keyAlgorithm: 'secp256k1' })
-        payload.iss = bobPortableDid.did
-        const requestToken = await createRequestTokenFromPayload(payload)
-        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
+        const bobBearerDid = await DidDht.create()
+        payload.iss = bobBearerDid.uri
+        const requestToken = await createAndSignRequestToken(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenIssuerSignerMismatchError)
@@ -411,9 +413,9 @@ describe('client', () => {
       }
     })
     it('returns requester\'s DID if request token is valid', async () => {
-      const requestToken = await createRequestTokenFromPayload(payload)
-      const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiPortableDid.did })
-      expect(iss).to.equal(alicePortableDid.did)
+      const requestToken = await createAndSignRequestToken(payload)
+      const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
+      expect(iss).to.equal(aliceBearerDid.uri)
     })
   })
 })

@@ -1,22 +1,20 @@
 import type {
-  CryptoAlgorithm,
-  Web5Crypto,
   JwsHeaderParams,
-  JwkParamsEcPrivate,
-  JwkParamsOkpPrivate,
   JwkParamsEcPublic,
   JwkParamsOkpPublic,
   PrivateKeyJwk,
-  PublicKeyJwk
+  PublicKeyJwk,
 } from '@web5/crypto'
 
 import { sha256 } from '@noble/hashes/sha256'
 import { Convert } from '@web5/common'
-import { EcdsaAlgorithm, EdDsaAlgorithm } from '@web5/crypto'
+import { LocalKeyManager } from '@web5/crypto'
 import { DidResolver, isVerificationMethod } from './did-resolver.js'
 
 import canonicalize from 'canonicalize'
-import { PortableDid, VerificationMethod } from '@web5/dids'
+import { BearerDid, DidVerificationMethod } from '@web5/dids'
+
+const keyManager = new LocalKeyManager()
 
 /**
  * Options passed to {@link Crypto.sign}
@@ -28,7 +26,7 @@ export type SignOptions = {
   /** The payload to be signed. */
   payload: Uint8Array,
   /** the DID to sign with */
-  did: PortableDid,
+  did: BearerDid,
 }
 
 /**
@@ -42,43 +40,10 @@ export type VerifyOptions = {
 }
 
 /**
- * Used as value for each supported named curved listed in {@link Crypto.algorithms}
- * @beta
- */
-type SignerValue<T extends Web5Crypto.Algorithm> = {
-  signer: CryptoAlgorithm,
-  options: T,
-  alg: JwsHeader['alg'],
-  crv: JsonWebKey['crv']
-}
-
-const secp256k1Signer: SignerValue<Web5Crypto.EcdsaOptions> = {
-  signer  : new EcdsaAlgorithm(),
-  options : { name: 'ECDSA' },
-  alg     : 'ES256K',
-  crv     : 'secp256k1'
-}
-
-const ed25519Signer: SignerValue<Web5Crypto.EdDsaOptions> = {
-  signer  : new EdDsaAlgorithm(),
-  options : { name: 'EdDSA' },
-  alg     : 'EdDSA',
-  crv     : 'Ed25519'
-}
-
-/**
  * Cryptographic utility functions, such as hashing, signing, and verifying
  * @beta
  */
 export class Crypto {
-  /** supported cryptographic algorithms. keys are `${alg}:${crv}`. */
-  static algorithms: { [alg: string]: SignerValue<Web5Crypto.EcdsaOptions | Web5Crypto.EdDsaOptions> } = {
-    'ES256K:'          : secp256k1Signer,
-    'ES256K:secp256k1' : secp256k1Signer,
-    ':secp256k1'       : secp256k1Signer,
-    'EdDSA:Ed25519'    : ed25519Signer
-  }
-
   /**
    * Computes a digest of the payload by:
    * * JSON serializing the payload as per [RFC-8785: JSON Canonicalization Scheme](https://www.rfc-editor.org/rfc/rfc8785)
@@ -104,30 +69,23 @@ export class Crypto {
   static async sign(opts: SignOptions) {
     const { did, payload, detached } = opts
 
-    const privateKeyJwk = did.keySet.verificationMethodKeys?.[0]?.privateKeyJwk as JwkParamsEcPrivate | JwkParamsOkpPrivate
+    const signer = await did.getSigner()
 
-    const algorithmName = privateKeyJwk?.['alg'] || ''
-    let namedCurve = Crypto.extractNamedCurve(privateKeyJwk)
-    const algorithmId = `${algorithmName}:${namedCurve}`
-
-    const algorithm = this.algorithms[algorithmId]
-    if (!algorithm) {
-      throw new Error(`Algorithm (${algorithmId}) not supported`)
-    }
-
-    let verificationMethodId = did.document.verificationMethod?.[0]?.id || ''
+    let verificationMethodId = signer.keyId
     if (verificationMethodId.startsWith('#')) {
-      verificationMethodId = `${did.did}${verificationMethodId}`
+      verificationMethodId = `${did.uri}${verificationMethodId}`
     }
 
-    const jwsHeader: JwsHeader = { alg: algorithm.alg, kid: verificationMethodId }
+
+
+    const jwsHeader: JwsHeader = { alg: signer.algorithm, kid: verificationMethodId }
     const base64UrlEncodedJwsHeader = Convert.object(jwsHeader).toBase64Url()
     const base64urlEncodedJwsPayload = Convert.uint8Array(payload).toBase64Url()
 
     const toSign = `${base64UrlEncodedJwsHeader}.${base64urlEncodedJwsPayload}`
     const toSignBytes = Convert.string(toSign).toUint8Array()
 
-    const signatureBytes = await algorithm.signer.sign({ key: privateKeyJwk, data: toSignBytes, algorithm: algorithm.options })
+    const signatureBytes = await signer.sign({ data: toSignBytes })
     const base64UrlEncodedSignature = Convert.uint8Array(signatureBytes).toBase64Url()
 
     if (detached) {
@@ -171,9 +129,9 @@ export class Crypto {
       throw new Error('Signature verification failed: Expected JWS header to contain alg and kid')
     }
 
-    const dereferenceResult = await DidResolver.dereference({ didUrl: jwsHeader.kid })
+    const dereferenceResult = await DidResolver.dereference(jwsHeader.kid)
 
-    const verificationMethod = dereferenceResult.contentStream as VerificationMethod
+    const verificationMethod = dereferenceResult.contentStream as DidVerificationMethod
     if (!isVerificationMethod(verificationMethod)) { // ensure that appropriate verification method was found
       throw new Error('Signature verification failed: Expected kid in JWS header to dereference to a DID Document Verification Method')
     }
@@ -190,10 +148,7 @@ export class Crypto {
 
     const signatureBytes = Convert.base64Url(base64UrlEncodedSignature).toUint8Array()
 
-    const algorithmId = `${jwsHeader['alg']}:${Crypto.extractNamedCurve(publicKeyJwk)}`
-    const { signer, options } = Crypto.algorithms[algorithmId]
-
-    const isLegit = await signer.verify({ algorithm: options, key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
+    const isLegit = await keyManager.verify({ key: publicKeyJwk, data: signedDataBytes, signature: signatureBytes })
 
     if (!isLegit) {
       throw new Error('Signature verification failed: Integrity mismatch')

@@ -1,6 +1,5 @@
 import type { Request, Response } from 'express'
-import type { Close, Message, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
-import type { ErrorDetail } from '@tbdex/http-client'
+import type { Close, Exchange, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
 
 /**
  * Callback handler for GetExchanges requests
@@ -18,7 +17,7 @@ export type GetOfferingsCallback = (ctx: RequestContext, filter: GetOfferingsFil
  * Callback handler for the SubmitRfq requests
  * @beta
  */
-export type SubmitRfqCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering }) => Promise<void>
+export type SubmitRfqCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering, replyTo?: string }) => Promise<void>
 
 /**
  * Callback handler for the SubmitOrder requests
@@ -42,6 +41,12 @@ export type GetOfferingsFilter = {
 
   /** Currency that the PFI is selling - ISO 3166 currency code string */
   payoutCurrency?: string
+
+  /** The payin method used to pay money to the PFI */
+  payinMethodKind?: string
+
+  /** The payout method to receive money from the PFI  */
+  payoutMethodKind?: string
 
   /** Offering ID */
   id?: string
@@ -70,12 +75,6 @@ export type RequestContext = {
 }
 
 /**
- * Type alias for the request handler
- * @beta
- */
-export type RequestHandler = (request: Request, response: Response<{ errors?: ErrorDetail[], data?: any }>) => any
-
-/**
  * PFI Offerings API
  * @beta
  */
@@ -88,7 +87,7 @@ export interface OfferingsApi {
   /**
    * Retrieve a list of offerings based on the given filter
    */
-  getOfferings(opts?: { filter: GetOfferingsFilter }): Promise<Offering[] | undefined>
+  getOfferings(opts?: { filter: GetOfferingsFilter }): Promise<Offering[]>
 }
 
 /**
@@ -99,12 +98,12 @@ export interface ExchangesApi {
   /**
    * Retrieve a list of exchanges based on the given filter
    */
-  getExchanges(opts?: { filter: GetExchangesFilter }): Promise<Message[][] | undefined>
+  getExchanges(opts?: { filter: GetExchangesFilter }): Promise<Exchange[]>
 
   /**
    * Retrieve a single exchange if found
    */
-  getExchange(opts: { id: string }): Promise<Message[] | undefined>
+  getExchange(opts: { id: string }): Promise<Exchange | undefined>
 
   /**
    * Retrieve a RFQ if found
@@ -122,12 +121,12 @@ export interface ExchangesApi {
   getOrder(opts: { exchangeId: string }): Promise<Order | undefined>
 
   /**
-   * Retrieve the order statuses if found
+   * Retrieve the OrderStatuses if found
    */
-  getOrderStatuses(opts: { exchangeId: string }): Promise<OrderStatus[] | undefined>
+  getOrderStatuses(opts: { exchangeId: string }): Promise<OrderStatus[]>
 
   /**
-   * Retrieve the close reason if found
+   * Retrieve the Close reason if found
    */
   getClose(opts: { exchangeId: string }): Promise<Close | undefined>
 }

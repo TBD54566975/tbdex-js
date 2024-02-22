@@ -4,9 +4,9 @@ import { DevTools, Parser } from '../src/main.js'
 describe('Parser', () => {
   describe('parseMessage', async () => {
     it('throws if an unrecognized message kind is passed', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const unrecognizedMessageKind = {
-        metadata  : { from: did.did, to: 'did:ex:pfi' },
+        metadata  : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data      : {},
         signature : '1234',
       }
@@ -24,9 +24,9 @@ describe('Parser', () => {
 
   describe('parseResource', async () => {
     it('throws if an unrecognized resource kind is passed', async () => {
-      const did = await DevTools.createDid()
+      const aliceDid = await DevTools.createDid()
       const unrecognizedResourceKind = {
-        metadata  : { from: did.did, to: 'did:ex:pfi' },
+        metadata  : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data      : {},
         signature : '1234',
       }

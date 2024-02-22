@@ -1,28 +1,86 @@
-import type { Offering } from '@tbdex/protocol'
+import { DevTools, Offering } from '@tbdex/protocol'
 import type { Server } from 'http'
 
-import { TbdexHttpServer } from '../src/main.js'
+import { GetOfferingsFilter, RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
-
-let api = new TbdexHttpServer()
-let server: Server
+import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
+import Sinon from 'sinon'
 
 describe('GET /offerings', () => {
-  before(() => {
+  let api: TbdexHttpServer
+  let server: Server
+
+  beforeEach(() => {
+    api =  new TbdexHttpServer()
     server = api.listen(8000)
   })
 
-  after(() => {
+  afterEach(() => {
     server.close()
     server.closeAllConnections()
   })
 
   it('returns an array of offerings', async () => {
+    const pfiDid = await DevTools.createDid()
+    const offering = DevTools.createOffering()
+    await offering.sign(pfiDid);
+    (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
+
     const response = await fetch('http://localhost:8000/offerings')
     expect(response.status).to.equal(200)
 
-    const respaunzBody = await response.json() as { data: Offering[] }
-    expect(respaunzBody.data).to.exist
-    expect(respaunzBody.data.length).to.equal(1)
+    const responseBody = await response.json() as { data: Offering[] }
+    expect(responseBody.data).to.exist
+    expect(responseBody.data.length).to.equal(1)
+    expect(responseBody.data[0]).to.deep.eq(offering.toJSON())
+  })
+
+  it('constructs the filter from query params and passes it to OfferingsApi', async () => {
+    const pfiDid = await DevTools.createDid()
+
+    // Add an offering to OfferingsApi
+    const offering = DevTools.createOffering()
+    await offering.sign(pfiDid);
+    (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
+
+    // Set up spy
+    const exchangesApiSpy = Sinon.spy(api.offeringsApi, 'getOfferings')
+
+    // Specify query params
+    const queryParams: GetOfferingsFilter = {
+      id               : offering.metadata.id,
+      payinCurrency    : offering.data.payinCurrency.currencyCode,
+      payoutCurrency   : offering.data.payoutCurrency.currencyCode,
+      payinMethodKind  : offering.data.payinMethods[0].kind,
+      payoutMethodKind : offering.data.payoutMethods[0].kind
+    }
+    const queryParamsString: string =
+      Object.entries(queryParams)
+        .map(([k, v]) => `${k}=${v}`)
+        .join('&')
+
+
+    const response = await fetch(`http://localhost:8000/offerings?${queryParamsString}`)
+
+    expect(response.status).to.equal(200)
+
+    expect(exchangesApiSpy.calledOnce).to.be.true
+    expect(exchangesApiSpy.firstCall.args[0]?.filter).to.deep.eq(queryParams)
+  })
+
+  it('calls the callback if it is provided', async () => {
+    const pfiDid = await DevTools.createDid()
+    const offering = DevTools.createOffering()
+    await offering.sign(pfiDid);
+    (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
+
+    const callbackSpy = Sinon.spy((_ctx: RequestContext, _filter: GetOfferingsFilter) => Promise.resolve())
+    api.onGetOfferings(callbackSpy)
+
+    const response = await fetch('http://localhost:8000/offerings?filter=')
+    expect(response.status).to.equal(200)
+
+    expect(callbackSpy.callCount).to.eq(1)
+    // TODO: Check what arguments are passed to callback after we finalize its behavior
   })
 })

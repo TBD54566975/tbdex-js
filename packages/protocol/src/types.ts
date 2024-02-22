@@ -95,7 +95,7 @@ export type PaymentMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
   /** A JSON Schema containing the fields that need to be collected in order to use this payment method */
-  requiredPaymentDetails: JsonSchema
+  requiredPaymentDetails?: JsonSchema
 }
 
 /**
@@ -128,6 +128,8 @@ export type MessageMetadata = {
   exchangeId: string
   /** Message creation time. Expressed as ISO8601 */
   createdAt: string
+  /** Arbitrary ID for the caller to associate with the message. Optional */
+  externalId?: string
 }
 
 /**

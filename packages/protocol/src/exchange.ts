@@ -21,11 +21,13 @@ export class Exchange {
   /** Message sent by Alice to the PFI to accept a quote*/
   order: Order | undefined
   /** Message sent by the PFI to Alice to convet the current status of the order */
-  orderstatus: OrderStatus | undefined
+  orderstatus: OrderStatus[]
   /** Message sent by either the PFI or Alice to terminate an exchange */
   close: Close | undefined
 
-  constructor() {}
+  constructor() {
+    this.orderstatus = []
+  }
 
   /**
    * Add a list of unsorted messages to an exchange.
@@ -73,7 +75,7 @@ export class Exchange {
     } else if (message.isOrder()) {
       this.order = message
     } else if (message.isOrderStatus()) {
-      this.orderstatus = message
+      this.orderstatus.push(message)
     } else {
       // Unreachable
       throw new Error('Unrecognized message kind')
@@ -95,7 +97,7 @@ export class Exchange {
    */
   get latestMessage(): Message | undefined {
     return this.close ??
-           this.orderstatus ??
+           this.orderstatus[this.orderstatus.length - 1] ??
            this.order ??
            this.quote ??
            this.rfq
@@ -116,7 +118,7 @@ export class Exchange {
       this.rfq,
       this.quote,
       this.order,
-      this.orderstatus,
+      ...this.orderstatus,
       this.close
     ]
     return allPossibleMessages.filter((message): message is Message => message !== undefined)
