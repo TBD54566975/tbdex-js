@@ -427,7 +427,7 @@ describe('Rfq', () => {
         }
       ]
 
-      const pfi = await DevTools.createDid()
+      const pfi = await DidJwk.create()
 
       const offering = Offering.create({
         metadata : { from: pfi.uri },
@@ -436,7 +436,7 @@ describe('Rfq', () => {
       await offering.sign(pfi)
 
       // Construct RFQ with a payin method that has payin detail 'cardNumber'
-      const alice = await DevTools.createDid()
+      const alice = await DidJwk.create()
       const rfqData = await DevTools.createRfqData()
       rfqData.offeringId = offering.metadata.id
       rfqData.payinMethod = {
