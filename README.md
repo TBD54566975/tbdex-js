@@ -29,32 +29,15 @@ We recommend this config which will only checkout the files relevant to tbdex-js
 git -C tbdex sparse-checkout set hosted
 ```
 
-### `node`
+### Hermit
+This project uses hermit to manage tooling like node. See [this page](https://cashapp.github.io/hermit/usage/get-started/) to set up Hermit on your machine - make sure to download the open source build and activate it for the project
 
-This project is using `node v20.3.0`. You can verify your `node` and `npm` installation via the terminal:
+Currently, we have these packages installed via Hermit (can also view by checking out `hermit status`):
+- node 
+- pnpm
 
-```
-$ node --version
-v20.3.0
-```
-
-If you don't have `node` installed, Feel free to choose whichever approach you feel the most comfortable with. If you don't have a preferred installation method, we recommend using `nvm` (aka [node version manager](https://github.com/nvm-sh/nvm)). `nvm` allows you to install and use different versions of node. It can be installed by running `brew install nvm` (assuming that you have homebrew)
-
-Once you have installed `nvm`, install the desired node version with `nvm install vX.Y.Z`. After installation, you may run `nvm use` to automatically tell `nvm` which `node` version to use (this will be picked up from the target version noted in `.nvmrc`):
-
-```
-$> nvm use
-Found '/Users/.../TBD54566975/tbdex-js/packages/protocol/.nvmrc' with version <v20.3.0>
-Now using node v20.3.0 (npm v9.6.7)
-```
-
-### [`pnpm`](https://pnpm.io/)
-
-If you don't have `pnpm` installed, choose whichever approach you feel most comfortable with [here](https://pnpm.io/installation)
-
-> [!NOTE]
->
-> it's possible that this project may work with `npm` as well but it's not guaranteed.
+You can run `hermit upgrade {package}` to upgrade an existing package, or `hermit install {package}` to install a new package. 
+Please see [Hermit package management page](https://cashapp.github.io/hermit/usage/management/) for more details.
 
 ## Running Tests
 
@@ -79,37 +62,23 @@ If you don't have `pnpm` installed, choose whichever approach you feel most comf
 | `pnpm lint:fix`     | runs linter and applies automatic fixes wherever possible |
 | `pnpm build`        | builds all distributions and dumps them into `dist`       |
 
-## Changesets
+## Publishing a new release
 
-This project uses [Changesets](https://github.com/changesets/changesets) for semver management. For motivations, see [PR description here](https://github.com/TBD54566975/tbdex-js/pull/30#issue-1910447620).
+This project uses [Changesets](https://github.com/changesets/changesets) for semver management and releases. For motivations, see [PR description here](https://github.com/TBD54566975/tbdex-js/pull/30#issue-1910447620).
 
-Upon opening a Pull Request, the `changeset-bot` will automatically comment ([example](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942)) on the PR with a reminder & recommendations for managing the changeset for the given changes.
+Release workflow:
 
-Prior to merging your branch into main, and given you have relevant semantic versioning changes, then you should run `pnpm changeset` locally. The CLI tool will walk you through a set of steps for you to define the semantic changes. This will create a randomly-named (and funnily-named) markdown file within the `.changeset/` directory. For example, see the `.changeset/sixty-tables-cheat.md` file on [this PR](https://github.com/TBD54566975/tbdex-js/pull/35/files). There is an analogy to staging a commit (using `git add`) for these markdown files, in that, they exist so that the developer can codify the semantic changes made but they don't actually update the semantic version.
-
-**You can stop here!** It is recommended to merge your branch into main with the `.changeset/*.md` files, at which point, the Changeset GitHub Action will automatically pick up those changes and open a PR to automate the `pnpm changeset version` execution. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36). This command will do two things: update the version numbers in the relevant `package.json` files & also aggregate Summary notes into the relevant `CHANGELOG.md` files. In keeping with the staged commit analogy, this is akin to the actual commit.
-
-## Publishing Releases
-
-Just merge the [Version Packages PR](https://github.com/TBD54566975/tbdex-js/pulls?q=is%3Apr+author%3Aapp%2Fgithub-actions+%22Version+Packages%22+) when you are ready to publish the new versions!
-
-When these PRs are merged to main we will automatically publish to NPM and create corresponding git tags with the changelog notes, and mirror each tag to a GitHub release per package.
+1. Open a PR
+2. `changeset-bot` will automatically [comment on the PR](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942) with a reminder & recommendations for semver
+3. Run `pnpm changeset` locally and push changes (`.changet/*.md`).  The CLI tool will walk you through a set of steps for you to define the semantic changes and create a randomly-named markdown file within `.changeset/`.
+4. Merge PR into `main`.
+5. Profit from the automated release pipeline:
+   - [Release Workflow](./.github/workflows/release.yml) will create a new Version Package PR, or update the existing one. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36). This PR updates the version numbers in the relevant `package.json` files & also aggregates the Summary notes into the relevant `CHANGELOG.md` files.
+   - When maintainers are ready to publish the new changes, they will merge that PR and the very same [Release Workflow](./.github/workflows/release.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions), and publish the docs to https://tbd54566975.github.io/tbdex-js/
 
 > [!NOTE]
 >
 > This is all achieved by the Changesets GitHub action being used in the [Release Workflow](./.github/workflows/release.yml).
-
-## Recapping the steps for a new release publish
-
-Recap of the above changesets, plus the release process:
-
-1. Open a PR
-2. `changeset-bot` will automatically [comment on the PR](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942) with a reminder & recommendations for semver
-3. Run `pnpm changeset` locally and push changes (`.changet/*.md`)
-4. Merge PR into `main`
-5. Profit from the automated release pipeline:
-   - [Release Workflow](./.github/workflows/release.yml) will create a new Version Package PR, or update the existing one
-   - When maintainers are ready to publish the new changes, they will merge that PR and the very same [Release Workflow](./.github/workflows/release.yml) will automatically publish a [new version to NPM](https://www.npmjs.com/package/@tbdex/protocol?activeTab=versions), and publish the docs to https://tbd54566975.github.io/tbdex-js/
 
 ## Working with the `tbdex` submodule
 
