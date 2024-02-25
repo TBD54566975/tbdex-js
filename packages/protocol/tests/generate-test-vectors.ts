@@ -12,8 +12,10 @@ type TestVector = {
   error: boolean
 }
 
+const pfiDid = await DevTools.createDid('dht')
+const aliceDid = await DevTools.createDid('dht')
+
 const generateParseOfferingVector = async () => {
-  const pfiDid = await await DevTools.createDid('dht')
   const offering = DevTools.createOffering({ from: pfiDid.uri })
 
   await offering.sign(pfiDid)
@@ -27,12 +29,11 @@ const generateParseOfferingVector = async () => {
 }
 
 const generateParseQuoteVector = async () => {
-  const pfiDid = await DevTools.createDid('dht')
   const quote = Quote.create({
     metadata: {
       exchangeId : Message.generateId('rfq'),
       from       : pfiDid.uri,
-      to         : 'did:ex:pfi'
+      to         : aliceDid.uri
     },
     data: DevTools.createQuoteData()
   })
@@ -47,7 +48,6 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const aliceDid = await DevTools.createDid()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
     issuer  : aliceDid.uri,
@@ -60,7 +60,7 @@ const generateParseRfqVector = async () => {
   const vcJwt = await vc.sign({ did: aliceDid })
 
   const rfq = Rfq.create({
-    metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+    metadata : { from: aliceDid.uri, to: pfiDid.uri },
     data     : {
       offeringId  : Resource.generateId('offering'),
       payinMethod : {
@@ -94,9 +94,8 @@ const generateParseRfqVector = async () => {
 }
 
 const generateParseOrderVector = async () => {
-  const aliceDid = await DevTools.createDid()
   const order = Order.create({
-    metadata: { from: aliceDid.uri, to: 'did:ex:pfi', exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
+    metadata: { from: aliceDid.uri, to: pfiDid.uri, exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
   })
 
   await order.sign(aliceDid)
@@ -110,9 +109,8 @@ const generateParseOrderVector = async () => {
 }
 
 const generateParseCloseVector = async () => {
-  const pfiDid = await DevTools.createDid('dht')
   const close = Close.create({
-    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: Message.generateId('rfq') },
+    metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq') },
     data     : {
       reason: 'The reason for closing the exchange'
     }
@@ -129,9 +127,8 @@ const generateParseCloseVector = async () => {
 }
 
 const generateParseOrderStatusVector = async () => {
-  const pfiDid = await DevTools.createDid()
   const orderStatus = OrderStatus.create({
-    metadata : { from: pfiDid.uri, to: 'did:ex:alice', exchangeId: Message.generateId('rfq') },
+    metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq') },
     data     : {
       orderStatus: 'wee'
     }
