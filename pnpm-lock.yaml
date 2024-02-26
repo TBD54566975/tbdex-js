@@ -7,6 +7,8 @@ settings:
 overrides:
   browserify-sign@>=2.6.0 <=4.2.1: '>=4.2.2'
   follow-redirects: '>=1.15.4'
+  ip@<1.1.9: '>=1.1.9'
+  ip@=2.0.0: '>=2.0.1'
 
 importers:
 
@@ -1805,7 +1807,7 @@ packages:
       command-line-usage: 7.0.1
       debounce: 1.2.1
       deepmerge: 4.3.1
-      ip: 1.1.8
+      ip: 2.0.1
       nanocolors: 0.2.13
       open: 8.4.2
       portfinder: 1.0.32
@@ -1872,7 +1874,7 @@ packages:
       debounce: 1.2.1
       dependency-graph: 0.11.0
       globby: 11.1.0
-      ip: 1.1.8
+      ip: 2.0.1
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-report: 3.0.1
       istanbul-reports: 3.1.6
@@ -4224,12 +4226,8 @@ packages:
       hasown: 2.0.0
       side-channel: 1.0.4
 
-  /ip@1.1.8:
-    resolution: {integrity: sha512-PuExPYUiu6qMBQb4l06ecm6T6ujzhmh+MeJcW9wa89PoAz5pvd4zPgN5WJV104mb6S2T1AwNIAaB70JNrLQWhg==}
-    dev: true
-
-  /ip@2.0.0:
-    resolution: {integrity: sha512-WKa+XuLG1A1R0UWhl2+1XQSi+fZWMsYKffMZTTYsiZaUD8k2yDAj5atimTUD2TZkyCkNEeYE5NhFZmupOGtjYQ==}
+  /ip@2.0.1:
+    resolution: {integrity: sha512-lJUL9imLTNi1ZfXT+DU6rBBdbiKGBuay9B6xGSPVjUeQwaH1RIGqef8RZkUtHioLmSNpPR5M4HVKJGm1j8FWVQ==}
     dev: true
 
   /ipaddr.js@1.9.1:
@@ -5454,7 +5452,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       degenerator: 5.0.1
-      ip: 1.1.8
+      ip: 2.0.1
       netmask: 2.0.2
     dev: true
 
@@ -6255,7 +6253,7 @@ packages:
     resolution: {integrity: sha512-7maUZy1N7uo6+WVEX6psASxtNlKaNVMlGQKkG/63nEDdLOWNbiUMoLK7X4uYoLhQstau72mLgfEWcXcwsaHbYQ==}
     engines: {node: '>= 10.13.0', npm: '>= 3.0.0'}
     dependencies:
-      ip: 2.0.0
+      ip: 2.0.1
       smart-buffer: 4.2.0
     dev: true
 
