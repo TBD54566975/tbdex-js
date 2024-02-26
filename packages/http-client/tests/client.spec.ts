@@ -8,7 +8,8 @@ import {
   RequestTokenMissingClaimsError,
   RequestTokenAudienceMismatchError,
   RequestTokenVerificationError,
-  RequestTokenSigningError
+  RequestTokenSigningError,
+  RequestTokenIssuerSignerMismatchError
 } from '../src/errors/index.js'
 import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
@@ -315,14 +316,16 @@ describe('client', () => {
   })
 
   describe('verifyRequestToken', () => {
+    let pfiBearerDid: BearerDid
+    let aliceBearerDid: BearerDid
     let header: JwtHeaderParams
     let payload: JwtPayload
 
     /*
     ** helper function to help alice generate a valid request token to send to a pfi
     */
-    async function createRequestTokenFromPayload(payload: JwtPayload) {
-      const signer = await pfiDid.getSigner()
+    async function createAndSignRequestToken(payload: JwtPayload) {
+      const signer = await aliceBearerDid.getSigner()
       header = { typ: 'JWT', alg: signer.algorithm, kid: signer.keyId }
       const base64UrlEncodedHeader = Convert.object(header).toBase64Url()
       const base64UrlEncodedPayload = Convert.object(payload).toBase64Url()
@@ -335,11 +338,17 @@ describe('client', () => {
       return `${toSign}.${base64UrlEncodedSignature}`
     }
 
+    before(async () => {
+      pfiBearerDid = await DidDht.create()
+      aliceBearerDid = await DidDht.create()
+      header = { typ: 'JWT', alg: 'ES256K', kid: aliceBearerDid.document.verificationMethod![0].id }
+    })
+
     beforeEach(() => {
       payload = {
         iat : Math.floor(Date.now() / 1000),
-        aud : pfiDid.uri,
-        iss : 'did:key:1234',
+        aud : pfiBearerDid.uri,
+        iss : aliceBearerDid.uri,
         exp : Math.floor(Date.now() / 1000 + 60),
         jti : 'randomnonce'
       }
@@ -349,7 +358,7 @@ describe('client', () => {
       const jwtSigner = sinon.stub(Jwt, 'sign')
       jwtSigner.throws()
       try {
-        await TbdexHttpClient.generateRequestToken({ requesterDid: aliceDid, pfiDid: ''})
+        await TbdexHttpClient.generateRequestToken({ requesterDid: aliceBearerDid, pfiDid: ''})
         expect.fail()
       } catch (e) {
         expect(e).to.be.instanceOf(RequestTokenSigningError)
@@ -359,7 +368,7 @@ describe('client', () => {
 
     it('throws RequestTokenVerificationError if request token is not a valid jwt', async () => {
       try {
-        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiDid.uri })
+        await TbdexHttpClient.verifyRequestToken({ requestToken: '', pfiDid: pfiBearerDid.uri })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenVerificationError)
@@ -370,8 +379,8 @@ describe('client', () => {
         const initialClaim = payload[claim]
         try {
           delete payload[claim]
-          const requestToken = await createRequestTokenFromPayload(payload)
-          await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiDid.uri })
+          const requestToken = await createAndSignRequestToken(payload)
+          await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
           expect.fail()
         } catch(e) {
           expect(e).to.be.instanceof(RequestTokenMissingClaimsError)
@@ -383,18 +392,30 @@ describe('client', () => {
     it('throws RequestTokenAudienceMismatchError if aud claim does not match pfi did', async () => {
       try {
         payload.aud = 'squirtle'
-        const requestToken = await createRequestTokenFromPayload(payload)
-        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiDid.uri })
+        const requestToken = await createAndSignRequestToken(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
         expect.fail()
       } catch(e) {
         expect(e).to.be.instanceof(RequestTokenAudienceMismatchError)
         expect(e.message).to.include('Request token contains invalid audience')
       }
     })
+    it('throws RequestTokenIssuerSignerMismatchError if iss claim does not match kid header', async () => {
+      try {
+        const bobBearerDid = await DidDht.create()
+        payload.iss = bobBearerDid.uri
+        const requestToken = await createAndSignRequestToken(payload)
+        await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
+        expect.fail()
+      } catch(e) {
+        expect(e).to.be.instanceof(RequestTokenIssuerSignerMismatchError)
+        expect(e.message).to.include('Request token issuer does not match signer')
+      }
+    })
     it('returns requester\'s DID if request token is valid', async () => {
-      const requestToken = await createRequestTokenFromPayload(payload)
-      const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiDid.uri })
-      expect(iss).to.equal('did:key:1234')
+      const requestToken = await createAndSignRequestToken(payload)
+      const iss = await TbdexHttpClient.verifyRequestToken({ requestToken, pfiDid: pfiBearerDid.uri })
+      expect(iss).to.equal(aliceBearerDid.uri)
     })
   })
 })

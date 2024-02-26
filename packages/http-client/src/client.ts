@@ -15,7 +15,8 @@ import {
   RequestTokenMissingClaimsError,
   RequestTokenAudienceMismatchError,
   RequestTokenSigningError,
-  RequestTokenVerificationError
+  RequestTokenVerificationError,
+  RequestTokenIssuerSignerMismatchError
 } from './errors/index.js'
 import { resolveDid, Offering, Message } from '@tbdex/protocol'
 import { utils as didUtils } from '@web5/dids'
@@ -292,7 +293,7 @@ export class TbdexHttpClient {
       throw new RequestTokenVerificationError({ message: e.message, cause: e })
     }
 
-    const { payload: requestTokenPayload } = result
+    const { header: requestTokenHeader, payload: requestTokenPayload } = result
 
     // check to ensure all expected claims are present
     for (let claim of requestTokenRequiredClaims) {
@@ -307,8 +308,14 @@ export class TbdexHttpClient {
       throw new RequestTokenAudienceMismatchError({ message: 'Request token contains invalid audience. Expected aud property to be PFI DID.' })
     }
 
-    // TODO: check iss against signer DID
-    return requestTokenPayload.iss!
+    const signerKid = requestTokenHeader.kid!
+    const issuerDid = requestTokenPayload.iss!
+
+    if (!signerKid.includes(issuerDid)) {
+      throw new RequestTokenIssuerSignerMismatchError({ message: 'Request token issuer does not match signer' })
+    }
+
+    return issuerDid
   }
 }
 
