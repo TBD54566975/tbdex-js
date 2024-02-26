@@ -12,8 +12,10 @@ type TestVector = {
   error: boolean
 }
 
+const pfiDid = await DevTools.createDid('dht')
+const aliceDid = await DevTools.createDid('dht')
+
 const generateParseOfferingVector = async () => {
-  const pfiDid = await DevTools.createDid()
   const offering = DevTools.createOffering({ from: pfiDid.uri })
 
   await offering.sign(pfiDid)
@@ -27,8 +29,6 @@ const generateParseOfferingVector = async () => {
 }
 
 const generateParseQuoteVector = async () => {
-  const pfiDid = await DevTools.createDid()
-  const aliceDid = await DevTools.createDid()
   const quote = Quote.create({
     metadata: {
       exchangeId : Message.generateId('rfq'),
@@ -48,8 +48,6 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const pfiDid = await DevTools.createDid()
-  const aliceDid = await DevTools.createDid()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
     issuer  : aliceDid.uri,
@@ -96,8 +94,6 @@ const generateParseRfqVector = async () => {
 }
 
 const generateParseOrderVector = async () => {
-  const pfiDid = await DevTools.createDid()
-  const aliceDid = await DevTools.createDid()
   const order = Order.create({
     metadata: { from: aliceDid.uri, to: pfiDid.uri, exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
   })
@@ -113,15 +109,9 @@ const generateParseOrderVector = async () => {
 }
 
 const generateParseCloseVector = async () => {
-  const pfiDid = await DevTools.createDid()
-  const aliceDid = await DevTools.createDid()
   const close = Close.create({
-    metadata: {
-      from       : pfiDid.uri,
-      to         : aliceDid.uri,
-      exchangeId : Message.generateId('rfq')
-    },
-    data: {
+    metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq') },
+    data     : {
       reason: 'The reason for closing the exchange'
     }
   })
@@ -137,8 +127,6 @@ const generateParseCloseVector = async () => {
 }
 
 const generateParseOrderStatusVector = async () => {
-  const pfiDid = await DevTools.createDid()
-  const aliceDid = await DevTools.createDid()
   const orderStatus = OrderStatus.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq') },
     data     : {
