@@ -31,6 +31,8 @@ export type ResourceMetadata = {
   createdAt: string
   /** When the resource was last updated. Expressed as ISO8601 */
   updatedAt?: string
+  /** Version of the protocol in use (x.x format) */
+  protocolVersion: `${number}`
 }
 
 /**
@@ -130,6 +132,8 @@ export type MessageMetadata = {
   createdAt: string
   /** Arbitrary ID for the caller to associate with the message. Optional */
   externalId?: string
+  /** Version of the protocol in use (x.x format) */
+  protocolVersion: `${number}`
 }
 
 /**

@@ -6,6 +6,8 @@ import { typeid } from 'typeid-js'
 import { BearerDid } from '@web5/dids'
 import { validate } from './validator.js'
 
+import protocol from '../package.json' assert { type: 'json' }
+
 /**
  * Representation of the protocol messages.
  * It also provides helper functions to manipulate raw messages, JSON and parsing.
@@ -42,6 +44,11 @@ export abstract class Message {
   /** Generates a unique id with the message kind's prefix */
   static generateId(messageKind: MessageKind): string {
     return typeid(messageKind).toString()
+  }
+
+  /** Gets the 'x.x' major/minor formatted version based on the current protocol release version */
+  static getProtocolVersion(): `${number}` {
+    return `${parseFloat(protocol.version)}`
   }
 
   /**
@@ -151,6 +158,11 @@ export abstract class Message {
   /** the external ID */
   get externalId() {
     return this.metadata.externalId
+  }
+
+  /** the protocol version */
+  get protocolVersion() {
+    return this.metadata.protocolVersion
   }
 
   /** Rfq type guard */

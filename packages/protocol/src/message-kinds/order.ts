@@ -7,7 +7,7 @@ import { Parser } from '../parser.js'
  * @beta
  */
 export type CreateOrderOptions = {
-  metadata: Omit<OrderMetadata, 'id' |'kind' | 'createdAt'>
+  metadata: Omit<OrderMetadata, 'id' |'kind' | 'createdAt' | 'protocolVersion'>
 }
 
 /**
@@ -57,9 +57,10 @@ export class Order extends Message {
   static create(opts: CreateOrderOptions): Order {
     const metadata: OrderMetadata = {
       ...opts.metadata,
-      kind      : 'order',
-      id        : Message.generateId('order'),
-      createdAt : new Date().toISOString()
+      kind            : 'order',
+      id              : Message.generateId('order'),
+      createdAt       : new Date().toISOString(),
+      protocolVersion : Message.getProtocolVersion()
     }
 
     const order = new Order(metadata, {})

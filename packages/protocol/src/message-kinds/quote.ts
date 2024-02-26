@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateQuoteOptions = {
   data: QuoteData
-  metadata: Omit<QuoteMetadata, 'id' |'kind' | 'createdAt'>
+  metadata: Omit<QuoteMetadata, 'id' |'kind' | 'createdAt' | 'protocolVersion'>
 }
 
 /**
@@ -62,9 +62,10 @@ export class Quote extends Message {
   static create(opts: CreateQuoteOptions): Quote {
     const metadata: QuoteMetadata = {
       ...opts.metadata,
-      kind      : 'quote',
-      id        : Message.generateId('quote'),
-      createdAt : new Date().toISOString()
+      kind            : 'quote',
+      id              : Message.generateId('quote'),
+      createdAt       : new Date().toISOString(),
+      protocolVersion : Message.getProtocolVersion()
     }
     const quote = new Quote(metadata, opts.data)
     quote.validateData()

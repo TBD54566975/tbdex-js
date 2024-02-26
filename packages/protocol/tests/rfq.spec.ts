@@ -1,15 +1,18 @@
 import { VerifiableCredential } from '@web5/credentials'
-import { CreateRfqOptions, Offering } from '../src/main.js'
+import { CreateRfqOptions, Message, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
 import { DidDht, DidJwk } from '@web5/dids'
+import sinon from 'sinon'
 
 describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
       const aliceDid = await DidJwk.create()
+      const versionStub = sinon.stub(Message, 'getProtocolVersion')
+      versionStub.returns('1.9')
       const message = Rfq.create({
         metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
@@ -19,6 +22,8 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
+      expect(message.protocolVersion).to.equal('1.9')
+      versionStub.restore()
     })
   })
 

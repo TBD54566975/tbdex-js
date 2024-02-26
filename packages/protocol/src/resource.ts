@@ -6,6 +6,7 @@ import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 import { BearerDid } from '@web5/dids'
 
+import protocol from '../package.json' assert { type: 'json' }
 
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
@@ -41,8 +42,13 @@ export abstract class Resource {
     return typeid(resourceKind).toString()
   }
 
+  /** Gets the 'x.x' major/minor formatted version based on the current protocol release version */
+  static getProtocolVersion(): `${number}` {
+    return `${parseFloat(protocol.version)}`
+  }
+
   /**
-   * Signs the message as a jws with detached content and sets the signature property
+   * Signs the resource as a jws with detached content and sets the signature property
    * @param did - the signer's DID
    * @throws If the signature could not be produced
    */
@@ -118,7 +124,7 @@ export abstract class Resource {
   }
 
   /**
-   * returns the message as a json object. Automatically used by `JSON.stringify` method.
+   * returns the resource as a json object. Automatically used by `JSON.stringify` method.
    */
   toJSON(): ResourceModel {
     return {
@@ -151,6 +157,11 @@ export abstract class Resource {
   /** Resource last updated time. Expressed as ISO8601 */
   get updatedAt() {
     return this.metadata.updatedAt
+  }
+
+  /** the protocol version */
+  get protocolVersion() {
+    return this.metadata.protocolVersion
   }
 
   /** offering type guard */
