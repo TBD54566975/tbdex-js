@@ -1,5 +1,9 @@
 // TODO: decide whether this should be a ValidationError
 
+/**
+ * Params for creating RequestTokenError
+ * @beta
+ */
 export type RequestTokenErrorParams = {
     message: string
     cause?: unknown
@@ -64,5 +68,17 @@ export class RequestTokenAudienceMismatchError extends RequestTokenError {
     super(params)
 
     Object.setPrototypeOf(this, RequestTokenAudienceMismatchError.prototype)
+  }
+}
+
+/**
+   * Error thrown when a request token payload iss does not match request token header kid
+   * @beta
+   */
+export class RequestTokenIssuerSignerMismatchError extends RequestTokenError {
+  constructor(params: RequestTokenErrorParams) {
+    super(params)
+
+    Object.setPrototypeOf(this, RequestTokenIssuerSignerMismatchError.prototype)
   }
 }
