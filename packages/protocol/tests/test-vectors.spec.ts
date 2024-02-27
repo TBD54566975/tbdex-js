@@ -9,7 +9,7 @@ import { Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 
 describe('TbdexTestVectorsProtocol', function () {
-  this.timeout(10000); 
+  this.timeout(10000)
   it('parse_close', async () => {
     // Parse with parseMessage()
     const message = await Parser.parseMessage(ParseClose.input)
