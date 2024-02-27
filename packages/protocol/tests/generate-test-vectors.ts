@@ -13,8 +13,8 @@ type TestVector = {
   error: boolean
 }
 
-const pfiDid = await DevTools.createDid('dht')
-const aliceDid = await DevTools.createDid('dht')
+const pfiDid = await DidDht.create()
+const aliceDid = await DidDht.create()
 
 const generateParseOfferingVector = async () => {
   const pfiDid = await await DidDht.create()
@@ -52,7 +52,6 @@ const generateParseQuoteVector = async () => {
 
 const generateParseRfqVector = async () => {
   const aliceDid = await DidJwk.create()
-  const aliceDid = await DevTools.createDid()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
     issuer  : aliceDid.uri,
