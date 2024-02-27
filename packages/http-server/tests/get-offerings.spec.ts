@@ -5,6 +5,7 @@ import { GetOfferingsFilter, RequestContext, TbdexHttpServer } from '../src/main
 import { expect } from 'chai'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
 import Sinon from 'sinon'
+import { DidJwk } from '@web5/dids'
 
 describe('GET /offerings', () => {
   let api: TbdexHttpServer
@@ -21,7 +22,7 @@ describe('GET /offerings', () => {
   })
 
   it('returns an array of offerings', async () => {
-    const pfiDid = await DevTools.createDid()
+    const pfiDid = await DidJwk.create()
     const offering = DevTools.createOffering()
     await offering.sign(pfiDid);
     (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
@@ -36,7 +37,7 @@ describe('GET /offerings', () => {
   })
 
   it('constructs the filter from query params and passes it to OfferingsApi', async () => {
-    const pfiDid = await DevTools.createDid()
+    const pfiDid = await DidJwk.create()
 
     // Add an offering to OfferingsApi
     const offering = DevTools.createOffering()
@@ -69,7 +70,7 @@ describe('GET /offerings', () => {
   })
 
   it('calls the callback if it is provided', async () => {
-    const pfiDid = await DevTools.createDid()
+    const pfiDid = await DidJwk.create()
     const offering = DevTools.createOffering()
     await offering.sign(pfiDid);
     (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)

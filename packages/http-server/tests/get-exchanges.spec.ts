@@ -139,8 +139,8 @@ describe('GET /exchanges', () => {
   })
 
   it('calls the callback if it is provided', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid);
     (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)

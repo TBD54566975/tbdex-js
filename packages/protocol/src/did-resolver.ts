@@ -1,9 +1,9 @@
-import type { DidDocument, DidService, DidVerificationMethod } from '@web5/dids'
+import type { DidDocument, DidResource, DidVerificationMethod } from '@web5/dids'
 
 import { DidResolver as Web5DidResolver, DidDht, DidJwk, DidWeb } from '@web5/dids'
 
 /**
- * Can be used to resolve did:ion and did:key DIDs
+ * Can be used to resolve and dereference did:dht, did:jwk, and did:web DIDs
  *
  * @beta
  */
@@ -20,21 +20,13 @@ export const DidResolver = new Web5DidResolver({
 export async function resolveDid(did: string): Promise<DidDocument> {
   const { didResolutionMetadata, didDocument } = await DidResolver.resolve(did)
 
-  // TODO: remove the '?' after we ask OSE peeps about why DID ION resolution doesn't return didResolutionMetadata
-  // despite being required as per the did-core spec
-  if (didResolutionMetadata?.error) {
+  if (didResolutionMetadata.error) {
     throw new Error(`Failed to resolve DID: ${did}. Error: ${didResolutionMetadata.error}`)
   }
 
   // If did resolution has no errors, assume we have did document
   return didDocument!
 }
-
-/**
- * A DID Resource is either a DID Document, a DID Verification method or a DID Service
- * @beta
- */
-export type DidResource = DidDocument | DidVerificationMethod | DidService
 
 /**
  * type guard for {@link @web5/dids#VerificationMethod}

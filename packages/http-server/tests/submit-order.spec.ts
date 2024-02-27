@@ -5,6 +5,7 @@ import { DevTools, Order, RequestContext, TbdexHttpServer } from '../src/main.js
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import Sinon from 'sinon'
+import { DidJwk } from '@web5/dids'
 
 
 describe('POST /exchanges/:exchangeId/order', () => {
@@ -53,8 +54,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
     const order = Order.create({
       metadata: {
         from       : aliceDid.uri,
@@ -81,8 +82,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   it('returns a 400 if request body is not a valid order object', async () => {
     // scenario: Send an Rfq to the submitOrder endpoint
 
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
     await rfq.sign(aliceDid)
@@ -103,8 +104,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 400 if request body if integrity check fails', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     const order = Order.create({
       metadata: {
@@ -131,8 +132,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it(`returns a 409 if order is not allowed based on the exchange's current state`, async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
     const rfq = Rfq.create({
       metadata: {
         from : aliceDid.uri,
@@ -168,8 +169,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it(`returns a 400 if quote has expired`, async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     // Add an exchange which has a Quote that expired 10 seconds ago
     const rfq = Rfq.create({
@@ -220,8 +221,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 202 if order is accepted', async () => {
-    const aliceDid = await DevTools.createDid()
-    const pfiDid = await DevTools.createDid()
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
 
     // Add an exchange of Rfq and Quote to the exchangesApi
     const rfq = Rfq.create({
@@ -268,8 +269,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
   describe('onSubmitClose callback', () => {
     it('returns a 202 if the provided callback succeeds and passes correct arguments to callback', async () => {
-      const aliceDid = await DevTools.createDid()
-      const pfiDid = await DevTools.createDid()
+      const aliceDid = await DidJwk.create()
+      const pfiDid = await DidJwk.create()
 
       // Add an exchange of Rfq and Quote to the exchangesApi
       const rfq = Rfq.create({

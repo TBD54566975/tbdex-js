@@ -2,6 +2,7 @@ import { Offering, Parser } from '../src/main.js'
 import { DevTools } from '../src/dev-tools.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
+import { DidDht } from '@web5/dids'
 
 describe('Offering', () => {
   describe('create', () => {
@@ -36,7 +37,7 @@ describe('Offering', () => {
 
   describe('sign', () => {
     it('sets signature property', async () => {
-      const pfi = await DevTools.createDid('dht')
+      const pfi = await DidDht.create()
       const offering = Offering.create({
         metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
@@ -50,7 +51,7 @@ describe('Offering', () => {
     })
 
     it('includes alg and kid in jws header', async () => {
-      const pfi = await DevTools.createDid('dht')
+      const pfi = await DidDht.create()
       const offering = Offering.create({
         metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
@@ -68,7 +69,7 @@ describe('Offering', () => {
 
   describe('verify', () => {
     it('does not throw an exception if resource integrity is intact', async () => {
-      const pfi = await DevTools.createDid('dht')
+      const pfi = await DidDht.create()
       const offering = Offering.create({
         metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
@@ -79,7 +80,7 @@ describe('Offering', () => {
     })
 
     it('throws an error if no signature is present on the resource provided', async () => {
-      const pfi = await DevTools.createDid('dht')
+      const pfi = await DidDht.create()
       const offering = Offering.create({
         metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
@@ -113,7 +114,7 @@ describe('Offering', () => {
     })
 
     it('returns a Resource instance if parsing is successful', async () => {
-      const pfi = await DevTools.createDid('dht')
+      const pfi = await DidDht.create()
       const offering = Offering.create({
         metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()

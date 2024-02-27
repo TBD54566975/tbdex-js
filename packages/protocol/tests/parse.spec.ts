@@ -1,10 +1,11 @@
+import { DidJwk } from '@web5/dids'
 import { expect } from 'chai'
-import { DevTools, Parser } from '../src/main.js'
+import { Parser } from '../src/main.js'
 
 describe('Parser', () => {
   describe('parseMessage', async () => {
     it('throws if an unrecognized message kind is passed', async () => {
-      const aliceDid = await DevTools.createDid()
+      const aliceDid = await DidJwk.create()
       const unrecognizedMessageKind = {
         metadata  : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data      : {},
@@ -24,7 +25,7 @@ describe('Parser', () => {
 
   describe('parseResource', async () => {
     it('throws if an unrecognized resource kind is passed', async () => {
-      const aliceDid = await DevTools.createDid()
+      const aliceDid = await DidJwk.create()
       const unrecognizedResourceKind = {
         metadata  : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data      : {},

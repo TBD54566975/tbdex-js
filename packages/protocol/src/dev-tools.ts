@@ -2,18 +2,10 @@
 import type { OfferingData, QuoteData, RfqData } from './types.js'
 import type { BearerDid } from '@web5/dids'
 
-import { DidDht, DidJwk } from '@web5/dids'
 import { Offering } from './resource-kinds/index.js'
-import { Order, Rfq } from './message-kinds/index.js'
+import { Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
-import { Message } from './main.js'
 import { VerifiableCredential } from '@web5/credentials'
-
-/**
- * Supported DID Methods
- * @beta
- */
-export type DidMethodOptions = 'dht' | 'jwk'
 
 /**
  * Options passed to {@link DevTools.createRfq}
@@ -36,20 +28,6 @@ export type MessageOptions = {
  * @beta
  */
 export class DevTools {
-  /**
-   * creates and returns a DID
-   * @param didMethod - the type of DID to create. defaults to did:jwk
-   */
-  static async createDid(didMethod: DidMethodOptions = 'jwk'): Promise<BearerDid> {
-    if (didMethod === 'jwk') {
-      return await DidJwk.create()
-    } else if (didMethod === 'dht') {
-      return await DidDht.create()
-    } else {
-      throw new Error(`${didMethod} method not implemented.`)
-    }
-  }
-
   /**
    * creates and returns an example offering. Useful for testing purposes
    */
@@ -182,23 +160,6 @@ export class DevTools {
     return Rfq.create({
       metadata : { from: sender.uri, to: receiver?.uri ?? 'did:ex:pfi' },
       data     : rfqData
-    })
-  }
-
-  /**
-   * Creates and returns an example Order with a generated exchangeId. Useful for testing purposes
-   * @param opts - options used to create a Message
-   * @returns Order message
-   */
-  static createOrder(opts: MessageOptions) {
-    const { sender, receiver } = opts
-
-    return Order.create({
-      metadata: {
-        from       : sender.uri,
-        to         : receiver?.uri ?? 'did:ex:pfi',
-        exchangeId : Message.generateId('rfq')
-      }
     })
   }
 
