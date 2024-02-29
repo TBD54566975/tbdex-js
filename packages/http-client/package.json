@@ -75,12 +75,13 @@
     "get-func-name": "2.0.1",
     "mkdirp": "3.0.1",
     "mocha": "10.2.0",
+    "msw": "^2.2.2",
     "rimraf": "4.4.0",
     "sinon": "17.0.1",
+    "tiny-glob": "0.2.9",
     "typedoc": "0.25.0",
     "typedoc-plugin-markdown": "3.16.0",
-    "typescript": "5.2.2",
-    "tiny-glob": "0.2.9"
+    "typescript": "5.2.2"
   },
   "scripts": {
     "clean": "rimraf dist tests/compiled",

@@ -1,0 +1,84 @@
+{
+  "folders": [
+    {
+      // Source root
+      "name": "root",
+      "path": "."
+    },
+    {
+      // @tbdex/protocol
+      "name": "protocol",
+      "path": "packages/protocol",
+    },
+    {
+      // @tbdex/http-client
+      "name": "http-client",
+      "path": "packages/http-client",
+    },
+    {
+      // @tbdex/http-server
+      "name": "http-server",
+      "path": "packages/http-server",
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      {
+        "mode": "auto"
+      }
+    ],
+    "npm.packageManager": "pnpm",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "always"
+    },
+    "typescript.tsdk": "root/node_modules/typescript/lib"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Test All - Node",
+        "runtimeExecutable": "${workspaceFolder:root}/node_modules/.bin/mocha",
+        "runtimeArgs": [
+          "${workspaceFolder:root}/packages/**/tests/compiled/**/*.spec.js"
+        ],
+        "preLaunchTask": "build tests",
+        "console": "internalConsole",
+        "internalConsoleOptions": "openOnSessionStart",
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build All",
+        "type": "shell",
+        "command": "pnpm build",
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "build tests",
+        "type": "shell",
+        "command": "pnpm",
+        "args": [
+          "--recursive",
+          "--stream",
+          "build:tests:node"
+        ],
+        "problemMatcher": [
+          "$tsc"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder:root}"
+        }
+      },
+    ]
+  }
+}
