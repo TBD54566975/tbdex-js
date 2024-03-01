@@ -1,6 +1,7 @@
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { Close, DevTools, Exchange, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import sinon from 'sinon'
 
 describe('Exchange', () => {
   let aliceDid: BearerDid
@@ -278,6 +279,58 @@ describe('Exchange', () => {
           } catch (e) {
             expect(e.message).to.contain('is not a valid next message')
           }
+        }
+      })
+
+      it('cannot add a message if the protocol versions of the new message and the exchange mismatch', async () => {
+        const exchange = new Exchange()
+        exchange.addNextMessage(rfq)
+
+        const versionStub = sinon.stub(Message, 'getProtocolVersion')
+        versionStub.returns('1.9')
+
+        let quote = Quote.create({
+          metadata: {
+            from       : pfiDid.uri,
+            to         : aliceDid.uri,
+            exchangeId : rfq.metadata.exchangeId
+          },
+          data: DevTools.createQuoteData()
+        })
+        await quote.sign(pfiDid)
+
+        try {
+          exchange.addNextMessage(quote)
+          expect.fail()
+        } catch (e) {
+          expect(e.message).to.contain('does not have matching protocol version')
+          expect(e.message).to.contain(rfq.metadata.protocol)
+          expect(e.message).to.contain('1.9')
+        }
+        versionStub.restore()
+      })
+
+      it('cannot add a message if the exchangeId of the new message and the exchange mismatch', async () => {
+        const exchange = new Exchange()
+        exchange.addNextMessage(rfq)
+
+        let quote = Quote.create({
+          metadata: {
+            from       : pfiDid.uri,
+            to         : aliceDid.uri,
+            exchangeId : '123'
+          },
+          data: DevTools.createQuoteData()
+        })
+        await quote.sign(pfiDid)
+
+        try {
+          exchange.addNextMessage(quote)
+          expect.fail()
+        } catch (e) {
+          expect(e.message).to.contain('does not have matching exchange id')
+          expect(e.message).to.contain(rfq.metadata.exchangeId)
+          expect(e.message).to.contain('123')
         }
       })
     })

@@ -8,6 +8,7 @@ import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import Sinon from 'sinon'
 import { Message } from '@tbdex/protocol'
+import sinon from 'sinon'
 
 describe('POST /exchanges/:exchangeId/rfq', () => {
   let api: TbdexHttpServer
@@ -180,6 +181,47 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
     expect(error.detail).to.include(`offering ${offering.metadata.id} does not exist`)
+  })
+
+  it('returns a 400 if rfq protocol version doesn\'t match protocol version of the offering', async () => {
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
+
+    // Add offering to api.offeringsApi
+    const offering = DevTools.createOffering()
+    await offering.sign(pfiDid);
+    (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
+
+    // Create Rfq which is on a different protocol version than the offering
+    const versionStub = sinon.stub(Message, 'getProtocolVersion')
+    versionStub.returns('1.9')
+
+    const rfq = Rfq.create({
+      metadata: {
+        from : aliceDid.uri,
+        to   : pfiDid.uri,
+      },
+      data: {
+        ...await DevTools.createRfqData(),
+        offeringId: offering.metadata.id,
+      },
+    })
+    await rfq.sign(aliceDid)
+
+    const resp = await fetch('http://localhost:8000/exchanges/123/rfq', {
+      method : 'POST',
+      body   : JSON.stringify({ rfq })
+    })
+
+    expect(resp.status).to.equal(400)
+
+    const responseBody = await resp.json() as { errors: ErrorDetail[] }
+    expect(responseBody.errors.length).to.equal(1)
+
+    const [ error ] = responseBody.errors
+    expect(error.detail).to.exist
+    expect(error.detail).to.include('rfq and offering must have matching protocol versions')
+    versionStub.restore()
   })
 
   it(`returns a 400 if request body if RFQ does not fulfill offering's requirements`, async () => {
