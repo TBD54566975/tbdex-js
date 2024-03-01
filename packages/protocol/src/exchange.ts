@@ -110,6 +110,13 @@ export class Exchange {
     return this.rfq?.metadata?.exchangeId
   }
 
+    /**
+   * The protocol version of all messages in the Exchange
+   */
+    get protocol(): string | undefined {
+      return this.rfq?.metadata?.exchangeId
+    }
+
   /**
    * A sorted list of messages currently in the exchange.
    */

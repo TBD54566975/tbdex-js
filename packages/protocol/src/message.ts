@@ -161,8 +161,8 @@ export abstract class Message {
   }
 
   /** the protocol version */
-  get protocolVersion() {
-    return this.metadata.protocolVersion
+  get protocol() {
+    return this.metadata.protocol
   }
 
   /** Rfq type guard */

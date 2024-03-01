@@ -22,7 +22,7 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
-      expect(message.protocolVersion).to.equal('1.9')
+      expect(message.protocol).to.equal('1.9')
       versionStub.restore()
     })
   })

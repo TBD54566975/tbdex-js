@@ -15,7 +15,7 @@ describe('Close', () => {
       expect(closeMessage.externalId).to.equal('ext_1234')
     })
 
-    it('sets protocolVersion to current package version', () => {
+    it('sets `protocol` to current package version', () => {
       const versionStub = sinon.stub(Message, 'getProtocolVersion')
       versionStub.returns('1.9')
 
@@ -25,7 +25,7 @@ describe('Close', () => {
         data     : { reason: 'beepboop' }
       })
 
-      expect(closeMessage.protocolVersion).to.equal('1.9')
+      expect(closeMessage.protocol).to.equal('1.9')
       versionStub.restore()
     })
   })

@@ -160,8 +160,8 @@ export abstract class Resource {
   }
 
   /** the protocol version */
-  get protocolVersion() {
-    return this.metadata.protocolVersion
+  get protocol() {
+    return this.metadata.protocol
   }
 
   /** offering type guard */
