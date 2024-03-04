@@ -16,6 +16,9 @@ import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload } from '@web5/crypto'
 import { Convert } from '@web5/common'
 import { Jwt } from '@web5/credentials'
+import { Order } from '@tbdex/protocol'
+import { Message } from '@tbdex/protocol'
+import { Close } from '@tbdex/protocol'
 
 const pfiDid: BearerDid = await DidDht.create({
   options: {
@@ -36,9 +39,8 @@ const getPfiServiceEndpointStub = sinon.stub(TbdexHttpClient, 'getPfiServiceEndp
 describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
-  describe('sendMessage', () => {
-
-    it('throws RequestError if service endpoint url is garbage', async () => {
+  describe('createExchange', () => {
+    it('throws RequestError if the service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 
@@ -46,7 +48,7 @@ describe('client', () => {
       await rfq.sign(aliceDid)
 
       try {
-        await TbdexHttpClient.sendMessage({ message: rfq })
+        await TbdexHttpClient.createExchange(rfq)
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('RequestError')
@@ -70,7 +72,7 @@ describe('client', () => {
       await rfq.sign(aliceDid)
 
       try {
-        await TbdexHttpClient.sendMessage({message: rfq })
+        await TbdexHttpClient.createExchange(rfq)
         expect.fail()
       } catch(e) {
         expect(e.name).to.equal('ResponseError')
@@ -82,7 +84,7 @@ describe('client', () => {
       }
     })
 
-    it('should not throw errors if all is well when sending RFQ with replyTo field', async () => {
+    it('submits an RFQ without replyTo', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
@@ -92,13 +94,13 @@ describe('client', () => {
       await rfq.sign(aliceDid)
 
       try {
-        await TbdexHttpClient.sendMessage({message: rfq, replyTo: 'https://tbdex.io/callback'})
+        await TbdexHttpClient.createExchange(rfq)
       } catch (e) {
         expect.fail()
       }
     })
 
-    it('should not throw errors if all is well when sending RFQ without replyTo field', async () => {
+    it('submits an RFQ with replyTo', async () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve()
@@ -108,7 +110,176 @@ describe('client', () => {
       await rfq.sign(aliceDid)
 
       try {
-        await TbdexHttpClient.sendMessage({ message: rfq })
+        await TbdexHttpClient.createExchange(rfq, { replyTo: 'https://example.com'})
+      } catch (e) {
+        expect.fail()
+      }
+    })
+  })
+
+  describe('submitOrder', () => {
+    it('throws RequestError if the service endpoint url is garbage', async () => {
+      getPfiServiceEndpointStub.resolves('garbage')
+      fetchStub.rejects({message: 'Failed to fetch on URL'})
+
+      const order = Order.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        }
+      })
+      await order.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitOrder(order)
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.message).to.include('Failed to send message')
+        expect(e.cause).to.exist
+        expect(e.cause.message).to.include('URL')
+      }
+    })
+
+    it('throws ResponseError if response status is not ok', async () => {
+      fetchStub.resolves({
+        ok     : false,
+        status : 400,
+        json   : () => Promise.resolve({
+          detail: 'some error'
+        })
+      } as Response)
+
+      const order = Order.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        }
+      })
+      await order.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitOrder(order)
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('ResponseError')
+        expect(e).to.be.instanceof(ResponseError)
+        expect(e.statusCode).to.exist
+        expect(e.details).to.exist
+        expect(e.recipientDid).to.equal(pfiDid.uri)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${order.metadata.exchangeId}/order`)
+      }
+    })
+
+    it('submits an Order', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      const order = Order.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        }
+      })
+      await order.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitOrder(order)
+      } catch (e) {
+        expect.fail()
+      }
+    })
+  })
+
+  describe('submitClose', () => {
+    it('throws RequestError if the service endpoint url is garbage', async () => {
+      getPfiServiceEndpointStub.resolves('garbage')
+      fetchStub.rejects({message: 'Failed to fetch on URL'})
+
+      const close = Close.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        },
+        data: {
+          reason: 'Closed for the day. Gone fishin'
+        }
+      })
+      await close.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitClose(close)
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.message).to.include('Failed to send message')
+        expect(e.cause).to.exist
+        expect(e.cause.message).to.include('URL')
+      }
+    })
+
+    it('throws ResponseError if response status is not ok', async () => {
+      fetchStub.resolves({
+        ok     : false,
+        status : 400,
+        json   : () => Promise.resolve({
+          detail: 'some error'
+        })
+      } as Response)
+
+      const close = Close.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        },
+        data: {
+          reason: 'Closed for the day. Gone fishin'
+        }
+      })
+      await close.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitClose(close)
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('ResponseError')
+        expect(e).to.be.instanceof(ResponseError)
+        expect(e.statusCode).to.exist
+        expect(e.details).to.exist
+        expect(e.recipientDid).to.equal(pfiDid.uri)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${close.metadata.exchangeId}/close`)
+      }
+    })
+
+    it('submits a Close', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve()
+      } as Response)
+
+      const close = Close.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : Message.generateId('rfq')
+        },
+        data: {
+          reason: 'Closed for the day. Gone fishin'
+        }
+      })
+      await close.sign(aliceDid)
+
+      try {
+        await TbdexHttpClient.submitClose(close)
       } catch (e) {
         expect.fail()
       }
