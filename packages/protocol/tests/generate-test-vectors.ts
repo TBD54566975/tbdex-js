@@ -1,7 +1,7 @@
 import { VerifiableCredential } from '@web5/credentials'
 import { Close, DevTools, Message, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import fs from 'fs'
-import { DidDht, DidJwk } from '@web5/dids'
+import { DidDht } from '@web5/dids'
 
 /**
  * Use this util when you are modifying or adding a new test vector to `tbdex`.
@@ -51,7 +51,7 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const aliceDid = await DidJwk.create()
+  const aliceDid = await DidDht.create()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
     issuer  : aliceDid.uri,
@@ -98,7 +98,7 @@ const generateParseRfqVector = async () => {
 }
 
 const generateParseOrderVector = async () => {
-  const aliceDid = await DidJwk.create()
+  const aliceDid = await DidDht.create()
   const order = Order.create({
     metadata: { from: aliceDid.uri, to: pfiDid.uri, exchangeId: Message.generateId('rfq'), externalId: 'ext_1234' }
   })
@@ -133,7 +133,7 @@ const generateParseCloseVector = async () => {
 }
 
 const generateParseOrderStatusVector = async () => {
-  const pfiDid = await DidJwk.create()
+  const pfiDid = await DidDht.create()
   const orderStatus = OrderStatus.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq') },
     data     : {
