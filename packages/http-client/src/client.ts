@@ -72,7 +72,7 @@ export class TbdexHttpClient {
     const { to: pfiDid, exchangeId } = rfq.metadata
     const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
 
-    await TbdexHttpClient._sendMessage(pfiDid, `/exchanges/${exchangeId}/rfq`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/rfq`, requestBody)
   }
 
   /**
@@ -88,7 +88,7 @@ export class TbdexHttpClient {
     const { to: pfiDid, exchangeId } = order.metadata
     const requestBody = JSON.stringify(order)
 
-    await TbdexHttpClient._sendMessage(pfiDid, `/exchanges/${exchangeId}/order`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/order`, requestBody)
   }
 
   /**
@@ -105,10 +105,10 @@ export class TbdexHttpClient {
 
     const requestBody = JSON.stringify(close)
 
-    await TbdexHttpClient._sendMessage(pfiDid, `/exchanges/${exchangeId}/close`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/close`, requestBody)
   }
 
-  private static async _sendMessage(pfiDid: string, path: string, requestBody: string): Promise<void> {
+  private static async sendMessage(pfiDid: string, path: string, requestBody: string): Promise<void> {
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}${path}`
 
