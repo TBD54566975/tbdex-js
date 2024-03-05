@@ -6,7 +6,7 @@ import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 import { BearerDid } from '@web5/dids'
 
-import protocol from '../package.json' assert { type: 'json' }
+import { protocol } from './protocol.js'
 
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.

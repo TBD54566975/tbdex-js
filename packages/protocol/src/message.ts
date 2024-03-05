@@ -6,7 +6,7 @@ import { typeid } from 'typeid-js'
 import { BearerDid } from '@web5/dids'
 import { validate } from './validator.js'
 
-import protocol from '../package.json' assert { type: 'json' }
+import { protocol } from './protocol.js'
 
 /**
  * Representation of the protocol messages.
