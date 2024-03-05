@@ -46,14 +46,6 @@ export async function createExchange(req: Request, res: Response, options: Creat
     return
   }
 
-  if (offering.metadata.protocol !== rfq.metadata.protocol) {
-    const errorResponse: ErrorDetail = { detail:
-      `rfq and offering must have matching protocol versions. Instead got rfq protocol ${rfq.metadata.protocol} and offering protocol ${offering.metadata.protocol}`
-    }
-    res.status(400).json({ errors: [errorResponse] })
-    return
-  }
-
   try {
     await rfq.verifyOfferingRequirements(offering)
   } catch(e) {

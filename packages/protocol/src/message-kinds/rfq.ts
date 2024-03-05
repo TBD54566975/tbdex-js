@@ -96,6 +96,10 @@ export class Rfq extends Message {
    * @throws if payoutMethod in {@link Rfq.data} property `paymentDetails` cannot be validated against the provided offering's payoutMethod requiredPaymentDetails
    */
   async verifyOfferingRequirements(offering: Offering) {
+    if (offering.metadata.protocol !== this.metadata.protocol) {
+      throw new Error(`protocol version mismatch. (rfq) ${this.metadata.protocol} !== ${offering.metadata.protocol} (offering)`)
+    }
+
     if (offering.metadata.id !== this.data.offeringId) {
       throw new Error(`offering id mismatch. (rfq) ${this.data.offeringId} !== ${offering.metadata.id} (offering)`)
     }

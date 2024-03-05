@@ -11,8 +11,7 @@ describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
       const aliceDid = await DidJwk.create()
-      const versionStub = sinon.stub(Message, 'getProtocolVersion')
-      versionStub.returns('1.9')
+
       const message = Rfq.create({
         metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
@@ -22,8 +21,6 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
-      expect(message.protocol).to.equal('1.9')
-      versionStub.restore()
     })
   })
 
@@ -211,6 +208,25 @@ describe('Rfq', () => {
       } catch (e) {
         expect(e.message).to.contain('claims do not fulfill the offering\'s requirements')
       }
+    })
+
+    it('throws an error if rfq protocol doesn\'t match the provided offering\'s protocol', async () => {
+      const versionStub = sinon.stub(Message, 'getProtocolVersion')
+      versionStub.returns('2.10')
+      const rfq = Rfq.create({
+        ...rfqOptions,
+        data: {
+          ...rfqOptions.data,
+          offeringId: 'ABC123456',
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('protocol version mismatch')
+      }
+      versionStub.restore()
     })
 
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
