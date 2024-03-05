@@ -11,6 +11,8 @@ describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
       const aliceDid = await DidJwk.create()
+      const versionStub = sinon.stub(Message, 'getProtocolVersion')
+      versionStub.returns('2.10')
 
       const message = Rfq.create({
         metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
@@ -21,6 +23,8 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
+      expect(message.metadata.protocol).to.equal('2.10')
+      versionStub.restore()
     })
   })
 
