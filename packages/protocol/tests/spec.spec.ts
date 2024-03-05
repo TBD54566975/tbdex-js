@@ -7,6 +7,6 @@ describe('protocol version', () => {
     const parsed = parseFloat(tag)
 
     expect(tag).to.exist
-    expect(parsed).to.be.instanceOf(Number)
+    expect(typeof parsed).to.equal('number')
   })
 })
