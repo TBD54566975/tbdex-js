@@ -2,7 +2,9 @@ import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { DidDocument, BearerDid } from '@web5/dids'
 import {
+  Close,
   MessageModel,
+  Order,
   Parser,
   Rfq,
 } from '@tbdex/protocol'
@@ -55,30 +57,63 @@ export const requestTokenRequiredClaims = ['aud', 'iss', 'exp', 'iat', 'jti']
  * @beta
  */
 export class TbdexHttpClient {
+
   /**
-   * sends the message provided to the intended recipient
-   * @param opts - options
+   * Sends an RFQ and options to the PFI to initiate an exchange
+   * @param rfq - The RFQ message that will be sent to the PFI
+   * @param opts.replyTo A callback URL where the PFI will send subsequent messages
    * @throws if message verification fails
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
    */
-  static async sendMessage<T extends Message>(opts: SendMessageOptions<T>): Promise<void> {
-    const { message, replyTo } = opts
+  static async createExchange(rfq: Rfq, opts?: { replyTo?: string }): Promise<void> {
+    await rfq.verify()
 
-    await message.verify()
+    const { to: pfiDid, exchangeId } = rfq.metadata
+    const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
 
-    const { to: pfiDid, exchangeId, kind } = message.metadata
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/rfq`, requestBody)
+  }
+
+  /**
+   * Sends the Order message to the PFI
+   * @param - order The Order message that will be sent to the PFI
+   * @throws if message verification fails
+   * @throws if recipient DID resolution fails
+   * @throws if recipient DID does not have a PFI service entry
+   */
+  static async submitOrder(order: Order): Promise<void> {
+    await order.verify()
+
+    const { to: pfiDid, exchangeId } = order.metadata
+    const requestBody = JSON.stringify(order)
+
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/order`, requestBody)
+  }
+
+  /**
+   * Sends the Close message to the PFI
+   * @param - close The Close message that will be sent to the PFI
+   * @throws if message verification fails
+   * @throws if recipient DID resolution fails
+   * @throws if recipient DID does not have a PFI service entry
+   */
+  static async submitClose(close: Close): Promise<void> {
+    await close.verify()
+
+    const { to: pfiDid, exchangeId } = close.metadata
+
+    const requestBody = JSON.stringify(close)
+
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/close`, requestBody)
+  }
+
+  private static async sendMessage(pfiDid: string, path: string, requestBody: string): Promise<void> {
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const apiRoute = `${pfiServiceEndpoint}/exchanges/${exchangeId}/${kind}`
+    const apiRoute = `${pfiServiceEndpoint}${path}`
 
     let response: Response
     try {
-      let requestBody
-      if (message.metadata.kind == 'rfq') {
-        requestBody = JSON.stringify({ rfq: message, replyTo})
-      } else {
-        requestBody = JSON.stringify(message)
-      }
       response = await fetch(apiRoute, {
         method  : 'POST',
         headers : { 'content-type': 'application/json' },
@@ -317,20 +352,6 @@ export class TbdexHttpClient {
 
     return issuerDid
   }
-}
-
-/**
- * options passed to {@link TbdexHttpClient.sendMessage} method
- * @beta
- */
-export type SendMessageOptions<T extends Message> = {
-  /** the message you want to send */
-  message: T
-  /**
-   * A string containing a valid URI where new messages from the PFI will be sent.
-   * This field is only available as an option when sending an RFQ Message.
-   */
-  replyTo?: T extends Rfq ? string : never
 }
 
 /**
