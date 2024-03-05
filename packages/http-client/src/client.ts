@@ -60,7 +60,7 @@ export class TbdexHttpClient {
 
   /**
    * Sends an RFQ and options to the PFI to initiate an exchange
-   * @param rfq The RFQ message that will be sent to the PFI
+   * @param rfq - The RFQ message that will be sent to the PFI
    * @param opts.replyTo A callback URL where the PFI will send subsequent messages
    * @throws if message verification fails
    * @throws if recipient DID resolution fails
@@ -77,7 +77,7 @@ export class TbdexHttpClient {
 
   /**
    * Sends the Order message to the PFI
-   * @param order The Order message that will be sent to the PFI
+   * @param - order The Order message that will be sent to the PFI
    * @throws if message verification fails
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
@@ -93,7 +93,7 @@ export class TbdexHttpClient {
 
   /**
    * Sends the Close message to the PFI
-   * @param close The Close message that will be sent to the PFI
+   * @param - close The Close message that will be sent to the PFI
    * @throws if message verification fails
    * @throws if recipient DID resolution fails
    * @throws if recipient DID does not have a PFI service entry
@@ -352,20 +352,6 @@ export class TbdexHttpClient {
 
     return issuerDid
   }
-}
-
-/**
- * options passed to {@link TbdexHttpClient.sendMessage} method
- * @beta
- */
-export type SendMessageOptions<T extends Message> = {
-  /** the message you want to send */
-  message: T
-  /**
-   * A string containing a valid URI where new messages from the PFI will be sent.
-   * This field is only available as an option when sending an RFQ Message.
-   */
-  replyTo?: T extends Rfq ? string : never
 }
 
 /**
