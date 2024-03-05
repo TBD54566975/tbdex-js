@@ -6,7 +6,7 @@ import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 import { BearerDid } from '@web5/dids'
 
-import { protocol } from './protocol.js'
+import { spec } from './spec.js'
 
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
@@ -44,7 +44,7 @@ export abstract class Resource {
 
   /** Gets the 'x.x' major/minor formatted version based on the current protocol release version */
   static getProtocolVersion(): `${number}` {
-    return `${parseFloat(protocol.version)}`
+    return `${parseFloat(spec.version)}`
   }
 
   /**

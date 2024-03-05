@@ -1,9 +1,9 @@
 import { expect } from 'chai'
-import { protocol } from '../src/protocol.js'
+import { spec } from '../src/spec.js'
 
 describe('protocol version', () => {
   it('gets protocol version tag', async () => {
-    const tag = protocol.version
+    const tag = spec.version
     const parsed = parseFloat(tag)
 
     expect(tag).to.exist
