@@ -59,7 +59,7 @@
     "bignumber.js": "^9.1.2",
     "canonicalize": "2.0.0",
     "lodash": "^4.17.21",
-    "typeid-js": "0.3.0"
+    "typeid-js": "0.5.0"
   },
   "devDependencies": {
     "@types/sinon": "17.0.2",
