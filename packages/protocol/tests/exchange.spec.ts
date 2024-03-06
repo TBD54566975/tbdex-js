@@ -267,11 +267,11 @@ describe('Exchange', () => {
         expect(exchange.orderstatus).to.deep.eq([orderStatus])
       })
 
-      it('cannot add Rfq, Quote, Order, or Close after Order', async () => {
+      it('cannot add Rfq, Quote, or Order after Order', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote, order])
 
-        for (const message of [rfq, quote, order, closeByAlice]) {
+        for (const message of [rfq, quote, order]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()

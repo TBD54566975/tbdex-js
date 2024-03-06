@@ -84,7 +84,6 @@ export class TbdexHttpServer {
     api.use(jsonBodyParser())
 
     this.api = api
-
   }
 
   /**
