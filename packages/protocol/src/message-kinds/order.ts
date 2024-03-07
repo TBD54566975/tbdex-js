@@ -7,7 +7,7 @@ import { Parser } from '../parser.js'
  * @beta
  */
 export type CreateOrderOptions = {
-  metadata: Omit<OrderMetadata, 'id' |'kind' | 'createdAt' | 'protocol'>
+  metadata: Omit<OrderMetadata, 'id' |'kind' | 'createdAt'>
 }
 
 /**

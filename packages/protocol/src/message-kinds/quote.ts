@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateQuoteOptions = {
   data: QuoteData
-  metadata: Omit<QuoteMetadata, 'id' |'kind' | 'createdAt' | 'protocol'>
+  metadata: Omit<QuoteMetadata, 'id' |'kind' | 'createdAt'>
 }
 
 /**

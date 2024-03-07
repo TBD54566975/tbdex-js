@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateOfferingOptions = {
   data: OfferingData
-  metadata: Omit<OfferingMetadata, 'id' |'kind' | 'createdAt' | 'updatedAt' | 'protocol'>
+  metadata: Omit<OfferingMetadata, 'id' |'kind' | 'createdAt' | 'updatedAt'>
 }
 
 /**

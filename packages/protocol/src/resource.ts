@@ -6,8 +6,6 @@ import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 import { BearerDid } from '@web5/dids'
 
-import { spec } from './spec.js'
-
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
  * They are not part of the message exchange, i.e Alice cannot reply to a Resource.
@@ -40,11 +38,6 @@ export abstract class Resource {
   /** Generates a unique id with the resource kind's prefix */
   static generateId(resourceKind: ResourceKind) {
     return typeid(resourceKind).toString()
-  }
-
-  /** Gets the 'x.x' major/minor formatted version based on the current protocol release version */
-  static getProtocolVersion(): `${number}` {
-    return `${parseFloat(spec.version)}`
   }
 
   /**

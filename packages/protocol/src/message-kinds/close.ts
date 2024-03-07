@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateCloseOptions = {
   data: CloseData
-  metadata: Omit<CloseMetadata, 'id' | 'kind' | 'createdAt' | 'protocol'>
+  metadata: Omit<CloseMetadata, 'id' | 'kind' | 'createdAt'>
 }
 
 /**

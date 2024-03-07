@@ -13,7 +13,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateRfqOptions = {
   data: RfqData
-  metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId' | 'protocol'>
+  metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId'>
 }
 
 /**

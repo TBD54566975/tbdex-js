@@ -11,11 +11,9 @@ describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
       const aliceDid = await DidJwk.create()
-      const versionStub = sinon.stub(Message, 'getProtocolVersion')
-      versionStub.returns('2.10')
 
       const message = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -23,8 +21,7 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
-      expect(message.metadata.protocol).to.equal('2.10')
-      versionStub.restore()
+      expect(message.metadata.protocol).to.equal('1.0')
     })
   })
 
@@ -32,7 +29,7 @@ describe('Rfq', () => {
     it('sets signature property', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -45,7 +42,7 @@ describe('Rfq', () => {
     it('includes alg and kid in jws header', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -63,7 +60,7 @@ describe('Rfq', () => {
     it('does not throw an exception if message integrity is intact', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -74,7 +71,7 @@ describe('Rfq', () => {
     it('throws an error if no signature is present on the message provided', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -107,7 +104,7 @@ describe('Rfq', () => {
     it('returns an instance of Message if parsing is successful', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -123,7 +120,7 @@ describe('Rfq', () => {
   describe('verifySignature', () => {
     it('throws if signature is not present', async () => {
       const rfq = Rfq.create({
-        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi' },
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', protocol: '1.0' },
         data     : await DevTools.createRfqData()
       })
 
@@ -156,8 +153,9 @@ describe('Rfq', () => {
 
       rfqOptions = {
         metadata: {
-          from : '',
-          to   : 'did:ex:pfi'
+          from     : '',
+          to       : 'did:ex:pfi',
+          protocol : '1.0'
         },
         data: {
           ...await DevTools.createRfqData(),
@@ -180,7 +178,7 @@ describe('Rfq', () => {
       offeringData.requiredClaims = undefined
       const offering = Offering.create({
         metadata: {
-          from: pfi.uri
+          from: pfi.uri, protocol: '1.0'
         },
         data: offeringData
       })
@@ -215,8 +213,6 @@ describe('Rfq', () => {
     })
 
     it('throws an error if rfq protocol doesn\'t match the provided offering\'s protocol', async () => {
-      const versionStub = sinon.stub(Message, 'getProtocolVersion')
-      versionStub.returns('2.10')
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
@@ -230,7 +226,7 @@ describe('Rfq', () => {
       } catch(e) {
         expect(e.message).to.include('protocol version mismatch')
       }
-      versionStub.restore()
+
     })
 
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {
@@ -455,7 +451,7 @@ describe('Rfq', () => {
       const pfi = await DidJwk.create()
 
       const offering = Offering.create({
-        metadata : { from: pfi.uri },
+        metadata : { from: pfi.uri, protocol: '1.0' },
         data     : offeringData,
       })
       await offering.sign(pfi)
@@ -472,8 +468,9 @@ describe('Rfq', () => {
       }
       const rfq = Rfq.create({
         metadata: {
-          from : alice.uri,
-          to   : pfi.uri,
+          from     : alice.uri,
+          to       : pfi.uri,
+          protocol : '1.0'
         },
         data: rfqData,
       })
@@ -502,7 +499,7 @@ describe('Rfq', () => {
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : rfqData
       })
 
@@ -527,7 +524,7 @@ describe('Rfq', () => {
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi', protocol: '1.0' },
         data     : rfqData
       })
 
