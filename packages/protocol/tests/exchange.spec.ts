@@ -300,7 +300,7 @@ describe('Exchange', () => {
             from       : pfiDid.uri,
             to         : aliceDid.uri,
             exchangeId : rfq.metadata.exchangeId,
-            protocol   : '1.0'
+            protocol   : '2.0'
           },
           data: DevTools.createQuoteData()
         })
@@ -312,7 +312,7 @@ describe('Exchange', () => {
         } catch (e) {
           expect(e.message).to.contain('does not have matching protocol version')
           expect(e.message).to.contain(rfq.metadata.protocol)
-          expect(e.message).to.contain('1.9')
+          expect(e.message).to.contain('1.0')
         }
       })
 

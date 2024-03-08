@@ -213,7 +213,11 @@ describe('Rfq', () => {
 
     it('throws an error if rfq protocol doesn\'t match the provided offering\'s protocol', async () => {
       const rfq = Rfq.create({
-        ...rfqOptions,
+        metadata: {
+          from     : '',
+          to       : 'did:ex:pfi',
+          protocol : '2.0'
+        },
         data: {
           ...rfqOptions.data,
           offeringId: 'ABC123456',
