@@ -69,7 +69,6 @@ export class Rfq extends Message {
       id         : id,
       exchangeId : id,
       createdAt  : new Date().toISOString(),
-      protocol   : Message.getProtocolVersion()
     }
 
     // TODO: hash and set private fields

@@ -60,7 +60,6 @@ export class Order extends Message {
       kind      : 'order',
       id        : Message.generateId('order'),
       createdAt : new Date().toISOString(),
-      protocol  : Message.getProtocolVersion()
     }
 
     const order = new Order(metadata, {})

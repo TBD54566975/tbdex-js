@@ -1,11 +1,10 @@
 import { VerifiableCredential } from '@web5/credentials'
-import { CreateRfqOptions, Message, Offering } from '../src/main.js'
+import { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
 import { Convert } from '@web5/common'
 import { expect } from 'chai'
 import { DidDht, DidJwk } from '@web5/dids'
-import sinon from 'sinon'
 
 describe('Rfq', () => {
   describe('create', () => {

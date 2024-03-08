@@ -62,7 +62,6 @@ export class OrderStatus extends Message {
       kind      : 'orderstatus',
       id        : Message.generateId('orderstatus'),
       createdAt : new Date().toISOString(),
-      protocol  : Message.getProtocolVersion()
     }
 
     const orderStatus = new OrderStatus(metadata, opts.data)

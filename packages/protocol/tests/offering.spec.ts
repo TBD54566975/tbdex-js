@@ -10,7 +10,7 @@ describe('Offering', () => {
       const data = DevTools.createOfferingData()
 
       const offering = Offering.create({
-        metadata: { from: 'did:ex:pfi' },
+        metadata: { from: 'did:ex:pfi',  protocol: '1.0' },
         data,
       })
 

@@ -60,7 +60,6 @@ export class Offering extends Resource {
       kind      : 'offering',
       id        : Resource.generateId('offering'),
       createdAt : new Date().toISOString(),
-      protocol  : Resource.getProtocolVersion()
     }
 
     const offering = new Offering(metadata, opts.data)

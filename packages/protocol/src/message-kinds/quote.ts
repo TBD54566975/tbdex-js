@@ -65,7 +65,6 @@ export class Quote extends Message {
       kind      : 'quote',
       id        : Message.generateId('quote'),
       createdAt : new Date().toISOString(),
-      protocol  : Message.getProtocolVersion()
     }
 
     const quote = new Quote(metadata, opts.data)

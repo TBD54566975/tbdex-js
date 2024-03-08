@@ -33,7 +33,7 @@ export class DevTools {
    */
   static createOffering(opts?: { from?: string, offeringData?: OfferingData }): Offering {
     return Offering.create({
-      metadata : { from: opts?.from ?? 'did:ex:pfi' },
+      metadata : { from: opts?.from ?? 'did:ex:pfi', protocol: '1.0' },
       data     : opts?.offeringData ?? DevTools.createOfferingData()
     })
   }
@@ -158,7 +158,7 @@ export class DevTools {
     const rfqData: RfqData = await DevTools.createRfqData(opts)
 
     return Rfq.create({
-      metadata : { from: sender.uri, to: receiver?.uri ?? 'did:ex:pfi' },
+      metadata : { from: sender.uri, to: receiver?.uri ?? 'did:ex:pfi', protocol: '1.0' },
       data     : rfqData
     })
   }

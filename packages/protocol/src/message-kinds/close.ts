@@ -61,7 +61,6 @@ export class Close extends Message {
       kind      : 'close',
       id        : Message.generateId('close'),
       createdAt : new Date().toISOString(),
-      protocol  : Message.getProtocolVersion()
     }
 
     const close = new Close(metadata, opts.data)
