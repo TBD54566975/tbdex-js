@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "clean": "npkill -d $(pwd) -t node_modules && npkill -d $(pwd)/packages -t dist",
+    "clean": "npkill -d $(pwd)/packages -t dist && npkill -d $(pwd) -t node_modules",
     "build": "pnpm recursive run build",
     "lint": "pnpm recursive run lint",
     "lint:fix": "pnpm recursive run lint:fix",
