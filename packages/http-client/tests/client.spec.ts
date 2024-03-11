@@ -51,8 +51,6 @@ describe('client', () => {
         await TbdexHttpClient.createExchange(rfq)
         expect.fail()
       } catch(e) {
-        console.log(JSON.stringify(rfq, null, 2))
-        console.log(e.message)
         expect(e.name).to.equal('RequestError')
         expect(e).to.be.instanceof(RequestError)
         expect(e.message).to.include('Failed to send message')
@@ -128,8 +126,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -159,8 +156,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -188,8 +184,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -211,8 +206,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -245,8 +239,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -277,8 +270,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
