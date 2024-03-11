@@ -80,7 +80,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : alice.uri,
         to         : pfi.uri,
-        exchangeId : '123'
+        exchangeId : '123',
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -113,7 +114,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : alice.uri,
         to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -127,7 +129,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : alice.uri,
         to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -165,7 +168,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : alice.uri,
         to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -206,7 +210,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : alice.uri,
         to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -240,7 +245,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : pfi.uri,
         to         : alice.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -274,7 +280,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
       metadata: {
         from       : imposter.uri,
         to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        exchangeId : rfq.metadata.exchangeId,
+        protocol   : '1.0'
       },
       data: {}
     })
@@ -305,7 +312,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
         metadata: {
           from       : alice.uri,
           to         : pfi.uri,
-          exchangeId : Message.generateId('rfq')
+          exchangeId : Message.generateId('rfq'),
+          protocol   : '1.0'
         },
         data: {}
       })
@@ -341,7 +349,8 @@ describe('POST /exchanges/:exchangeId/close', () => {
         metadata: {
           from       : alice.uri,
           to         : pfi.uri,
-          exchangeId : rfq.metadata.exchangeId
+          exchangeId : rfq.metadata.exchangeId,
+          protocol   : '1.0'
         },
         data: {}
       })

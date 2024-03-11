@@ -40,7 +40,7 @@ describe('client', () => {
   beforeEach(() => getPfiServiceEndpointStub.resolves('https://localhost:9000'))
 
   describe('createExchange', () => {
-    it.only('throws RequestError if the service endpoint url is garbage', async () => {
+    it('throws RequestError if the service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')
       fetchStub.rejects({message: 'Failed to fetch on URL'})
 

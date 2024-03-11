@@ -83,7 +83,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       metadata: {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
-        exchangeId : Message.generateId('rfq')
+        exchangeId : Message.generateId('rfq'),
+        protocol   : '1.0'
       }
     })
     await order.sign(aliceDid)
@@ -157,8 +158,9 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     // deliberately omit (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.uri,
-        to   : pfiDid.uri,
+        from     : aliceDid.uri,
+        to       : pfiDid.uri,
+        protocol : '1.0'
       },
       data: {
         ...await DevTools.createRfqData(),
@@ -194,8 +196,9 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     // Create Rfq which doesn't contain the required claims
     const rfq = Rfq.create({
       metadata: {
-        from : aliceDid.uri,
-        to   : pfiDid.uri,
+        from     : aliceDid.uri,
+        to       : pfiDid.uri,
+        protocol : '1.0'
       },
       data: {
         ...await DevTools.createRfqData(),
@@ -233,7 +236,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       // Add offering with no required claims to api.offeringsApi
       offering = Offering.create({
         metadata: {
-          from: pfiDid.uri,
+          from     : pfiDid.uri,
+          protocol : '1.0'
         },
         data: {
           ...DevTools.createOfferingData(),
@@ -284,8 +288,9 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       // Create Rfq which satisfies Offering requirements
       rfq = Rfq.create({
         metadata: {
-          from : aliceDid.uri,
-          to   : pfiDid.uri,
+          from     : aliceDid.uri,
+          to       : pfiDid.uri,
+          protocol : '1.0'
         },
         data: {
           ...DevTools.createRfqData(),
