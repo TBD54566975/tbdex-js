@@ -127,7 +127,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         }
       })
       await order.sign(aliceDid)
@@ -158,7 +157,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         }
       })
       await order.sign(aliceDid)
@@ -187,7 +185,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         }
       })
       await order.sign(aliceDid)
@@ -210,7 +207,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -244,7 +240,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -276,7 +271,6 @@ describe('client', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
         },
         data: {
           reason: 'Closed for the day. Gone fishin'

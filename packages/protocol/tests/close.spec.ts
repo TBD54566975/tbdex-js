@@ -6,7 +6,7 @@ describe('Close', () => {
     it('sets exchangeId and externalId to whatever is passed in', () => {
       const exchangeId = Message.generateId('rfq')
       const closeMessage = Close.create({
-        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234', protocol: '1.0' },
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234' },
         data     : { reason: 'life is hard' }
       })
 
@@ -17,7 +17,7 @@ describe('Close', () => {
     it('sets `protocol` to current package version', () => {
       const exchangeId = Message.generateId('rfq')
       const closeMessage = Close.create({
-        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234', protocol: '1.0' },
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234' },
         data     : { reason: 'beepboop' }
       })
 

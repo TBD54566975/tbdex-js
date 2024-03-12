@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateCloseOptions = {
   data: CloseData
-  metadata: Omit<CloseMetadata, 'id' | 'kind' | 'createdAt'>
+  metadata: Omit<CloseMetadata, 'id' | 'kind' | 'createdAt' | 'protocol'> & { protocol?: CloseMetadata['protocol'] }
 }
 
 /**
@@ -61,6 +61,7 @@ export class Close extends Message {
       kind      : 'close',
       id        : Message.generateId('close'),
       createdAt : new Date().toISOString(),
+      protocol  : opts.metadata.protocol ?? '1.0'
     }
 
     const close = new Close(metadata, opts.data)

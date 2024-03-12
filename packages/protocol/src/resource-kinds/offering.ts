@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateOfferingOptions = {
   data: OfferingData
-  metadata: Omit<OfferingMetadata, 'id' |'kind' | 'createdAt' | 'updatedAt'>
+  metadata: Omit<OfferingMetadata, 'id' |'kind' | 'createdAt' | 'updatedAt' | 'protocol'> & { protocol?: OfferingMetadata['protocol'] }
 }
 
 /**
@@ -60,6 +60,7 @@ export class Offering extends Resource {
       kind      : 'offering',
       id        : Resource.generateId('offering'),
       createdAt : new Date().toISOString(),
+      protocol  : opts.metadata.protocol ?? '1.0'
     }
 
     const offering = new Offering(metadata, opts.data)

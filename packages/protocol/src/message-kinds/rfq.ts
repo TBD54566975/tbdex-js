@@ -13,7 +13,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateRfqOptions = {
   data: RfqData
-  metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId'>
+  metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId' | 'protocol'> & { protocol?: RfqMetadata['protocol'] }
 }
 
 /**
@@ -69,6 +69,7 @@ export class Rfq extends Message {
       id         : id,
       exchangeId : id,
       createdAt  : new Date().toISOString(),
+      protocol  : opts.metadata.protocol ?? '1.0'
     }
 
     // TODO: hash and set private fields
