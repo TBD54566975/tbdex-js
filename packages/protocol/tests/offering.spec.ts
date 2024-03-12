@@ -10,7 +10,7 @@ describe('Offering', () => {
       const data = DevTools.createOfferingData()
 
       const offering = Offering.create({
-        metadata: { from: 'did:ex:pfi', },
+        metadata: { from: 'did:ex:pfi' },
         data,
       })
 
@@ -39,7 +39,7 @@ describe('Offering', () => {
     it('sets signature property', async () => {
       const pfi = await DidDht.create()
       const offering = Offering.create({
-        metadata : { from: pfi.uri},
+        metadata : { from: pfi.uri },
         data     : DevTools.createOfferingData()
       })
 

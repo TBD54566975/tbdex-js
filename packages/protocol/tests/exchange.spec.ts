@@ -30,8 +30,7 @@ describe('Exchange', () => {
       metadata: {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         reason: 'I dont like u anymore'
@@ -43,8 +42,7 @@ describe('Exchange', () => {
       metadata: {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
+        exchangeId : rfq.metadata.exchangeId
       },
       data: DevTools.createQuoteData()
     })
@@ -54,8 +52,7 @@ describe('Exchange', () => {
       metadata: {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         reason: 'I dont like u anymore'
@@ -67,8 +64,7 @@ describe('Exchange', () => {
       metadata: {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
+        exchangeId : rfq.metadata.exchangeId
       },
     })
     await order.sign(aliceDid)
@@ -77,8 +73,7 @@ describe('Exchange', () => {
       metadata: {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         orderStatus: 'Done'
@@ -124,7 +119,7 @@ describe('Exchange', () => {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
           exchangeId : Message.generateId('rfq'),
-          protocol   : '1.0'
+
         },
         data: DevTools.createQuoteData()
       })
@@ -144,8 +139,7 @@ describe('Exchange', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
+          exchangeId : rfq.metadata.exchangeId
         },
         data: {
           reason: 'I dont like u anymore'
@@ -157,8 +151,7 @@ describe('Exchange', () => {
         metadata: {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
+          exchangeId : rfq.metadata.exchangeId
         },
         data: DevTools.createQuoteData()
       })
@@ -325,7 +318,7 @@ describe('Exchange', () => {
             from       : pfiDid.uri,
             to         : aliceDid.uri,
             exchangeId : '123',
-            protocol   : '1.0'
+
           },
           data: DevTools.createQuoteData()
         })
@@ -360,8 +353,7 @@ describe('Exchange', () => {
         metadata: {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
+          exchangeId : rfq.metadata.exchangeId
         },
         data: DevTools.createQuoteData()
       })
@@ -371,8 +363,7 @@ describe('Exchange', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
+          exchangeId : rfq.metadata.exchangeId
         },
       })
       await order.sign(aliceDid)
@@ -381,8 +372,7 @@ describe('Exchange', () => {
         metadata: {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
+          exchangeId : rfq.metadata.exchangeId
         },
         data: {
           orderStatus: 'Done'
