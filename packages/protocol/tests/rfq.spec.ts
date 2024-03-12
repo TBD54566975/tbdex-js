@@ -12,7 +12,7 @@ describe('Rfq', () => {
       const aliceDid = await DidJwk.create()
 
       const message = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -28,7 +28,7 @@ describe('Rfq', () => {
     it('sets signature property', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -41,7 +41,7 @@ describe('Rfq', () => {
     it('includes alg and kid in jws header', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -59,7 +59,7 @@ describe('Rfq', () => {
     it('does not throw an exception if message integrity is intact', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -70,7 +70,7 @@ describe('Rfq', () => {
     it('throws an error if no signature is present on the message provided', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -103,7 +103,7 @@ describe('Rfq', () => {
     it('returns an instance of Message if parsing is successful', async () => {
       const aliceDid = await DidJwk.create()
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi'  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -119,7 +119,7 @@ describe('Rfq', () => {
   describe('verifySignature', () => {
     it('throws if signature is not present', async () => {
       const rfq = Rfq.create({
-        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi'  },
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
       })
 
@@ -152,9 +152,8 @@ describe('Rfq', () => {
 
       rfqOptions = {
         metadata: {
-          from     : '',
-          to       : 'did:ex:pfi',
-          protocol : '1.0'
+          from : '',
+          to   : 'did:ex:pfi'
         },
         data: {
           ...await DevTools.createRfqData(),
@@ -471,9 +470,8 @@ describe('Rfq', () => {
       }
       const rfq = Rfq.create({
         metadata: {
-          from     : alice.uri,
-          to       : pfi.uri,
-          protocol : '1.0'
+          from : alice.uri,
+          to   : pfi.uri
         },
         data: rfqData,
       })
