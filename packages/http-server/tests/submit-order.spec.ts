@@ -60,8 +60,7 @@ describe('POST /exchanges/:exchangeId/order', () => {
       metadata: {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
-        exchangeId : '123',
-        protocol   : '1.0'
+        exchangeId : '123'
       }
     })
     await order.sign(aliceDid)
@@ -113,7 +112,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
         exchangeId : Message.generateId('rfq'),
-        protocol   : '1.0'
       },
     })
     // deliberately omit await order.sign(aliceDid)
@@ -138,9 +136,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     const pfiDid = await DidJwk.create()
     const rfq = Rfq.create({
       metadata: {
-        from     : aliceDid.uri,
-        to       : pfiDid.uri,
-        protocol : '1.0'
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -152,7 +149,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
       },
     })
     await order.sign(aliceDid)
@@ -179,9 +175,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     // Add an exchange which has a Quote that expired 10 seconds ago
     const rfq = Rfq.create({
       metadata: {
-        from     : aliceDid.uri,
-        to       : pfiDid.uri,
-        protocol : '1.0'
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -191,7 +186,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
       },
       data: {
         ...DevTools.createQuoteData(),
@@ -207,7 +201,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
       },
     })
     await order.sign(aliceDid)
@@ -234,9 +227,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     // Add an exchange of Rfq and Quote to the exchangesApi
     const rfq = Rfq.create({
       metadata: {
-        from     : aliceDid.uri,
-        to       : pfiDid.uri,
-        protocol : '1.0'
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -246,7 +238,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
         exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
       },
       data: {
         ...DevTools.createQuoteData(),
@@ -264,7 +255,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
         exchangeId : rfq.metadata.exchangeId,
-        protocol   : '1.0'
       },
     })
     await order.sign(aliceDid)
@@ -285,9 +275,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
       // Add an exchange of Rfq and Quote to the exchangesApi
       const rfq = Rfq.create({
         metadata: {
-          from     : aliceDid.uri,
-          to       : pfiDid.uri,
-          protocol : '1.0'
+          from : aliceDid.uri,
+          to   : pfiDid.uri
         },
         data: await DevTools.createRfqData()
       })
@@ -297,7 +286,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
           exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
         },
         data: {
           ...DevTools.createQuoteData(),
@@ -315,7 +303,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
           exchangeId : rfq.metadata.exchangeId,
-          protocol   : '1.0'
         },
       })
       await order.sign(aliceDid)

@@ -126,7 +126,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -156,7 +156,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -184,7 +184,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         }
       })
       await order.sign(aliceDid)
@@ -206,7 +206,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -239,7 +239,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
@@ -270,7 +270,7 @@ describe('client', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : Message.generateId('rfq'),
+          exchangeId : Message.generateId('rfq')
         },
         data: {
           reason: 'Closed for the day. Gone fishin'
