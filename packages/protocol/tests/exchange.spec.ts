@@ -18,9 +18,8 @@ describe('Exchange', () => {
 
     rfq = Rfq.create({
       metadata: {
-        from     : aliceDid.uri,
-        to       : pfiDid.uri,
-        protocol : '1.0'
+        from : aliceDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -118,8 +117,7 @@ describe('Exchange', () => {
         metadata: {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
-          exchangeId : Message.generateId('rfq'),
-
+          exchangeId : Message.generateId('rfq')
         },
         data: DevTools.createQuoteData()
       })
@@ -341,9 +339,8 @@ describe('Exchange', () => {
 
       const rfq = Rfq.create({
         metadata: {
-          from     : aliceDid.uri,
-          to       : pfiDid.uri,
-          protocol : '1.0'
+          from : aliceDid.uri,
+          to   : pfiDid.uri
         },
         data: await DevTools.createRfqData()
       })

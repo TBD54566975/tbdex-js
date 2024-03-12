@@ -176,7 +176,7 @@ describe('Rfq', () => {
       offeringData.requiredClaims = undefined
       const offering = Offering.create({
         metadata: {
-          from: pfi.uri,
+          from: pfi.uri
         },
         data: offeringData
       })
@@ -453,7 +453,7 @@ describe('Rfq', () => {
       const pfi = await DidJwk.create()
 
       const offering = Offering.create({
-        metadata : { from: pfi.uri,  },
+        metadata : { from: pfi.uri },
         data     : offeringData,
       })
       await offering.sign(pfi)
@@ -471,7 +471,7 @@ describe('Rfq', () => {
       const rfq = Rfq.create({
         metadata: {
           from : alice.uri,
-          to   : pfi.uri
+          to   : pfi.uri,
         },
         data: rfqData,
       })
@@ -500,7 +500,7 @@ describe('Rfq', () => {
       rfqData.claims = [vcJwt]
 
       const rfq = Rfq.create({
-        metadata : { from: aliceDid.uri, to: 'did:ex:pfi',  },
+        metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : rfqData
       })
 
