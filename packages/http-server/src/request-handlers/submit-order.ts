@@ -10,18 +10,8 @@ type SubmitOrderOpts = {
   exchangesApi: ExchangesApi
 }
 
-export async function submitOrder(req: Request, res: Response, opts: SubmitOrderOpts): Promise<void> {
+export async function submitOrder(order: Order, req: Request, res: Response, opts: SubmitOrderOpts): Promise<void> {
   const { callback, exchangesApi } = opts
-
-  let order: Order
-
-  try {
-    order = await Order.parse(req.body)
-  } catch(e) {
-    const errorResponse: ErrorDetail = { detail: 'Request body was not a valid Order message' }
-    res.status(400).json({ errors: [errorResponse] })
-    return
-  }
 
   const exchange = await exchangesApi.getExchange({id: order.exchangeId})
   if(exchange == undefined) {

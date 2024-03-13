@@ -10,18 +10,8 @@ type SubmitCloseOpts = {
   exchangesApi: ExchangesApi
 }
 
-export async function submitClose(req: Request, res: Response, opts: SubmitCloseOpts): Promise<void> {
+export async function submitClose(close: Close, req: Request, res: Response, opts: SubmitCloseOpts): Promise<void> {
   const { callback, exchangesApi } = opts
-
-  let close: Close
-
-  try {
-    close = await Close.parse(req.body)
-  } catch(e) {
-    const errorResponse: ErrorDetail = { detail: 'Request body was not a valid Close message' }
-    res.status(400).json({ errors: [errorResponse] })
-    return
-  }
 
   // Ensure that an exchange exists to be closed
   const exchange = await exchangesApi.getExchange({ id: close.exchangeId })
@@ -32,8 +22,6 @@ export async function submitClose(req: Request, res: Response, opts: SubmitClose
     res.status(404).json({ errors: [errorResponse] })
     return
   }
-
-  console.log('exchange.isValidNext(close.metadata.kind)::::', exchange.isValidNext(close.metadata.kind))
 
   // Ensure this exchange can be Closed
   if(!exchange.isValidNext(close.metadata.kind)) {

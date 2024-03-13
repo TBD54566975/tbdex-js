@@ -8,7 +8,7 @@ import Sinon from 'sinon'
 import { DidJwk } from '@web5/dids'
 
 
-describe('POST /exchanges/:exchangeId/close', () => {
+describe('POST /exchanges/:exchangeId with a Close', () => {
   let api: TbdexHttpServer
   let server: Server
 
@@ -23,7 +23,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
   })
 
   it('returns a 400 if no request body is provided', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/123', {
       method: 'POST'
     })
 
@@ -35,42 +35,6 @@ describe('POST /exchanges/:exchangeId/close', () => {
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
     expect(error.detail).to.include('expected request body to be a json object')
-  })
-
-  it('returns a 400 if request body is not a valid json object', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
-      method : 'POST',
-      body   : '!@!#'
-    })
-
-    expect(resp.status).to.equal(400)
-
-    const responseBody = await resp.json()  as { errors: ErrorDetail[] }
-    expect(responseBody.errors.length).to.equal(1)
-
-    const [ error ] = responseBody.errors
-    expect(error.detail).to.exist
-    expect(error.detail).to.include('JSON')
-  })
-
-  it('returns a 400 if request body is not a valid close object', async () => {
-    const alice = await DidJwk.create()
-    const rfq = await DevTools.createRfq({
-      sender: alice
-    })
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
-      method : 'POST',
-      body   : JSON.stringify(rfq)
-    })
-
-    expect(resp.status).to.equal(400)
-
-    const responseBody = await resp.json()  as { errors: ErrorDetail[] }
-    expect(responseBody.errors.length).to.equal(1)
-
-    const [ error ] = responseBody.errors
-    expect(error.detail).to.exist
-    expect(error.detail).to.include('Request body was not a valid Close message')
   })
 
   it(`returns a 404 if the exchange doesn't exist`, async () => {
@@ -85,7 +49,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       data: {}
     })
     await close.sign(alice)
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch('http://localhost:8000/exchanges/123', {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -109,11 +73,13 @@ describe('POST /exchanges/:exchangeId/close', () => {
       receiver : pfi,
     })
     await rfq.sign(alice)
+    const exchangeId = rfq.metadata.exchangeId
+
     const close = Close.create({
       metadata: {
-        from       : alice.uri,
-        to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        from : alice.uri,
+        to   : pfi.uri,
+        exchangeId,
       },
       data: {}
     })
@@ -125,14 +91,14 @@ describe('POST /exchanges/:exchangeId/close', () => {
 
     const close2 = Close.create({
       metadata: {
-        from       : alice.uri,
-        to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
+        from : alice.uri,
+        to   : pfi.uri,
+        exchangeId,
       },
       data: {}
     })
     await close2.sign(alice)
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch(`http://localhost:8000/exchanges/${exchangeId}`, {
       method : 'POST',
       body   : JSON.stringify(close2)
     })
@@ -145,45 +111,6 @@ describe('POST /exchanges/:exchangeId/close', () => {
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
     expect(error.detail).to.include('cannot submit Close for an exchange where the last message is kind: close')
-  })
-
-  it('returns a 400 if request body if integrity check fails', async () => {
-    const alice = await DidJwk.create()
-    const pfi = await DidJwk.create()
-
-    const rfq = await DevTools.createRfq({
-      sender   : alice,
-      receiver : pfi,
-    })
-    await rfq.sign(alice)
-
-    const exchangesApi = api.exchangesApi as InMemoryExchangesApi
-    exchangesApi.addMessage(rfq)
-
-    // Create but do not sign Close message
-    const close = Close.create({
-      metadata: {
-        from       : alice.uri,
-        to         : pfi.uri,
-        exchangeId : rfq.metadata.exchangeId
-      },
-      data: {}
-    })
-
-
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
-      method : 'POST',
-      body   : JSON.stringify(close)
-    })
-
-    expect(resp.status).to.equal(400)
-
-    const responseBody = await resp.json() as { errors: ErrorDetail[] }
-    expect(responseBody.errors.length).to.equal(1)
-
-    const [ error ] = responseBody.errors
-    expect(error.detail).to.exist
-    expect(error.detail).to.include('Request body was not a valid Close message')
   })
 
   it('returns a 202 if close is created by alice', async () => {
@@ -212,7 +139,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(alice)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -246,7 +173,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(pfi)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -280,7 +207,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
     })
     await close.sign(imposter)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'POST',
       body   : JSON.stringify(close)
     })
@@ -314,12 +241,12 @@ describe('POST /exchanges/:exchangeId/close', () => {
       const callbackSpy = Sinon.spy(() => Promise.resolve())
       api.onSubmitClose(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+      const resp = await fetch('http://localhost:8000/exchanges/123', {
         method : 'POST',
         body   : JSON.stringify(close)
       })
 
-      expect(resp.status).to.equal(404)
+      expect(resp.status).to.equal(400)
       expect(callbackSpy.notCalled).to.be.true
     })
 
@@ -350,7 +277,7 @@ describe('POST /exchanges/:exchangeId/close', () => {
       const callbackSpy = Sinon.spy(() => Promise.resolve())
       api.onSubmitClose(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/close', {
+      const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
         method : 'POST',
         body   : JSON.stringify(close)
       })
