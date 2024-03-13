@@ -6,7 +6,6 @@ import { Crypto } from './crypto.js'
 import { validate } from './validator.js'
 import { BearerDid } from '@web5/dids'
 
-
 /**
  * tbDEX Resources are published by PFIs for anyone to consume and generally used as a part of the discovery process.
  * They are not part of the message exchange, i.e Alice cannot reply to a Resource.
@@ -42,7 +41,7 @@ export abstract class Resource {
   }
 
   /**
-   * Signs the message as a jws with detached content and sets the signature property
+   * Signs the resource as a jws with detached content and sets the signature property
    * @param did - the signer's DID
    * @throws If the signature could not be produced
    */
@@ -118,7 +117,7 @@ export abstract class Resource {
   }
 
   /**
-   * returns the message as a json object. Automatically used by `JSON.stringify` method.
+   * returns the resource as a json object. Automatically used by `JSON.stringify` method.
    */
   toJSON(): ResourceModel {
     return {
@@ -151,6 +150,11 @@ export abstract class Resource {
   /** Resource last updated time. Expressed as ISO8601 */
   get updatedAt() {
     return this.metadata.updatedAt
+  }
+
+  /** the protocol version */
+  get protocol() {
+    return this.metadata.protocol
   }
 
   /** offering type guard */

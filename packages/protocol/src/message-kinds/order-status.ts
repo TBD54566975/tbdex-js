@@ -8,7 +8,7 @@ import { Parser } from '../parser.js'
  */
 export type CreateOrderStatusOptions = {
   data: OrderStatusData
-  metadata: Omit<OrderStatusMetadata, 'id' |'kind' | 'createdAt'>
+  metadata: Omit<OrderStatusMetadata, 'id' |'kind' | 'createdAt' | 'protocol'> & { protocol?: OrderStatusMetadata['protocol'] }
 }
 
 /**
@@ -61,7 +61,8 @@ export class OrderStatus extends Message {
       ...opts.metadata,
       kind      : 'orderstatus',
       id        : Message.generateId('orderstatus'),
-      createdAt : new Date().toISOString()
+      createdAt : new Date().toISOString(),
+      protocol  : opts.metadata.protocol ?? '1.0'
     }
 
     const orderStatus = new OrderStatus(metadata, opts.data)

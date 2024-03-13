@@ -153,6 +153,11 @@ export abstract class Message {
     return this.metadata.externalId
   }
 
+  /** the protocol version */
+  get protocol() {
+    return this.metadata.protocol
+  }
+
   /** Rfq type guard */
   isRfq(): this is Rfq {
     return this.metadata.kind === 'rfq'

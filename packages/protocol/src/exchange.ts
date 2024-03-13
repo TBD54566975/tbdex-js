@@ -49,9 +49,18 @@ export class Exchange {
   /**
    * Add the next message in the exchange
    * @param message - The next allowed message in the exchange
+   * @throws if message's protocol version does not match protocol version of other messages in the exchange
    * @throws if message is not a valid next message. See {@link Exchange.isValidNext}
+   * @throws if message's exchangeId does not match id of the exchange
    */
   addNextMessage(message: Message): void {
+    if (this.protocol !== undefined && message.metadata.protocol !== this.protocol) {
+      throw new Error(
+        `Could not add message (${message.metadata.id}) with protocol version ${message.metadata.protocol} to exchange because it does not have matching ` +
+        `protocol version ${this.protocol} as other messages in the exchange`
+      )
+    }
+
     if (!this.isValidNext(message.metadata.kind)) {
       throw new Error(
         `Could not add message (${message.metadata.id}) to exchange because ${message.metadata.kind} ` +
@@ -61,8 +70,8 @@ export class Exchange {
 
     if (this.exchangeId !== undefined && message.metadata.exchangeId !== this.exchangeId) {
       throw new Error(
-        `Could not add message with id ${message.metadata.id} to exchange because it does not have matching ` +
-        `exchange id ${this.exchangeId}`
+        `Could not add message (${message.metadata.id}) with exchange id ${message.metadata.exchangeId} to exchange because it does not have matching ` +
+        `exchange id ${this.exchangeId} as the exchange`
       )
     }
 
@@ -108,6 +117,13 @@ export class Exchange {
    */
   get exchangeId(): string | undefined {
     return this.rfq?.metadata?.exchangeId
+  }
+
+  /**
+   * The protocol version of all messages in the Exchange
+   */
+  get protocol(): string | undefined {
+    return this.rfq?.metadata?.protocol
   }
 
   /**

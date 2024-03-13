@@ -10,6 +10,7 @@ describe('Rfq', () => {
   describe('create', () => {
     it('creates an rfq', async () => {
       const aliceDid = await DidJwk.create()
+
       const message = Rfq.create({
         metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
         data     : await DevTools.createRfqData()
@@ -19,6 +20,7 @@ describe('Rfq', () => {
       expect(message.exchangeId).to.exist
       expect(message.id).to.equal(message.exchangeId)
       expect(message.id).to.include('rfq_')
+      expect(message.metadata.protocol).to.equal('1.0')
     })
   })
 
@@ -206,6 +208,27 @@ describe('Rfq', () => {
       } catch (e) {
         expect(e.message).to.contain('claims do not fulfill the offering\'s requirements')
       }
+    })
+
+    it('throws an error if rfq protocol doesn\'t match the provided offering\'s protocol', async () => {
+      const rfq = Rfq.create({
+        metadata: {
+          from     : '',
+          to       : 'did:ex:pfi',
+          protocol : '2.0'
+        },
+        data: {
+          ...rfqOptions.data,
+          offeringId: 'ABC123456',
+        }
+      })
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('protocol version mismatch')
+      }
+
     })
 
     it('throws an error if offeringId doesn\'t match the provided offering\'s id', async () => {

@@ -19,7 +19,7 @@ describe('Exchange', () => {
     rfq = Rfq.create({
       metadata: {
         from : aliceDid.uri,
-        to   : pfiDid.uri,
+        to   : pfiDid.uri
       },
       data: await DevTools.createRfqData()
     })
@@ -29,7 +29,7 @@ describe('Exchange', () => {
       metadata: {
         from       : aliceDid.uri,
         to         : pfiDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         reason: 'I dont like u anymore'
@@ -51,7 +51,7 @@ describe('Exchange', () => {
       metadata: {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         reason: 'I dont like u anymore'
@@ -72,7 +72,7 @@ describe('Exchange', () => {
       metadata: {
         from       : pfiDid.uri,
         to         : aliceDid.uri,
-        exchangeId : rfq.metadata.exchangeId,
+        exchangeId : rfq.metadata.exchangeId
       },
       data: {
         orderStatus: 'Done'
@@ -137,7 +137,7 @@ describe('Exchange', () => {
         metadata: {
           from       : aliceDid.uri,
           to         : pfiDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
+          exchangeId : rfq.metadata.exchangeId
         },
         data: {
           reason: 'I dont like u anymore'
@@ -280,6 +280,57 @@ describe('Exchange', () => {
           }
         }
       })
+
+      it('cannot add a message if the protocol versions of the new message and the exchange mismatch', async () => {
+        const exchange = new Exchange()
+        exchange.addNextMessage(rfq)
+
+
+        let quote = Quote.create({
+          metadata: {
+            from       : pfiDid.uri,
+            to         : aliceDid.uri,
+            exchangeId : rfq.metadata.exchangeId,
+            protocol   : '2.0'
+          },
+          data: DevTools.createQuoteData()
+        })
+        await quote.sign(pfiDid)
+
+        try {
+          exchange.addNextMessage(quote)
+          expect.fail()
+        } catch (e) {
+          expect(e.message).to.contain('does not have matching protocol version')
+          expect(e.message).to.contain(rfq.metadata.protocol)
+          expect(e.message).to.contain('1.0')
+        }
+      })
+
+      it('cannot add a message if the exchangeId of the new message and the exchange mismatch', async () => {
+        const exchange = new Exchange()
+        exchange.addNextMessage(rfq)
+
+        let quote = Quote.create({
+          metadata: {
+            from       : pfiDid.uri,
+            to         : aliceDid.uri,
+            exchangeId : '123',
+
+          },
+          data: DevTools.createQuoteData()
+        })
+        await quote.sign(pfiDid)
+
+        try {
+          exchange.addNextMessage(quote)
+          expect.fail()
+        } catch (e) {
+          expect(e.message).to.contain('does not have matching exchange id')
+          expect(e.message).to.contain(rfq.metadata.exchangeId)
+          expect(e.message).to.contain('123')
+        }
+      })
     })
   })
 
@@ -289,7 +340,7 @@ describe('Exchange', () => {
       const rfq = Rfq.create({
         metadata: {
           from : aliceDid.uri,
-          to   : pfiDid.uri,
+          to   : pfiDid.uri
         },
         data: await DevTools.createRfqData()
       })
@@ -318,7 +369,7 @@ describe('Exchange', () => {
         metadata: {
           from       : pfiDid.uri,
           to         : aliceDid.uri,
-          exchangeId : rfq.metadata.exchangeId,
+          exchangeId : rfq.metadata.exchangeId
         },
         data: {
           orderStatus: 'Done'

@@ -13,5 +13,15 @@ describe('Close', () => {
       expect(closeMessage.exchangeId).to.equal(exchangeId)
       expect(closeMessage.externalId).to.equal('ext_1234')
     })
+
+    it('sets `protocol` to current package version', () => {
+      const exchangeId = Message.generateId('rfq')
+      const closeMessage = Close.create({
+        metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234' },
+        data     : { reason: 'beepboop' }
+      })
+
+      expect(closeMessage.protocol).to.equal('1.0')
+    })
   })
 })
