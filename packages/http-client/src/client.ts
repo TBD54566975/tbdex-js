@@ -72,7 +72,7 @@ export class TbdexHttpClient {
     const { to: pfiDid, exchangeId } = rfq.metadata
     const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/rfq`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges`, requestBody)
   }
 
   /**
@@ -88,7 +88,7 @@ export class TbdexHttpClient {
     const { to: pfiDid, exchangeId } = order.metadata
     const requestBody = JSON.stringify(order)
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/order`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}`, requestBody)
   }
 
   /**
@@ -105,7 +105,7 @@ export class TbdexHttpClient {
 
     const requestBody = JSON.stringify(close)
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/close`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}`, requestBody)
   }
 
   private static async sendMessage(pfiDid: string, path: string, requestBody: string): Promise<void> {
