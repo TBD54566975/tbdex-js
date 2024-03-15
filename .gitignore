@@ -148,3 +148,6 @@ packages/**/src/try.ts
 
 # Test report
 results.xml
+
+# Hermit build output
+.hermit
