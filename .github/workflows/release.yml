@@ -35,11 +35,9 @@ jobs:
       - name: Init Hermit
         uses: cashapp/activate-hermit@v1
 
-      - name: Set up Node.js
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
+      - name: Store NPM Registry Settings to .npmrc
+        run: |
+          echo -e "//registry.npmjs.org/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
 
       - name: Verify NPM token is authenticated with NPMjs.com
         env:
