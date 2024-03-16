@@ -1,5 +1,16 @@
 # @tbdex/http-client
 
+## 0.27.0
+
+### Patch Changes
+
+- [#191](https://github.com/TBD54566975/tbdex-js/pull/191) [`46481e7`](https://github.com/TBD54566975/tbdex-js/commit/46481e7fe74111f4f8a3cc7bf3f7943843a30cf7) Thanks [@kirahsapong](https://github.com/kirahsapong)! - Introduce protocol field to messages and resources
+
+- [#191](https://github.com/TBD54566975/tbdex-js/pull/191) [`46481e7`](https://github.com/TBD54566975/tbdex-js/commit/46481e7fe74111f4f8a3cc7bf3f7943843a30cf7) Thanks [@kirahsapong](https://github.com/kirahsapong)! - Update client test
+
+- Updated dependencies [[`46481e7`](https://github.com/TBD54566975/tbdex-js/commit/46481e7fe74111f4f8a3cc7bf3f7943843a30cf7), [`4f45153`](https://github.com/TBD54566975/tbdex-js/commit/4f45153d19ac6722a84d6087a0e6119be32966dc), [`1acffee`](https://github.com/TBD54566975/tbdex-js/commit/1acffeeae4fa1820b63a340fcac1ea8fae4f0219)]:
+  - @tbdex/protocol@0.27.0
+
 ## 0.26.1
 
 ### Patch Changes
