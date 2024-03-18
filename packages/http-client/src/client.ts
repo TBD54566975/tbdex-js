@@ -69,7 +69,7 @@ export class TbdexHttpClient {
   static async createExchange(rfq: Rfq, opts?: { replyTo?: string }): Promise<void> {
     await rfq.verify()
 
-    const { to: pfiDid, exchangeId } = rfq.metadata
+    const { to: pfiDid } = rfq.metadata
     const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
 
     await TbdexHttpClient.sendMessage(pfiDid, `/exchanges`, requestBody)

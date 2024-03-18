@@ -1,11 +1,11 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
 
-import { TbdexHttpServer, RequestContext, GetExchangesFilter } from '../src/main.js'
+import { TbdexHttpServer, RequestContext } from '../src/main.js'
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
-import { DevTools, ErrorDetail, Rfq, TbdexHttpClient } from '@tbdex/http-client'
+import { DevTools, ErrorDetail, TbdexHttpClient } from '@tbdex/http-client'
 
 describe('GET /exchanges', () => {
   let server: Server
@@ -64,8 +64,6 @@ describe('GET /exchanges', () => {
   })
 
   it('returns 404 if no matching exchange is found', async () => {
-    const alice = await DidJwk.create()
-
     const rfq = await DevTools.createRfq({ sender: alice, receiver: pfi })
 
     // Deliberately omit rfq from ExchangesApi
@@ -83,8 +81,6 @@ describe('GET /exchanges', () => {
   })
 
   it('returns 403 if exchange found does not belong to the DID in the requestToken', async () => {
-    const alice = await DidJwk.create()
-
     const rfq = await DevTools.createRfq({ sender: alice, receiver: pfi });
     (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
 
@@ -101,8 +97,6 @@ describe('GET /exchanges', () => {
   })
 
   it(`passes the exchangeId to ExchangesApi.getExchange`, async () => {
-    const alice = await DidJwk.create()
-
     const rfq = await DevTools.createRfq({ sender: alice, receiver: pfi });
     (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
 
@@ -126,16 +120,14 @@ describe('GET /exchanges', () => {
   })
 
   it('calls the callback if it is provided', async () => {
-    const aliceDid = await DidJwk.create()
-    const pfiDid = await DidJwk.create()
-    const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
-    await rfq.sign(aliceDid);
+    const rfq = await DevTools.createRfq({ sender: alice, receiver: pfi })
+    await rfq.sign(alice);
     (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
 
     const callbackSpy = Sinon.spy((_ctx: RequestContext) => Promise.resolve())
     api.onGetExchange(callbackSpy)
 
-    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: aliceDid, pfiDid: api.pfiDid })
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       headers: {

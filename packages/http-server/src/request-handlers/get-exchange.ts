@@ -1,4 +1,4 @@
-import type { ExchangesApi, GetExchangeCallback, SubmitCloseCallback, SubmitOrderCallback } from '../types.js'
+import type { ExchangesApi, GetExchangeCallback } from '../types.js'
 import { TbdexHttpClient } from '@tbdex/http-client'
 import { Request, Response } from 'express'
 
