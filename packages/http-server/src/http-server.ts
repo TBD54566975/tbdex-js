@@ -19,6 +19,7 @@ import { jsonBodyParser } from './middleware/index.js'
 import { InMemoryOfferingsApi } from './in-memory-offerings-api.js'
 import { InMemoryExchangesApi } from './in-memory-exchanges-api.js'
 import { submitMessage } from './request-handlers/submit-message.js'
+import { getExchange } from './request-handlers/get-exchange.js'
 
 /**
  * Maps the requests to their respective callbacks handlers
@@ -118,6 +119,15 @@ export class TbdexHttpServer {
   }
 
   /**
+   * Set up a callback or overwrite the existing callback for the GetExchange endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetExchange endpoint.
+   */
+  onGetExchange(callback: GetExchangeCallback): void {
+    this.callbacks.getExchange = callback
+  }
+
+  /**
    * Set up a callback or overwrite the existing callback for the GetExchanges endpoint
    * @param callback - A callback to be invoked when a valid request is sent to the
    *                   GetExchanges endpoint.
@@ -156,6 +166,14 @@ export class TbdexHttpServer {
         submitOrderCallback : this.callbacks.submitOrder,
         submitCloseCallback : this.callbacks.submitClose,
         exchangesApi,
+      })
+    )
+
+    this.api.get('/exchanges/:exchangeId', (req: Request, res: Response) =>
+      getExchange(req, res, {
+        callback: this.callbacks.getExchange,
+        exchangesApi,
+        pfiDid,
       })
     )
 
