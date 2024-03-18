@@ -6,11 +6,9 @@ on:
       - main
   workflow_dispatch:
 
-# Allow only one concurrent deployment, but do NOT cancel in-progress runs as
-# we want to allow these release deployments to complete.
+# Allow only one concurrent deployment
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -46,21 +44,13 @@ jobs:
           REGISTRY: https://blockxyz.jfrog.io/artifactory/api/npm/tbd-oss-snapshots-npm/
         run: |
           set -exuo pipefail
-          cd packages/protocol
 
-          base_version=$(jq -r .version package.json)
+          base_version=$(jq -r .version packages/protocol/package.json)
           commits_since_version_bump=$(git rev-list HEAD $(git describe --tags --abbrev=0 HEAD) --count)
-          latest_commit="$(git rev-parse HEAD)"
+          latest_commit="$(git rev-parse --short=7 HEAD)"
 
-          snapshot_version="${base_version}-SNAPSHOT.${commits_since_version_bump}-${latest_commit:0:7}"
+          snapshot_version="${base_version}-SNAPSHOT.${commits_since_version_bump}-${latest_commit}"
 
-          # check if that snapshot version has already been published
-          if npm view --registry "${REGISTRY}" "@tbdex/protocol@${snapshot_version}" > /dev/null; then
-              echo "release for @tbdex/protocol@${snapshot_version} already exists, not re-publishing"
-              exit 0
-          fi
-
-          cd ../..
           pnpm install
           pnpm build
 
