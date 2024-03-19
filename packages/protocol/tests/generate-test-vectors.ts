@@ -17,7 +17,15 @@ const pfiDid = await DidDht.create()
 const aliceDid = await DidDht.create()
 
 const generateParseOfferingVector = async () => {
-  const pfiDid = await await DidDht.create()
+  const pfiDid = await await DidDht.create({
+    options: {
+      services: [{
+        type            : 'PFI',
+        id              : 'pfi',
+        serviceEndpoint : 'https://localhost:9000'
+      }]
+    }
+  })
   const offering = DevTools.createOffering({ from: pfiDid.uri })
 
   await offering.sign(pfiDid)
