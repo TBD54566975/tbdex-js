@@ -4,6 +4,7 @@ import type { Close, Exchange, Offering, Order, OrderStatus, Quote, Rfq } from '
 
 /**
  * Callback handler for GetExchange requests
+ * @beta
  */
 export type GetExchangeCallback = (ctx: RequestContext) => any
 
