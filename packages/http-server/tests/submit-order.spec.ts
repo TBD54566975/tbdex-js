@@ -24,7 +24,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
   it('returns a 400 if no request body is provided', async () => {
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method: 'POST'
+      method: 'PUT'
     })
 
     expect(resp.status).to.equal(400)
@@ -39,7 +39,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
   it('returns a 400 if request body is not a valid json object', async () => {
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method : 'POST',
+      method : 'PUT',
       body   : '!@!#'
     })
 
@@ -65,7 +65,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
     })
     await order.sign(aliceDid)
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -102,7 +102,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
     await order.sign(aliceDid)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -154,7 +154,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
     await order.sign(aliceDid)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -208,7 +208,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
     await order.sign(aliceDid)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -260,7 +260,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
       api.onSubmitOrder(callbackSpy)
 
       const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-        method : 'POST',
+        method : 'PUT',
         body   : JSON.stringify(order)
       })
 

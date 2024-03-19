@@ -24,7 +24,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
   it('returns a 400 if no request body is provided', async () => {
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method: 'POST'
+      method: 'PUT'
     })
 
     expect(resp.status).to.equal(400)
@@ -50,7 +50,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     })
     await close.sign(alice)
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(close)
     })
 
@@ -99,7 +99,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     })
     await close2.sign(alice)
     const resp = await fetch(`http://localhost:8000/exchanges/${exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(close2)
     })
 
@@ -140,7 +140,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     await close.sign(alice)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(close)
     })
 
@@ -174,7 +174,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     await close.sign(pfi)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(close)
     })
 
@@ -208,7 +208,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     await close.sign(imposter)
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(close)
     })
 
@@ -242,7 +242,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
       api.onSubmitClose(callbackSpy)
 
       const resp = await fetch('http://localhost:8000/exchanges/123', {
-        method : 'POST',
+        method : 'PUT',
         body   : JSON.stringify(close)
       })
 
@@ -278,7 +278,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
       api.onSubmitClose(callbackSpy)
 
       const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-        method : 'POST',
+        method : 'PUT',
         body   : JSON.stringify(close)
       })
 

@@ -22,7 +22,7 @@ describe('POST /exchanges/:exchangeId', () => {
 
   it('returns a 400 if request body is not a valid json object', async () => {
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method : 'POST',
+      method : 'PUT',
       body   : '!@!#'
     })
 
@@ -50,7 +50,7 @@ describe('POST /exchanges/:exchangeId', () => {
     // deliberately omit await order.sign(aliceDid)
 
     const resp = await fetch('http://localhost:8000/exchanges/123', {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -71,7 +71,7 @@ describe('POST /exchanges/:exchangeId', () => {
     })
     await rfq.sign(alice)
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
-      method : 'POST',
+      method : 'PUT',
       body   : JSON.stringify(rfq)
     })
 
