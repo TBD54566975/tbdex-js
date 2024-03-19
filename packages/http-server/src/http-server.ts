@@ -161,7 +161,7 @@ export class TbdexHttpServer {
       })
     )
 
-    this.api.post('/exchanges/:exchangeId', (req: Request, res: Response) =>
+    this.api.put('/exchanges/:exchangeId', (req: Request, res: Response) =>
       submitMessage(req, res, {
         submitOrderCallback : this.callbacks.submitOrder,
         submitCloseCallback : this.callbacks.submitClose,
