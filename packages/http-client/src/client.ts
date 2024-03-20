@@ -69,10 +69,10 @@ export class TbdexHttpClient {
   static async createExchange(rfq: Rfq, opts?: { replyTo?: string }): Promise<void> {
     await rfq.verify()
 
-    const { to: pfiDid, exchangeId } = rfq.metadata
+    const { to: pfiDid } = rfq.metadata
     const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/rfq`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, 'POST', `/exchanges`, requestBody)
   }
 
   /**
@@ -88,7 +88,7 @@ export class TbdexHttpClient {
     const { to: pfiDid, exchangeId } = order.metadata
     const requestBody = JSON.stringify(order)
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/order`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, 'PUT', `/exchanges/${exchangeId}`, requestBody)
   }
 
   /**
@@ -105,17 +105,17 @@ export class TbdexHttpClient {
 
     const requestBody = JSON.stringify(close)
 
-    await TbdexHttpClient.sendMessage(pfiDid, `/exchanges/${exchangeId}/close`, requestBody)
+    await TbdexHttpClient.sendMessage(pfiDid, 'PUT', `/exchanges/${exchangeId}`, requestBody)
   }
 
-  private static async sendMessage(pfiDid: string, path: string, requestBody: string): Promise<void> {
+  private static async sendMessage(pfiDid: string, verb: 'GET' | 'PUT' | 'POST', path: string, requestBody: string): Promise<void> {
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
     const apiRoute = `${pfiServiceEndpoint}${path}`
 
     let response: Response
     try {
       response = await fetch(apiRoute, {
-        method  : 'POST',
+        method  : verb,
         headers : { 'content-type': 'application/json' },
         body    : requestBody
       })

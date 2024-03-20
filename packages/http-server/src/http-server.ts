@@ -1,11 +1,12 @@
 import type {
   OfferingsApi,
   ExchangesApi,
-  SubmitRfqCallback,
+  CreateExchangeCallback,
   SubmitOrderCallback,
   SubmitCloseCallback,
   GetExchangesCallback,
   GetOfferingsCallback,
+  GetExchangeCallback,
 } from './types.js'
 
 import type { Express, Request, Response } from 'express'
@@ -13,21 +14,24 @@ import type { Express, Request, Response } from 'express'
 import express from 'express'
 import cors from 'cors'
 
-import { getExchanges, getOfferings, submitOrder, submitClose, createExchange } from './request-handlers/index.js'
+import { getExchanges, getOfferings, createExchange } from './request-handlers/index.js'
 import { jsonBodyParser } from './middleware/index.js'
 import { InMemoryOfferingsApi } from './in-memory-offerings-api.js'
 import { InMemoryExchangesApi } from './in-memory-exchanges-api.js'
+import { submitMessage } from './request-handlers/submit-message.js'
+import { getExchange } from './request-handlers/get-exchange.js'
 
 /**
  * Maps the requests to their respective callbacks handlers
  * @beta
  */
 type CallbackMap = {
-  exchanges?: GetExchangesCallback
-  offerings?: GetOfferingsCallback
-  rfq?: SubmitRfqCallback
-  order?: SubmitOrderCallback
-  close?: SubmitCloseCallback
+  getExchange?: GetExchangeCallback
+  getExchanges?: GetExchangesCallback
+  getOfferings?: GetOfferingsCallback
+  createExchange?: CreateExchangeCallback
+  submitOrder?: SubmitOrderCallback
+  submitClose?: SubmitCloseCallback
 }
 
 /**
@@ -92,26 +96,35 @@ export class TbdexHttpServer {
    * @param callback - A callback to be invoked when a valid Rfq is sent to the
    *                   CreateExchange endpoint.
    */
-  onSubmitRfq(callback: SubmitRfqCallback): void {
-    this.callbacks.rfq = callback
+  onCreateExchange(callback: CreateExchangeCallback): void {
+    this.callbacks.createExchange = callback
   }
 
   /**
-   * Set up a callback or overwrite the existing callback for the for the SubmitOrder endpoint
+   * Set up a callback or overwrite the existing callback for the for the SubmitMessage endpoint
    * @param callback - A callback to be invoked when a valid Order is sent to the
-   *                   SubmitOrder endpoint.
+   *                   SubmitMessage endpoint.
    */
   onSubmitOrder(callback: SubmitOrderCallback): void {
-    this.callbacks.order = callback
+    this.callbacks.submitOrder = callback
   }
 
   /**
-   * Set up a callback or overwrite the existing callback for the SubmitClose endpoint.
+   * Set up a callback or overwrite the existing callback for the for the SubmitMessage endpoint
    * @param callback - A callback to be invoked when a valid Close is sent to the
-   *                   SubmitClose endpoint.
+   *                   SubmitMessage endpoint.
    */
   onSubmitClose(callback: SubmitCloseCallback): void {
-    this.callbacks.close = callback
+    this.callbacks.submitClose = callback
+  }
+
+  /**
+   * Set up a callback or overwrite the existing callback for the GetExchange endpoint
+   * @param callback - A callback to be invoked when a valid request is sent to the
+   *                   GetExchange endpoint.
+   */
+  onGetExchange(callback: GetExchangeCallback): void {
+    this.callbacks.getExchange = callback
   }
 
   /**
@@ -120,7 +133,7 @@ export class TbdexHttpServer {
    *                   GetExchanges endpoint.
    */
   onGetExchanges(callback: GetExchangesCallback): void {
-    this.callbacks.exchanges = callback
+    this.callbacks.getExchanges = callback
   }
 
   /**
@@ -129,7 +142,7 @@ export class TbdexHttpServer {
    *                   GetOfferings endpoint.
    */
   onGetOfferings(callback: GetOfferingsCallback): void {
-    this.callbacks.offerings = callback
+    this.callbacks.getOfferings = callback
   }
 
   /**
@@ -140,31 +153,33 @@ export class TbdexHttpServer {
   listen(port: number | string, callback?: () => void) {
     const { offeringsApi, exchangesApi, pfiDid } = this
 
-    this.api.post('/exchanges/:exchangeId/rfq', (req: Request, res: Response) =>
+    this.api.post('/exchanges', (req: Request, res: Response) =>
       createExchange(req, res, {
-        callback: this.callbacks['rfq'],
+        callback: this.callbacks['createExchange'],
         offeringsApi,
         exchangesApi,
       })
     )
 
-    this.api.post('/exchanges/:exchangeId/order', (req: Request, res: Response) =>
-      submitOrder(req, res, {
-        callback: this.callbacks['order'],
-        exchangesApi
+    this.api.put('/exchanges/:exchangeId', (req: Request, res: Response) =>
+      submitMessage(req, res, {
+        submitOrderCallback : this.callbacks.submitOrder,
+        submitCloseCallback : this.callbacks.submitClose,
+        exchangesApi,
       })
     )
 
-    this.api.post('/exchanges/:exchangeId/close', (req: Request, res: Response) =>
-      submitClose(req, res,{
-        callback: this.callbacks.close,
+    this.api.get('/exchanges/:exchangeId', (req: Request, res: Response) =>
+      getExchange(req, res, {
+        callback: this.callbacks.getExchange,
         exchangesApi,
+        pfiDid,
       })
     )
 
     this.api.get('/exchanges', (req: Request, res: Response) =>
       getExchanges(req, res, {
-        callback: this.callbacks.exchanges,
+        callback: this.callbacks.getExchanges,
         exchangesApi,
         pfiDid,
       })
@@ -172,7 +187,7 @@ export class TbdexHttpServer {
 
     this.api.get('/offerings', (req, res) =>
       getOfferings(req, res, {
-        callback: this.callbacks['offerings'],
+        callback: this.callbacks['getOfferings'],
         offeringsApi
       })
     )

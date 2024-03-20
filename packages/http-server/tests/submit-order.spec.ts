@@ -1,4 +1,4 @@
-import { ErrorDetail, Message, Quote, Rfq } from '@tbdex/http-client'
+import { ErrorDetail, Quote, Rfq } from '@tbdex/http-client'
 import type { Server } from 'http'
 
 import { DevTools, Order, RequestContext, TbdexHttpServer } from '../src/main.js'
@@ -8,7 +8,7 @@ import Sinon from 'sinon'
 import { DidJwk } from '@web5/dids'
 
 
-describe('POST /exchanges/:exchangeId/order', () => {
+describe('POST /exchanges/:exchangeId with an Order', () => {
   let api: TbdexHttpServer
   let server: Server
 
@@ -23,8 +23,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 400 if no request body is provided', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method: 'POST'
+    const resp = await fetch('http://localhost:8000/exchanges/123', {
+      method: 'PUT'
     })
 
     expect(resp.status).to.equal(400)
@@ -38,8 +38,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
   })
 
   it('returns a 400 if request body is not a valid json object', async () => {
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
+    const resp = await fetch('http://localhost:8000/exchanges/123', {
+      method : 'PUT',
       body   : '!@!#'
     })
 
@@ -64,8 +64,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
       }
     })
     await order.sign(aliceDid)
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
+    const resp = await fetch('http://localhost:8000/exchanges/123', {
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -77,58 +77,6 @@ describe('POST /exchanges/:exchangeId/order', () => {
     const [ error ] = responseBody.errors
     expect(error.detail).to.exist
     expect(error.detail).to.include('No exchange found for')
-  })
-
-  it('returns a 400 if request body is not a valid order object', async () => {
-    // scenario: Send an Rfq to the submitOrder endpoint
-
-    const aliceDid = await DidJwk.create()
-    const pfiDid = await DidJwk.create()
-
-    const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
-    await rfq.sign(aliceDid)
-
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
-      body   : JSON.stringify(rfq)
-    })
-
-    expect(resp.status).to.equal(400)
-
-    const responseBody = await resp.json() as { errors: ErrorDetail[] }
-    expect(responseBody.errors.length).to.equal(1)
-
-    const [ error ] = responseBody.errors
-    expect(error.detail).to.exist
-    expect(error.detail).to.include('Request body was not a valid Order message')
-  })
-
-  it('returns a 400 if request body if integrity check fails', async () => {
-    const aliceDid = await DidJwk.create()
-    const pfiDid = await DidJwk.create()
-
-    const order = Order.create({
-      metadata: {
-        from       : aliceDid.uri,
-        to         : pfiDid.uri,
-        exchangeId : Message.generateId('rfq'),
-      },
-    })
-    // deliberately omit await order.sign(aliceDid)
-
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
-      body   : JSON.stringify(order)
-    })
-
-    expect(resp.status).to.equal(400)
-
-    const responseBody = await resp.json() as { errors: ErrorDetail[] }
-    expect(responseBody.errors.length).to.equal(1)
-
-    const [ error ] = responseBody.errors
-    expect(error.detail).to.exist
-    expect(error.detail).to.include( 'Request body was not a valid Order message')
   })
 
   it(`returns a 409 if order is not allowed based on the exchange's current state`, async () => {
@@ -153,8 +101,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -205,8 +153,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
@@ -259,15 +207,15 @@ describe('POST /exchanges/:exchangeId/order', () => {
     })
     await order.sign(aliceDid)
 
-    const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-      method : 'POST',
+    const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
+      method : 'PUT',
       body   : JSON.stringify(order)
     })
 
     expect(resp.status).to.equal(202)
   })
 
-  describe('onSubmitClose callback', () => {
+  describe('onSubmitOrder callback', () => {
     it('returns a 202 if the provided callback succeeds and passes correct arguments to callback', async () => {
       const aliceDid = await DidJwk.create()
       const pfiDid = await DidJwk.create()
@@ -311,8 +259,8 @@ describe('POST /exchanges/:exchangeId/order', () => {
 
       api.onSubmitOrder(callbackSpy)
 
-      const resp = await fetch('http://localhost:8000/exchanges/123/order', {
-        method : 'POST',
+      const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
+        method : 'PUT',
         body   : JSON.stringify(order)
       })
 

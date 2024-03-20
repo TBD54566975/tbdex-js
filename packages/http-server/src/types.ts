@@ -1,6 +1,13 @@
 import type { Request, Response } from 'express'
 import type { Close, Exchange, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
 
+
+/**
+ * Callback handler for GetExchange requests
+ * @beta
+ */
+export type GetExchangeCallback = (ctx: RequestContext) => any
+
 /**
  * Callback handler for GetExchanges requests
  * @beta
@@ -17,19 +24,26 @@ export type GetOfferingsCallback = (ctx: RequestContext, filter: GetOfferingsFil
  * Callback handler for the SubmitRfq requests
  * @beta
  */
-export type SubmitRfqCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering, replyTo?: string }) => Promise<void>
+export type CreateExchangeCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering, replyTo?: string }) => Promise<void>
 
 /**
- * Callback handler for the SubmitOrder requests
+ * Callback handler for the SubmitMessage requests that submit an Order
  * @beta
  */
 export type SubmitOrderCallback = (ctx: RequestContext, message: Order) => Promise<void>
 
 /**
- * Callback handler for the SubmitClose requests
+ * Callback handler for the SubmitMessage requests that submit a Close
  * @beta
  */
 export type SubmitCloseCallback = (ctx: RequestContext, message: Close) => Promise<void>
+
+/**
+ * Callback handler for the SubmitMessage requests
+ * @beta
+ */
+export type SubmitMessageCallback = SubmitOrderCallback | SubmitCloseCallback
+
 
 /**
  * Filter options for retrieving a list of offerings

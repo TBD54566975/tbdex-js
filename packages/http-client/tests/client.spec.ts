@@ -80,7 +80,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(pfiDid.uri)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${rfq.metadata.exchangeId}/rfq`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges`)
       }
     })
 
@@ -170,7 +170,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(pfiDid.uri)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${order.metadata.exchangeId}/order`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${order.metadata.exchangeId}`)
       }
     })
 
@@ -256,7 +256,7 @@ describe('client', () => {
         expect(e.statusCode).to.exist
         expect(e.details).to.exist
         expect(e.recipientDid).to.equal(pfiDid.uri)
-        expect(e.url).to.equal(`https://localhost:9000/exchanges/${close.metadata.exchangeId}/close`)
+        expect(e.url).to.equal(`https://localhost:9000/exchanges/${close.metadata.exchangeId}`)
       }
     })
 
