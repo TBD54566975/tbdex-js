@@ -13,11 +13,18 @@ type TestVector = {
   error: boolean
 }
 
-const pfiDid = await DidDht.create()
+const pfiDid = await DidDht.create({
+  options: {
+    services: [{
+      type            : 'PFI',
+      id              : 'pfi',
+      serviceEndpoint : 'https://localhost:9000'
+    }]
+  }
+})
 const aliceDid = await DidDht.create()
 
 const generateParseOfferingVector = async () => {
-  const pfiDid = await await DidDht.create()
   const offering = DevTools.createOffering({ from: pfiDid.uri })
 
   await offering.sign(pfiDid)
@@ -31,7 +38,7 @@ const generateParseOfferingVector = async () => {
 }
 
 const generateParseQuoteVector = async () => {
-  const pfiDid = await DidDht.create()
+
   const quote = Quote.create({
     metadata: {
       exchangeId : Message.generateId('rfq'),
@@ -52,7 +59,6 @@ const generateParseQuoteVector = async () => {
 }
 
 const generateParseRfqVector = async () => {
-  const aliceDid = await DidDht.create()
   const vc = await VerifiableCredential.create({
     type    : 'PuupuuCredential',
     issuer  : aliceDid.uri,
@@ -99,7 +105,6 @@ const generateParseRfqVector = async () => {
 }
 
 const generateParseOrderVector = async () => {
-  const aliceDid = await DidDht.create()
   const order = Order.create({
     metadata: { from: aliceDid.uri, to: pfiDid.uri, exchangeId: Message.generateId('rfq'), externalId: 'ext_1234',  protocol: '1.0' }
   })
@@ -115,7 +120,6 @@ const generateParseOrderVector = async () => {
 }
 
 const generateParseCloseVector = async () => {
-  const pfiDid = await DidDht.create()
   const close = Close.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq'),  protocol: '1.0' },
     data     : {
@@ -134,7 +138,6 @@ const generateParseCloseVector = async () => {
 }
 
 const generateParseOrderStatusVector = async () => {
-  const pfiDid = await DidDht.create()
   const orderStatus = OrderStatus.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq'),  protocol: '1.0' },
     data     : {
