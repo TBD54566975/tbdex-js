@@ -1,7 +1,7 @@
 import type {
   OfferingsApi,
   ExchangesApi,
-  SubmitRfqCallback as CreateExchangeCallback,
+  CreateExchangeCallback,
   SubmitOrderCallback,
   SubmitCloseCallback,
   GetExchangesCallback,

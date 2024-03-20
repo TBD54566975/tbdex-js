@@ -24,7 +24,7 @@ export type GetOfferingsCallback = (ctx: RequestContext, filter: GetOfferingsFil
  * Callback handler for the SubmitRfq requests
  * @beta
  */
-export type SubmitRfqCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering, replyTo?: string }) => Promise<void>
+export type CreateExchangeCallback = (ctx: RequestContext, message: Rfq, opts: { offering: Offering, replyTo?: string }) => Promise<void>
 
 /**
  * Callback handler for the SubmitMessage requests that submit an Order

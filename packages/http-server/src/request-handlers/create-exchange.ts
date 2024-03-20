@@ -1,4 +1,4 @@
-import type { OfferingsApi, ExchangesApi, SubmitRfqCallback } from '../types.js'
+import type { OfferingsApi, ExchangesApi, CreateExchangeCallback } from '../types.js'
 import { Rfq } from '@tbdex/protocol'
 import type { ErrorDetail } from '@tbdex/http-client'
 
@@ -6,7 +6,7 @@ import { CallbackError } from '../callback-error.js'
 import { Request, Response } from 'express'
 
 type CreateExchangeOpts = {
-  callback?: SubmitRfqCallback
+  callback?: CreateExchangeCallback
   offeringsApi: OfferingsApi
   exchangesApi: ExchangesApi
 }
