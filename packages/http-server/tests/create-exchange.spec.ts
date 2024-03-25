@@ -238,44 +238,44 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
         data: {
           ...DevTools.createOfferingData(),
           requiredClaims : undefined,
-          payinCurrency  : {
+          payin  : {
             currencyCode : 'BTC',
-            minAmount    : '1000.0'
+            min    : '1000.0',
+            methods: [{
+              kind                   : 'BTC_ADDRESS',
+              requiredPaymentDetails : {
+                $schema    : 'http://json-schema.org/draft-07/schema',
+                type       : 'object',
+                properties : {
+                  btcAddress: {
+                    type        : 'string',
+                    description : 'your Bitcoin wallet address'
+                  }
+                },
+                required             : ['btcAddress'],
+                additionalProperties : false
+              }
+            }]
           },
-          payoutCurrency: {
+          payout: {
             currencyCode : 'BTC',
-            minAmount    : '1000.0',
+            min    : '1000.0',
+            methods: [{
+              kind                   : 'BTC_ADDRESS',
+              requiredPaymentDetails : {
+                $schema    : 'http://json-schema.org/draft-07/schema',
+                type       : 'object',
+                properties : {
+                  btcAddress: {
+                    type        : 'string',
+                    description : 'your Bitcoin wallet address'
+                  }
+                },
+                required             : ['btcAddress'],
+                additionalProperties : false
+              }
+            }]
           },
-          payinMethods: [{
-            kind                   : 'BTC_ADDRESS',
-            requiredPaymentDetails : {
-              $schema    : 'http://json-schema.org/draft-07/schema',
-              type       : 'object',
-              properties : {
-                btcAddress: {
-                  type        : 'string',
-                  description : 'your Bitcoin wallet address'
-                }
-              },
-              required             : ['btcAddress'],
-              additionalProperties : false
-            }
-          }],
-          payoutMethods: [{
-            kind                   : 'BTC_ADDRESS',
-            requiredPaymentDetails : {
-              $schema    : 'http://json-schema.org/draft-07/schema',
-              type       : 'object',
-              properties : {
-                btcAddress: {
-                  type        : 'string',
-                  description : 'your Bitcoin wallet address'
-                }
-              },
-              required             : ['btcAddress'],
-              additionalProperties : false
-            }
-          }]
         },
       })
       await offering.sign(pfiDid);
@@ -291,15 +291,15 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
           ...DevTools.createRfqData(),
           offeringId  : offering.metadata.id,
           claims      : [],
-          payinAmount : offering.data.payinCurrency.minAmount!,
-          payinMethod : {
-            kind           : offering.data.payinMethods[0].kind,
+          payin : {
+            kind           : offering.data.payin.methods[0].kind,
             paymentDetails : {
               btcAddress: '1234',
-            }
+            },
+            amount : offering.data.payin.min!,
           },
-          payoutMethod: {
-            kind           : offering.data.payoutMethods[0].kind,
+          payout: {
+            kind           : offering.data.payout.methods[0].kind,
             paymentDetails : {
               btcAddress: '1234',
             }

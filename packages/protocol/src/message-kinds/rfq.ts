@@ -1,4 +1,4 @@
-import type { MessageKind, MessageModel, PaymentMethod, RfqData, RfqMetadata, SelectedPaymentMethod } from '../types.js'
+import type { MessageKind, MessageModel, PaymentMethod, RfqData, RfqMetadata, SelectedPayoutMethod } from '../types.js'
 
 import { BigNumber } from 'bignumber.js'
 import { Offering } from '../resource-kinds/index.js'
@@ -106,28 +106,28 @@ export class Rfq extends Message {
 
     // Verifyin payin amount is less than maximum
     let payinAmount: BigNumber
-    if (offering.data.payinCurrency.maxAmount) {
-      payinAmount = BigNumber(this.data.payinAmount)
-      const maxAmount = BigNumber(offering.data.payinCurrency.maxAmount)
+    if (offering.data.payin.max) {
+      payinAmount = BigNumber(this.data.payin.amount)
+      const maxAmount = BigNumber(offering.data.payin.max)
 
       if (payinAmount.isGreaterThan(maxAmount)) {
-        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.data.payinAmount} > ${offering.data.payinCurrency.maxAmount} (offering)`)
+        throw new Error(`rfq payinAmount exceeds offering's maxAmount. (rfq) ${this.data.payin.amount} > ${offering.data.payin.max} (offering)`)
       }
     }
 
     // Verify payin amount is more than minimum
-    if (offering.data.payinCurrency.minAmount) {
-      payinAmount ??= BigNumber(this.data.payinAmount)
-      const minAmount = BigNumber(offering.data.payinCurrency.minAmount)
+    if (offering.data.payin.min) {
+      payinAmount ??= BigNumber(this.data.payin.amount)
+      const minAmount = BigNumber(offering.data.payin.min)
 
       if (payinAmount.isLessThan(minAmount)) {
-        throw new Error(`rfq payinAmount is below offering's minAmount. (rfq) ${this.data.payinAmount} > ${offering.data.payinCurrency.minAmount} (offering)`)
+        throw new Error(`rfq payinAmount is below offering's minAmount. (rfq) ${this.data.payin.amount} > ${offering.data.payin.min} (offering)`)
       }
     }
 
     // Verify payin/payout methods
-    this.verifyPaymentMethod(this.data.payinMethod, offering.data.payinMethods, 'payin')
-    this.verifyPaymentMethod(this.data.payoutMethod, offering.data.payoutMethods, 'payout')
+    this.verifyPaymentMethod(this.data.payin, offering.data.payin.methods, 'payin')
+    this.verifyPaymentMethod(this.data.payout, offering.data.payout.methods, 'payout')
 
     await this.verifyClaims(offering)
   }
@@ -143,7 +143,7 @@ export class Rfq extends Message {
    * @throws if rfqPaymentMethod property `paymentDetails` cannot be validated against the provided offering's paymentMethod's requiredPaymentDetails
    */
   private verifyPaymentMethod(
-    rfqPaymentMethod: SelectedPaymentMethod,
+    rfqPaymentMethod: SelectedPayoutMethod,
     allowedPaymentMethods: PaymentMethod[],
     payDirection: 'payin' | 'payout'
   ): void {

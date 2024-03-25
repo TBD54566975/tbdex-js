@@ -65,13 +65,9 @@ export type OfferingData = {
   /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
   payoutUnitsPerPayinUnit: string
   /** Details about the currency that the PFI is selling. */
-  payoutCurrency: CurrencyDetails
+  payout: PaymentDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */
-  payinCurrency: CurrencyDetails
-  /** A list of accepted payment methods that Alice can use to a _pay_ a PFI */
-  payinMethods: PaymentMethod[]
-  /** A list of accepted payment methods that Alice can use to receive the _payout_ currency from a PFI */
-  payoutMethods: PaymentMethod[]
+  payin: PaymentDetails
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
   requiredClaims?: PresentationDefinitionV2
 }
@@ -80,13 +76,15 @@ export type OfferingData = {
  * Currency details object
  * @beta
  */
-export type CurrencyDetails = {
+export type PaymentDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
   /** Minimum amount of currency that can be requested */
-  minAmount?: string
+  min?: string
   /** Maximum amount of currency that can be requested */
-  maxAmount?: string
+  max?: string
+  /** A list of payment methods to select from  */
+  methods: PaymentMethod[]
 }
 
 /**
@@ -185,21 +183,36 @@ export type MessageData = RfqData | QuoteData | OrderData | OrderStatusData | Cl
 export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
-  /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */
-  payinAmount: string
+
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
-  payinMethod: SelectedPaymentMethod
+  payin: SelectedPayinMethod
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
-  payoutMethod: SelectedPaymentMethod
+  payout: SelectedPayoutMethod
   /** claims that fulfill the requirements declared in an Offering */
   claims: string[]
+}
+
+/**
+ * The payin methods selected by Alice in the RFQ
+ * @beta
+ */
+export type SelectedPayinMethod = {
+  /** Amount of _payin_ currency alice wants to spend in order to receive payout currency */
+  amount: string
+  /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
+  kind: string
+  /**
+   * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
+   * Omitted from the signature payload.
+   */
+  paymentDetails?: Record<string, any>
 }
 
 /**
  * The payment methods selected by Alice in the RFQ
  * @beta
  */
-export type SelectedPaymentMethod = {
+export type SelectedPayoutMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
   kind: string
   /**

@@ -43,65 +43,65 @@ export class DevTools {
    */
   static createOfferingData(): OfferingData {
     return {
-      description   : 'Selling BTC for USD',
-      payinCurrency : {
+      description : 'Selling BTC for USD',
+      payin       : {
         currencyCode : 'USD',
-        minAmount    : '0.0',
-        maxAmount    : '999999.99',
+        min          : '0.0',
+        max          : '999999.99',
+        methods      : [{
+          kind                   : 'DEBIT_CARD',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              cardNumber: {
+                type        : 'string',
+                description : 'The 16-digit debit card number',
+                minLength   : 16,
+                maxLength   : 16
+              },
+              expiryDate: {
+                type        : 'string',
+                description : 'The expiry date of the card in MM/YY format',
+                pattern     : '^(0[1-9]|1[0-2])\\/([0-9]{2})$'
+              },
+              cardHolderName: {
+                type        : 'string',
+                description : 'Name of the cardholder as it appears on the card'
+              },
+              cvv: {
+                type        : 'string',
+                description : 'The 3-digit CVV code',
+                minLength   : 3,
+                maxLength   : 3
+              }
+            },
+            required             : ['cardNumber', 'expiryDate', 'cardHolderName', 'cvv'],
+            additionalProperties : false
+          }
+        }]
       },
-      payoutCurrency: {
+      payout: {
         currencyCode : 'BTC',
-        maxAmount    : '999526.11'
+        max          : '999526.11',
+        methods      : [{
+          kind                   : 'BTC_ADDRESS',
+          requiredPaymentDetails : {
+            $schema    : 'http://json-schema.org/draft-07/schema',
+            type       : 'object',
+            properties : {
+              btcAddress: {
+                type        : 'string',
+                description : 'your Bitcoin wallet address'
+              }
+            },
+            required             : ['btcAddress'],
+            additionalProperties : false
+          }
+        }]
       },
       payoutUnitsPerPayinUnit : '0.00003826',
-      payinMethods            : [{
-        kind                   : 'DEBIT_CARD',
-        requiredPaymentDetails : {
-          $schema    : 'http://json-schema.org/draft-07/schema',
-          type       : 'object',
-          properties : {
-            cardNumber: {
-              type        : 'string',
-              description : 'The 16-digit debit card number',
-              minLength   : 16,
-              maxLength   : 16
-            },
-            expiryDate: {
-              type        : 'string',
-              description : 'The expiry date of the card in MM/YY format',
-              pattern     : '^(0[1-9]|1[0-2])\\/([0-9]{2})$'
-            },
-            cardHolderName: {
-              type        : 'string',
-              description : 'Name of the cardholder as it appears on the card'
-            },
-            cvv: {
-              type        : 'string',
-              description : 'The 3-digit CVV code',
-              minLength   : 3,
-              maxLength   : 3
-            }
-          },
-          required             : ['cardNumber', 'expiryDate', 'cardHolderName', 'cvv'],
-          additionalProperties : false
-        }
-      }],
-      payoutMethods: [{
-        kind                   : 'BTC_ADDRESS',
-        requiredPaymentDetails : {
-          $schema    : 'http://json-schema.org/draft-07/schema',
-          type       : 'object',
-          properties : {
-            btcAddress: {
-              type        : 'string',
-              description : 'your Bitcoin wallet address'
-            }
-          },
-          required             : ['btcAddress'],
-          additionalProperties : false
-        }
-      }],
-      requiredClaims: {
+      requiredClaims          : {
         id                : '7ce4004c-3c38-4853-968b-e411bafcd945',
         input_descriptors : [{
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
@@ -182,9 +182,10 @@ export class DevTools {
     }
 
     return {
-      offeringId  : Resource.generateId('offering'),
-      payinMethod : {
+      offeringId : Resource.generateId('offering'),
+      payin      : {
         kind           : 'DEBIT_CARD',
+        amount         : '200.00',
         paymentDetails : {
           'cardNumber'     : '1234567890123456',
           'expiryDate'     : '12/22',
@@ -192,14 +193,13 @@ export class DevTools {
           'cvv'            : '123'
         }
       },
-      payoutMethod: {
+      payout: {
         kind           : 'BTC_ADDRESS',
         paymentDetails : {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinAmount : '200.00',
-      claims      : [vcJwt]
+      claims: [vcJwt]
     }
   }
 }
