@@ -238,10 +238,10 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
         data: {
           ...DevTools.createOfferingData(),
           requiredClaims : undefined,
-          payin  : {
+          payin          : {
             currencyCode : 'BTC',
-            min    : '1000.0',
-            methods: [{
+            min          : '1000.0',
+            methods      : [{
               kind                   : 'BTC_ADDRESS',
               requiredPaymentDetails : {
                 $schema    : 'http://json-schema.org/draft-07/schema',
@@ -259,8 +259,8 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
           },
           payout: {
             currencyCode : 'BTC',
-            min    : '1000.0',
-            methods: [{
+            min          : '1000.0',
+            methods      : [{
               kind                   : 'BTC_ADDRESS',
               requiredPaymentDetails : {
                 $schema    : 'http://json-schema.org/draft-07/schema',
@@ -289,14 +289,14 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
         },
         data: {
           ...DevTools.createRfqData(),
-          offeringId  : offering.metadata.id,
-          claims      : [],
-          payin : {
+          offeringId : offering.metadata.id,
+          claims     : [],
+          payin      : {
             kind           : offering.data.payin.methods[0].kind,
             paymentDetails : {
               btcAddress: '1234',
             },
-            amount : offering.data.payin.min!,
+            amount: offering.data.payin.min!,
           },
           payout: {
             kind           : offering.data.payout.methods[0].kind,

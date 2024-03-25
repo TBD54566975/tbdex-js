@@ -94,8 +94,17 @@ export type PaymentDetails = {
 export type PaymentMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
+  /** Payment Method name. Expected to be rendered on screen. */
+  name?: string
+  /**
+   * Blurb containing helpful information about the payment method.
+   * Expected to be rendered on screen. e.g. "segwit addresses only"
+   */
+  description?: string
   /** A JSON Schema containing the fields that need to be collected in order to use this payment method */
   requiredPaymentDetails?: JsonSchema
+  /** value that can be used to group specific payment methods together e.g. Mobile Money vs. Direct Bank Deposit */
+  group?: string
 }
 
 /**

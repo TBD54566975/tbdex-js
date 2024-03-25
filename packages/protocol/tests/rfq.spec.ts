@@ -256,9 +256,9 @@ describe('Rfq', () => {
           ...rfqOptions.data,
           payin: {
             ...rfqOptions.data.payin,
-            amount : '99999999999999999.0',
+            amount: '99999999999999999.0',
           },
-          offeringId  : offering.id
+          offeringId: offering.id
         }
       })
       try {
@@ -278,9 +278,9 @@ describe('Rfq', () => {
           ...rfqOptions.data,
           payin: {
             ...rfqOptions.data.payin,
-            amount : '0.1',
+            amount: '0.1',
           },
-          offeringId  : offering.id
+          offeringId: offering.id
         }
       })
 
@@ -345,8 +345,8 @@ describe('Rfq', () => {
           ...rfqOptions.data,
           payin: {
             // paymentDetails deliberately omitted
-            kind: 'CASH',
-            amount: '100.0'
+            kind   : 'CASH',
+            amount : '100.0'
           }
         }
       })
