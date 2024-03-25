@@ -105,6 +105,10 @@ export type PaymentMethod = {
   requiredPaymentDetails?: JsonSchema
   /** value that can be used to group specific payment methods together e.g. Mobile Money vs. Direct Bank Deposit */
   group?: string
+  /** minimum amount required to use this payment method. */
+  min?: string
+  /** maximum amount allowed when using this payment method. */
+  max?: string
 }
 
 /**
