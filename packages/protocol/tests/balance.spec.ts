@@ -1,4 +1,4 @@
-// TODO: uncomment once sdk up to latest spec offering schema
+// TODO: uncomment once sdk up to latest spec
 // import { Balance, Parser } from '../src/main.js'
 // import { DevTools } from '../src/dev-tools.js'
 // import { Convert } from '@web5/common'
