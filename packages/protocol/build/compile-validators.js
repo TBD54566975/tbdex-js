@@ -20,7 +20,7 @@ import { mkdirp } from 'mkdirp'
 import CloseSchema from '../../../tbdex/hosted/json-schemas/close.schema.json' assert { type: 'json' }
 import DefinitionsSchema from '../../../tbdex/hosted/json-schemas/definitions.json' assert { type: 'json' }
 import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.json' assert { type: 'json' }
-// TODO: uncomment once sdk up to latest spec offering schema
+// TODO: uncomment once sdk up to latest spec
 // import BalanceSchema from '../../../tbdex/hosted/json-schemas/balance.schema.json' assert { type: 'json' }
 import MessageSchema from '../../../tbdex/hosted/json-schemas/message.schema.json' assert { type: 'json' }
 import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' assert { type: 'json' }
@@ -33,7 +33,7 @@ const schemas = {
   close       : CloseSchema,
   definitions : DefinitionsSchema,
   offering    : OfferingSchema,
-  // TODO: uncomment once sdk up to latest spec offering schema
+  // TODO: uncomment once sdk up to latest spec
   // balance     : BalanceSchema,
   message     : MessageSchema,
   order       : OrderSchema,
@@ -71,4 +71,4 @@ const moduleCode = replaceRequireWithImport(generatedCode)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 await mkdirp(path.join(__dirname, '../generated'))
-fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.js'), moduleCode)
+fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.cjs'), moduleCode)
