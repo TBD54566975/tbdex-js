@@ -104,7 +104,7 @@ export class Rfq extends Message {
       throw new Error(`offering id mismatch. (rfq) ${this.data.offeringId} !== ${offering.metadata.id} (offering)`)
     }
 
-    // Verifyin payin amount is less than maximum
+    // Verifying payin amount is less than maximum
     let payinAmount: BigNumber
     if (offering.data.payin.max) {
       payinAmount = BigNumber(this.data.payin.amount)
