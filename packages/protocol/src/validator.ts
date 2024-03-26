@@ -1,6 +1,6 @@
 import type { ErrorObject } from 'ajv'
 // validator functions are compiled at build time. check ./build/compile-validators.js for more details
-import * as compiledValidators from '../generated/compiled-validators.js'
+import * as compiledValidators from '../generated/compiled-validators.cjs'
 
 /**
  * validates the payload against a json schema identified by name

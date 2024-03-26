@@ -8,7 +8,7 @@ import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-
 import { Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 
-describe.skip('TbdexTestVectorsProtocol', function () {
+describe('TbdexTestVectorsProtocol', function () {
   this.timeout(10000)
   it('parse_close', async () => {
     // Parse with parseMessage()
@@ -22,7 +22,7 @@ describe.skip('TbdexTestVectorsProtocol', function () {
     expect(close.toJSON()).to.deep.eq(ParseClose.output)
   })
 
-  it('parse_offering', async() => {
+  it.skip('parse_offering', async() => {
     // Parse with parseResource()
     const resource = await Parser.parseResource(ParseOffering.input)
     expect(resource.isOffering()).to.be.true
@@ -70,7 +70,7 @@ describe.skip('TbdexTestVectorsProtocol', function () {
     expect(quote.toJSON()).to.deep.eq(ParseQuote.output)
   })
 
-  it('parse_rfq', async () => {
+  it.skip('parse_rfq', async () => {
     // Parse with parseMessage()
     const message = await Parser.parseMessage(ParseRfq.input)
     expect(message.isRfq()).to.be.true
