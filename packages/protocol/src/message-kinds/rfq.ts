@@ -1,4 +1,4 @@
-import type { MessageKind, MessageModel, PaymentMethod, RfqData, RfqMetadata, SelectedPayoutMethod } from '../types.js'
+import type { MessageKind, MessageModel, PayinMethod, RfqData, RfqMetadata, SelectedPayoutMethod } from '../types.js'
 
 import { BigNumber } from 'bignumber.js'
 import { Offering } from '../resource-kinds/index.js'
@@ -144,7 +144,7 @@ export class Rfq extends Message {
    */
   private verifyPaymentMethod(
     rfqPaymentMethod: SelectedPayoutMethod,
-    allowedPaymentMethods: PaymentMethod[],
+    allowedPaymentMethods: PayinMethod[],
     payDirection: 'payin' | 'payout'
   ): void {
     const paymentMethodMatches = allowedPaymentMethods.filter(paymentMethod => paymentMethod.kind === rfqPaymentMethod.kind)

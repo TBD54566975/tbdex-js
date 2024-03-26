@@ -65,18 +65,18 @@ export type OfferingData = {
   /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
   payoutUnitsPerPayinUnit: string
   /** Details about the currency that the PFI is selling. */
-  payout: PaymentDetails
+  payout: PayoutDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */
-  payin: PaymentDetails
+  payin: PayinDetails
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
   requiredClaims?: PresentationDefinitionV2
 }
 
 /**
- * Currency details object
+ * Currency details object for payin
  * @beta
  */
-export type PaymentDetails = {
+export type PayinDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
   /** Minimum amount of currency that can be requested */
@@ -84,14 +84,29 @@ export type PaymentDetails = {
   /** Maximum amount of currency that can be requested */
   max?: string
   /** A list of payment methods to select from  */
-  methods: PaymentMethod[]
+  methods: PayinMethod[]
 }
 
 /**
- * The payment method specified by the resource pay in and pay out
+ * Currency details object for payout
  * @beta
  */
-export type PaymentMethod = {
+export type PayoutDetails = {
+  /** ISO 3166 currency code string */
+  currencyCode: string
+  /** Minimum amount of currency that can be requested */
+  min?: string
+  /** Maximum amount of currency that can be requested */
+  max?: string
+  /** A list of payment methods to select from  */
+  methods: PayoutMethod[]
+}
+
+/**
+ * The payin method specified by the resource pay in and pay out
+ * @beta
+ */
+export type PayinMethod = {
   /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
   kind: string
   /** Payment Method name. Expected to be rendered on screen. */
@@ -109,6 +124,33 @@ export type PaymentMethod = {
   min?: string
   /** maximum amount allowed when using this payment method. */
   max?: string
+}
+
+/**
+ * The payout method specified by the resource pay in and pay out
+ * @beta
+ */
+export type PayoutMethod = {
+  /** The type of payment method. e.g. BITCOIN_ADDRESS, DEBIT_CARD etc */
+  kind: string
+  /** estimated time taken to settle an order. expressed in seconds */
+  estimatedSettlementTime: number
+  /** Payment Method name. Expected to be rendered on screen. */
+  name?: string
+  /**
+   * Blurb containing helpful information about the payment method.
+   * Expected to be rendered on screen. e.g. "segwit addresses only"
+   */
+  description?: string
+  /** A JSON Schema containing the fields that need to be collected in order to use this payment method */
+  requiredPaymentDetails?: JsonSchema
+  /** value that can be used to group specific payment methods together e.g. Mobile Money vs. Direct Bank Deposit */
+  group?: string
+  /** minimum amount required to use this payment method. */
+  min?: string
+  /** maximum amount allowed when using this payment method. */
+  max?: string
+  /** */
 }
 
 /**

@@ -97,7 +97,8 @@ export class DevTools {
             },
             required             : ['btcAddress'],
             additionalProperties : false
-          }
+          },
+          estimatedSettlementTime: 10,
         }]
       },
       payoutUnitsPerPayinUnit : '0.00003826',
