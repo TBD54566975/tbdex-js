@@ -274,7 +274,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
                 required             : ['btcAddress'],
                 additionalProperties : false
               },
-              estimatedSettlementTime: 10,
+              estimatedSettlementTime: 10, // seconds
             }]
           },
         },
