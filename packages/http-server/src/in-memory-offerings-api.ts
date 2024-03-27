@@ -62,10 +62,10 @@ export class InMemoryOfferingsApi implements OfferingsApi {
     return allOfferings.filter((offering) => {
       // If filter includes a field, make sure the returned offerings match
       return (!id || id === offering.metadata.id) &&
-             (!payinCurrency || payinCurrency === offering.data.payinCurrency.currencyCode) &&
-             (!payoutCurrency || payoutCurrency === offering.data.payoutCurrency.currencyCode) &&
-             (!payinMethodKind || offering.data.payinMethods.map(pm => pm.kind).includes(payinMethodKind)) &&
-             (!payoutMethodKind || offering.data.payoutMethods.map(pm => pm.kind).includes(payoutMethodKind))
+             (!payinCurrency || payinCurrency === offering.data.payin.currencyCode) &&
+             (!payoutCurrency || payoutCurrency === offering.data.payout.currencyCode) &&
+             (!payinMethodKind || offering.data.payin.methods.map(pm => pm.kind).includes(payinMethodKind)) &&
+             (!payoutMethodKind || offering.data.payout.methods.map(pm => pm.kind).includes(payoutMethodKind))
     })
   }
 

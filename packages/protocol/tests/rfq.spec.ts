@@ -247,34 +247,40 @@ describe('Rfq', () => {
       }
     })
 
-    it('throws an error if payinAmount exceeds the provided offering\'s maxAmount', async () => {
-      offering.data.payinCurrency.maxAmount = '0.01'
+    it('throws an error if payinAmount exceeds the provided offering\'s max', async () => {
+      offering.data.payin.max = '0.01'
 
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinAmount : '99999999999999999.0',
-          offeringId  : offering.id
+          payin: {
+            ...rfqOptions.data.payin,
+            amount: '99999999999999999.0',
+          },
+          offeringId: offering.id
         }
       })
       try {
         await rfq.verifyOfferingRequirements(offering)
         expect.fail()
       } catch(e) {
-        expect(e.message).to.include('rfq payinAmount exceeds offering\'s maxAmount')
+        expect(e.message).to.include('rfq payinAmount exceeds offering\'s max')
       }
     })
 
     it('throws an error if payinAmount is less than the provided offering\'s minAmount', async () => {
-      offering.data.payinCurrency.minAmount = '100000000000.0'
+      offering.data.payin.min = '100000000000.0'
 
       const rfq = Rfq.create({
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinAmount : '0.1',
-          offeringId  : offering.id
+          payin: {
+            ...rfqOptions.data.payin,
+            amount: '0.1',
+          },
+          offeringId: offering.id
         }
       })
 
@@ -291,8 +297,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinMethod: {
-            ...rfqOptions.data.payinMethod,
+          payin: {
+            ...rfqOptions.data.payin,
             kind: 'POKEMON'
           }
         }
@@ -306,7 +312,7 @@ describe('Rfq', () => {
     })
 
     it('throws an error if paymentDetails is present but offering\'s requiredPaymentDetails is omitted', async () => {
-      offering.data.payinMethods = [{
+      offering.data.payin.methods = [{
         kind: 'CASH',
         // requiredPaymentDetails deliberately omitted
       }]
@@ -314,8 +320,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinMethod: {
-            ...rfqOptions.data.payinMethod, // paymentDetails deliberately present
+          payin: {
+            ...rfqOptions.data.payin, // paymentDetails deliberately present
             kind: 'CASH'
           }
         }
@@ -329,7 +335,7 @@ describe('Rfq', () => {
     })
 
     it('succeeds if paymentDetails is omitted and offering\'s requiredPaymentDetails is omitted', async () => {
-      offering.data.payinMethods = [{
+      offering.data.payin.methods = [{
         kind: 'CASH',
         // requiredPaymentDetails deliberately omitted
       }]
@@ -337,9 +343,10 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinMethod: {
+          payin: {
             // paymentDetails deliberately omitted
-            kind: 'CASH'
+            kind   : 'CASH',
+            amount : '100.0'
           }
         }
       })
@@ -351,8 +358,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payinMethod: {
-            ...rfqOptions.data.payinMethod,
+          payin: {
+            ...rfqOptions.data.payin,
             paymentDetails: {
               beep: 'boop'
             }
@@ -372,8 +379,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payoutMethod: {
-            ...rfqOptions.data.payoutMethod,
+          payout: {
+            ...rfqOptions.data.payout,
             kind: 'POKEMON'
           }
         }
@@ -391,8 +398,8 @@ describe('Rfq', () => {
         ...rfqOptions,
         data: {
           ...rfqOptions.data,
-          payoutMethod: {
-            ...rfqOptions.data.payoutMethod,
+          payout: {
+            ...rfqOptions.data.payout,
             paymentDetails: {
               beep: 'boop'
             }
@@ -416,7 +423,7 @@ describe('Rfq', () => {
       // Supply Offering with two payin methods of kind 'card'.
       // The first requires 'cardNumber' and 'pin'. The second only requires 'cardNumber'.
       offeringData.requiredClaims = undefined
-      offeringData.payinMethods = [
+      offeringData.payin.methods = [
         {
           kind                   : 'card',
           requiredPaymentDetails : {
@@ -462,11 +469,12 @@ describe('Rfq', () => {
       const alice = await DidJwk.create()
       const rfqData = await DevTools.createRfqData()
       rfqData.offeringId = offering.metadata.id
-      rfqData.payinMethod = {
+      rfqData.payin = {
         kind           : 'card',
         paymentDetails : {
           cardNumber: '1234'
-        }
+        },
+        amount: '100.0'
       }
       const rfq = Rfq.create({
         metadata: {

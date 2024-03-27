@@ -73,9 +73,10 @@ const generateParseRfqVector = async () => {
   const rfq = Rfq.create({
     metadata : { from: aliceDid.uri, to: pfiDid.uri,  protocol: '1.0' },
     data     : {
-      offeringId  : Resource.generateId('offering'),
-      payinMethod : {
+      offeringId : Resource.generateId('offering'),
+      payin      : {
         kind           : 'DEBIT_CARD',
+        amount         : '20000.00',
         paymentDetails : {
           'cardNumber'     : '1234567890123456',
           'expiryDate'     : '12/22',
@@ -83,14 +84,13 @@ const generateParseRfqVector = async () => {
           'cvv'            : '123'
         }
       },
-      payoutMethod: {
+      payout: {
         kind           : 'BTC_ADDRESS',
         paymentDetails : {
           btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
         }
       },
-      payinAmount : '20000.00',
-      claims      : [vcJwt]
+      claims: [vcJwt]
     }
   })
 
