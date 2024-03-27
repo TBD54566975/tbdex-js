@@ -45,8 +45,26 @@ for (const schemaName in schemas) {
   validator.addSchema(schemas[schemaName], schemaName)
 }
 
-const moduleCode = standaloneCode(validator)
+const generatedCode = standaloneCode(validator)
+
+// https://github.com/ajv-validator/ajv/issues/2209
+// ESM generation is broken in AJV standalone.
+// In particular, it will "require" files from AJVs runtime directory instead of "import"ing.
+function replaceRequireWithImport(inputString) {
+  const variableNameRegex = /\w+/; // Matches the variable name
+  const moduleNameRegex = /[^"']+/; // Matches the module name
+  const regex = new RegExp(
+      `const\\s+(${variableNameRegex.source})\\s*=\\s*require\\s*\\(\\s*[\"'](${moduleNameRegex.source})[\"']\\s*\\)\\.default`,
+      'g'
+  );
+
+  const replacedString = inputString.replace(regex, 'import { default as $1 } from "$2.js"');
+  return replacedString;
+}
+const moduleCode = replaceRequireWithImport(generatedCode)
+
+
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 await mkdirp(path.join(__dirname, '../generated'))
-fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.cjs'), moduleCode)
+fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.js'), moduleCode)
