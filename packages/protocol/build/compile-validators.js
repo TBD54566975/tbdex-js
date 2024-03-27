@@ -25,6 +25,7 @@ import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' a
 import OrderstatusSchema from '../../../tbdex/hosted/json-schemas/orderstatus.schema.json' assert { type: 'json' }
 import QuoteSchema from '../../../tbdex/hosted/json-schemas/quote.schema.json' assert { type: 'json' }
 import ResourceSchema from '../../../tbdex/hosted/json-schemas/resource.schema.json' assert { type: 'json' }
+import RfqPrivateSchema from '../../../tbdex/hosted/json-schemas/rfq-private.schema.json' assert { type: 'json' }
 import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
 
 const schemas = {
@@ -36,6 +37,7 @@ const schemas = {
   orderstatus : OrderstatusSchema,
   quote       : QuoteSchema,
   resource    : ResourceSchema,
+  rfqPrivate  : RfqPrivateSchema,
   rfq         : RfqSchema,
 }
 

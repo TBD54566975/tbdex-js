@@ -1,5 +1,5 @@
 import type { MessageKind, MessageModel, MessageMetadata, MessageData } from './types.js'
-import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
+import { Rfq, Quote, Order, OrderStatus, Close, VerifyRfqOptions } from './message-kinds/index.js'
 
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
@@ -60,7 +60,7 @@ export abstract class Message {
    * @throws see {@link Crypto.verify}
    * @returns Signer's DID
    */
-  async verify(): Promise<string> {
+  async verify(opts?: VerifyRfqOptions): Promise<string> {
     this.validate()
 
     const signer = await this.verifySignature()

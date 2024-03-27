@@ -114,6 +114,116 @@ describe('Rfq', () => {
 
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
     })
+
+    describe('requireAllPrivateData: true', () => {
+      it('succeeds when all privateData is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+
+        await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+      })
+
+      it('throws if private data is missing but hashed fields are present in Rfq.data', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('Could not verify all privateData because privateData property is missing')
+        }
+      })
+
+      it('throws if salt is missing but hashed fields are present in Rfq.data', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.salt
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('Salt must be present')
+        }
+      })
+
+      it('throws if Rfq.privateData.payin.paymentDetails is missing but Rfq.data.payin.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.payin!.paymentDetails
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payin.paymentDetailsHash does not match digest of privateData.payin.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.payout.paymentDetails is missing but Rfq.data.payout.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.payout!.paymentDetails
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payout.paymentDetailsHash does not match digest of privateData.payout.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHashes is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.claims
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.claimsHashes[0] does not match digest of privateData.claims[0]')
+        }
+      })
+    })
   })
 
   describe('verifySignature', () => {
