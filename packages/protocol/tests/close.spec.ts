@@ -7,7 +7,7 @@ describe('Close', () => {
       const exchangeId = Message.generateId('rfq')
       const closeMessage = Close.create({
         metadata : { from: 'did:ex:alice', to: 'did:ex:pfi', exchangeId, externalId: 'ext_1234' },
-        data     : { reason: 'life is hard' }
+        data     : { reason: 'life is hard', success: false }
       })
 
       expect(closeMessage.exchangeId).to.equal(exchangeId)
