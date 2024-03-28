@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import type { Close, Exchange, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
+import type { Balance, Close, Exchange, Offering, Order, OrderStatus, Quote, Rfq } from '@tbdex/protocol'
 
 
 /**
@@ -19,6 +19,12 @@ export type GetExchangesCallback = (ctx: RequestContext, filter: GetExchangesFil
  * @beta
  */
 export type GetOfferingsCallback = (ctx: RequestContext) => any
+
+/**
+ * Callback handler for GetBalances requests
+ * @beta
+ */
+export type GetBalancesCallback = (ctx: RequestContext) => any
 
 /**
  * Callback handler for the SubmitRfq requests
@@ -80,6 +86,17 @@ export interface OfferingsApi {
    * Retrieve a list of offerings based on the given filter
    */
   getOfferings(): Promise<Offering[]>
+}
+
+/**
+ * PFI Balances API
+ * @beta
+ */
+export interface BalancesApi {
+  /**
+   * Retrieve a list of balances
+   */
+  getBalances(): Promise<Balance[]>
 }
 
 /**
