@@ -14,7 +14,7 @@ export async function getOfferings(request: Request, response: Response, opts: G
   if (callback) {
     // TODO: figure out what to do with callback result. should we pass through the offerings we've fetched
     //       and allow the callback to modify what's returned? (issue #11)
-    await callback({ request, response }, {})
+    await callback({ request, response })
   }
 
   response.status(200).json({ data: offerings })

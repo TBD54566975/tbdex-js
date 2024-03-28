@@ -1,7 +1,7 @@
 import { DevTools, Offering } from '@tbdex/protocol'
 import type { Server } from 'http'
 
-import { GetOfferingsFilter, RequestContext, TbdexHttpServer } from '../src/main.js'
+import { RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
 import Sinon from 'sinon'
@@ -42,7 +42,7 @@ describe('GET /offerings', () => {
     await offering.sign(pfiDid);
     (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
 
-    const callbackSpy = Sinon.spy((_ctx: RequestContext, _filter: GetOfferingsFilter) => Promise.resolve())
+    const callbackSpy = Sinon.spy((_ctx: RequestContext) => Promise.resolve())
     api.onGetOfferings(callbackSpy)
 
     const response = await fetch('http://localhost:8000/offerings?filter=')
