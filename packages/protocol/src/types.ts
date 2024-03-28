@@ -274,6 +274,7 @@ export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHashes'>
 }
 
 /**
+ * A container for the unhashed `paymentDetails`
  * @beta
  */
 export type PrivatePaymentDetails = {
