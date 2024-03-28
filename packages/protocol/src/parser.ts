@@ -32,7 +32,8 @@ export class Parser {
         message = new Rfq(
           jsonMessage.metadata as RfqMetadata,
           jsonMessage.data as RfqData,
-          jsonMessage.signature
+          jsonMessage.signature,
+          jsonMessage.privateData,
         )
         break
 

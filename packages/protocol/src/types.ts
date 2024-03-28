@@ -164,6 +164,8 @@ export type MessageModel = {
   data: MessageData
   /** signature that verifies that authenticity and integrity of a message */
   signature?: string
+  /** Private data which can be detached from the payload without disrupting integrity. Only used in RFQs */
+  privateData?: RfqPrivateData
 }
 
 /**
@@ -238,13 +240,41 @@ export type MessageData = RfqData | QuoteData | OrderData | OrderStatusData | Cl
 export type RfqData = {
   /** Offering which Alice would like to get a quote for */
   offeringId: string
-
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
   payin: SelectedPayinMethod
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
   payout: SelectedPayoutMethod
+  /** Hashes of claims that fulfill the requirements declared in an Offering */
+  claimsHashes: string[]
+}
+
+/**
+ * Private data contained in a RFQ message
+ * @beta
+ */
+export type RfqPrivateData = {
+  /** Randomly generated cryptographic salt used to hash privateData fields */
+  salt?: string
   /** claims that fulfill the requirements declared in an Offering */
+  claims?: string[]
+  /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */
+  payin?: PrivatePaymentDetails
+  /** Selected payment method that the PFI will use to send the listed base currency to Alice */
+  payout?: PrivatePaymentDetails
+}
+
+export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHashes'> & {
+  payin: Omit<SelectedPayinMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails
+  payout: Omit<SelectedPayoutMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails,
   claims: string[]
+}
+
+export type PrivatePaymentDetails = {
+  /**
+   * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
+   * Omitted from the signature payload.
+   */
+  paymentDetails?: Record<string, any>
 }
 
 /**
@@ -260,7 +290,7 @@ export type SelectedPayinMethod = {
    * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
    * Omitted from the signature payload.
    */
-  paymentDetails?: Record<string, any>
+  paymentDetailsHash?: string
 }
 
 /**
@@ -274,7 +304,7 @@ export type SelectedPayoutMethod = {
    * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
    * Omitted from the signature payload.
    */
-  paymentDetails?: Record<string, any>
+  paymentDetailsHash?: string
 }
 
 /**
