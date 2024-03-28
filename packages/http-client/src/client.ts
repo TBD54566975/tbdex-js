@@ -135,11 +135,10 @@ export class TbdexHttpClient {
    * @beta
    */
   static async getOfferings(opts: GetOfferingsOptions): Promise<Offering[]> {
-    const { pfiDid, filter } = opts
+    const { pfiDid } = opts
 
     const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
-    const queryParams = filter ? `?${queryString.stringify(filter)}` : ''
-    const apiRoute = `${pfiServiceEndpoint}/offerings${queryParams}`
+    const apiRoute = `${pfiServiceEndpoint}/offerings`
 
     let response: Response
     try {
@@ -361,13 +360,6 @@ export class TbdexHttpClient {
 export type GetOfferingsOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
-  filter?: {
-    /** ISO 3166 currency code string */
-    payinCurrency?: string
-    /** ISO 3166 currency code string */
-    payoutCurrency?: string
-    id?: string
-  }
 }
 
 /**

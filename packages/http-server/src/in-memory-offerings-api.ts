@@ -1,5 +1,5 @@
 import { Offering } from '@tbdex/protocol'
-import { GetOfferingsFilter, OfferingsApi } from './types.js'
+import { OfferingsApi } from './types.js'
 
 /**
  * An in-memory implementation of {@link OfferingsApi} for example and default purposes.
@@ -43,30 +43,8 @@ export class InMemoryOfferingsApi implements OfferingsApi {
    * @param opts - Filter used to select offerings
    * @returns A list of offerings matching the filter
    */
-  async getOfferings(opts?: { filter: GetOfferingsFilter }): Promise<Offering[]> {
-    const allOfferings = Array.from(this.offeringsMap.values())
-
-    if (opts?.filter === undefined || Object.values(opts.filter).every(v => v === undefined)) {
-      // If no filter is provided, return all offerings
-      return allOfferings
-    }
-
-    const { filter: {
-      id,
-      payinCurrency,
-      payoutCurrency,
-      payinMethodKind,
-      payoutMethodKind,
-    } } = opts
-
-    return allOfferings.filter((offering) => {
-      // If filter includes a field, make sure the returned offerings match
-      return (!id || id === offering.metadata.id) &&
-             (!payinCurrency || payinCurrency === offering.data.payin.currencyCode) &&
-             (!payoutCurrency || payoutCurrency === offering.data.payout.currencyCode) &&
-             (!payinMethodKind || offering.data.payin.methods.map(pm => pm.kind).includes(payinMethodKind)) &&
-             (!payoutMethodKind || offering.data.payout.methods.map(pm => pm.kind).includes(payoutMethodKind))
-    })
+  async getOfferings(): Promise<Offering[]> {
+    return Array.from(this.offeringsMap.values())
   }
 
 }
