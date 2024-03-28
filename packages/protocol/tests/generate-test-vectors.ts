@@ -104,6 +104,55 @@ const generateParseRfqVector = async () => {
   }
 }
 
+const generateParseRfqOmitPrivateDataVector = async () => {
+  const vc = await VerifiableCredential.create({
+    type    : 'PuupuuCredential',
+    issuer  : aliceDid.uri,
+    subject : aliceDid.uri,
+    data    : {
+      'beep': 'boop'
+    }
+  })
+
+  const vcJwt = await vc.sign({ did: aliceDid })
+
+  const rfq = Rfq.create({
+    metadata : { from: aliceDid.uri, to: pfiDid.uri,  protocol: '1.0' },
+    data     : {
+      offeringId : Resource.generateId('offering'),
+      payin      : {
+        kind           : 'DEBIT_CARD',
+        amount         : '20000.00',
+        paymentDetails : {
+          'cardNumber'     : '1234567890123456',
+          'expiryDate'     : '12/22',
+          'cardHolderName' : 'Ephraim Bartholomew Winthrop',
+          'cvv'            : '123'
+        }
+      },
+      payout: {
+        kind           : 'BTC_ADDRESS',
+        paymentDetails : {
+          btcAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'
+        }
+      },
+      claims: [vcJwt]
+    }
+  })
+
+  await rfq.sign(aliceDid)
+
+  const rfqJson = rfq.toJSON()
+  delete rfqJson.privateData
+
+  return {
+    description : 'RFQ with privateData omitted parses from string',
+    input       : JSON.stringify(rfqJson),
+    output      : rfqJson,
+    error       : false,
+  }
+}
+
 const generateParseOrderVector = async () => {
   const order = Order.create({
     metadata: { from: aliceDid.uri, to: pfiDid.uri, exchangeId: Message.generateId('rfq'), externalId: 'ext_1234',  protocol: '1.0' }
@@ -166,6 +215,7 @@ const overWriteTestVectors = async () => {
     { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
     { filename: 'parse-close.json', vector: await generateParseCloseVector() },
     { filename: 'parse-rfq.json', vector: await generateParseRfqVector() },
+    { filename: 'parse-rfq-omit-private-data.json', vector: await generateParseRfqOmitPrivateDataVector() },
     { filename: 'parse-order.json', vector: await generateParseOrderVector() },
     { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
   ]
