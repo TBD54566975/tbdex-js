@@ -224,7 +224,8 @@ export class TbdexHttpServer {
       this.api.get('/balances', (req, res) =>
         getBalances(req, res, {
           callback: this.callbacks['getBalances'],
-          balancesApi
+          balancesApi,
+          pfiDid,
         })
       )
     }

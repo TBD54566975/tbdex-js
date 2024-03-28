@@ -96,7 +96,7 @@ export interface BalancesApi {
   /**
    * Retrieve a list of balances
    */
-  getBalances(): Promise<Balance[]>
+  getBalances(opts?: { requesterDid: string }): Promise<Balance[]>
 }
 
 /**
