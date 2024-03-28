@@ -22,7 +22,7 @@ describe('TbdexTestVectorsProtocol', function () {
     expect(close.toJSON()).to.deep.eq(ParseClose.output)
   })
 
-  it.skip('parse_offering', async() => {
+  it('parse_offering', async() => {
     // Parse with parseResource()
     const resource = await Parser.parseResource(ParseOffering.input)
     expect(resource.isOffering()).to.be.true
