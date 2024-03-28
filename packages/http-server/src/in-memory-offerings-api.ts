@@ -54,18 +54,14 @@ export class InMemoryOfferingsApi implements OfferingsApi {
     const { filter: {
       id,
       payinCurrency,
-      payoutCurrency,
-      payinMethodKind,
-      payoutMethodKind,
+      payoutCurrency
     } } = opts
 
     return allOfferings.filter((offering) => {
       // If filter includes a field, make sure the returned offerings match
       return (!id || id === offering.metadata.id) &&
              (!payinCurrency || payinCurrency === offering.data.payin.currencyCode) &&
-             (!payoutCurrency || payoutCurrency === offering.data.payout.currencyCode) &&
-             (!payinMethodKind || offering.data.payin.methods.map(pm => pm.kind).includes(payinMethodKind)) &&
-             (!payoutMethodKind || offering.data.payout.methods.map(pm => pm.kind).includes(payoutMethodKind))
+             (!payoutCurrency || payoutCurrency === offering.data.payout.currencyCode)
     })
   }
 

@@ -49,11 +49,9 @@ describe('GET /offerings', () => {
 
     // Specify query params
     const queryParams: GetOfferingsFilter = {
-      id               : offering.metadata.id,
-      payinCurrency    : offering.data.payin.currencyCode,
-      payoutCurrency   : offering.data.payout.currencyCode,
-      payinMethodKind  : offering.data.payin.methods[0].kind,
-      payoutMethodKind : offering.data.payout.methods[0].kind
+      id             : offering.metadata.id,
+      payinCurrency  : offering.data.payin.currencyCode,
+      payoutCurrency : offering.data.payout.currencyCode
     }
     const queryParamsString: string =
       Object.entries(queryParams)

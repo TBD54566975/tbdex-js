@@ -10,11 +10,9 @@ export async function getOfferings(request: Request, response: Response, opts: G
   const { callback, offeringsApi } = opts
 
   const filter: GetOfferingsFilter = {
-    payinCurrency    : request.query.payinCurrency?.toString(),
-    payoutCurrency   : request.query.payoutCurrency?.toString(),
-    payinMethodKind  : request.query.payinMethodKind?.toString(),
-    payoutMethodKind : request.query.payoutMethodKind?.toString(),
-    id               : request.query.id?.toString(),
+    payinCurrency  : request.query.payinCurrency?.toString(),
+    payoutCurrency : request.query.payoutCurrency?.toString(),
+    id             : request.query.id?.toString()
   }
 
   const offerings = await offeringsApi.getOfferings({ filter })

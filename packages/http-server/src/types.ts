@@ -50,18 +50,10 @@ export type SubmitMessageCallback = SubmitOrderCallback | SubmitCloseCallback
  * @beta
  */
 export type GetOfferingsFilter = {
-  /** Currency that the PFI is buying in exchange for payout currency - ISO 3166 currency code string */
+  /** ISO 3166 currency code string */
   payinCurrency?: string
-
-  /** Currency that the PFI is selling - ISO 3166 currency code string */
+  /** ISO 3166 currency code string */
   payoutCurrency?: string
-
-  /** The payin method used to pay money to the PFI */
-  payinMethodKind?: string
-
-  /** The payout method to receive money from the PFI  */
-  payoutMethodKind?: string
-
   /** Offering ID */
   id?: string
 }
