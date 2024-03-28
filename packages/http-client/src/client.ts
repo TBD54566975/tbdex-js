@@ -2,6 +2,7 @@ import type { JwtPayload } from '@web5/crypto'
 import type { ErrorDetail } from './types.js'
 import type { DidDocument, BearerDid } from '@web5/dids'
 import {
+  Balance,
   Close,
   MessageModel,
   Order,
@@ -160,6 +161,40 @@ export class TbdexHttpClient {
       const offering = await Offering.parse(jsonOffering)
       data.push(offering)
     }
+
+    return data
+  }
+
+  /**
+   * gets balances from the pfi provided
+   * @param opts - options
+   * @beta
+   */
+  static async getBalances(opts: GetBalancesOptions): Promise<Balance[]> {
+    const { pfiDid, did } = opts
+
+    const pfiServiceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid)
+    const apiRoute = `${pfiServiceEndpoint}/balances`
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: did, pfiDid })
+
+    let response: Response
+    try {
+      response = await fetch(apiRoute, {
+        headers: {
+          authorization: `Bearer ${requestToken}`
+        }
+      })
+    } catch (e) {
+      throw new RequestError({ message: `Failed to get balances from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
+    }
+
+    if (!response.ok) {
+      const errorDetails = await response.json() as ErrorDetail[]
+      throw new ResponseError({ statusCode: response.status, details: errorDetails, recipientDid: pfiDid, url: apiRoute })
+    }
+
+    const responseBody = await response.json() as { data: Balance[] }
+    const data: Balance[] = responseBody.data
 
     return data
   }
@@ -360,6 +395,16 @@ export class TbdexHttpClient {
 export type GetOfferingsOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
+}
+
+/**
+ * options passed to {@link TbdexHttpClient.getBalances} method
+ * @beta
+ */
+export type GetBalancesOptions = {
+  /** the DID of the PFI from whom you want to get balances */
+  pfiDid: string
+  did: BearerDid
 }
 
 /**

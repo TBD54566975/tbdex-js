@@ -37,6 +37,19 @@ const generateParseOfferingVector = async () => {
   }
 }
 
+const generateParseBalanceVector = async () => {
+  const balance = DevTools.createBalance({ from: pfiDid.uri })
+
+  await balance.sign(pfiDid)
+
+  return {
+    description : 'Balance parses from string',
+    input       : JSON.stringify(balance.toJSON()),
+    output      : balance.toJSON(),
+    error       : false,
+  }
+}
+
 const generateParseQuoteVector = async () => {
 
   const quote = Quote.create({
@@ -163,6 +176,7 @@ const overWriteTestVectors = async () => {
   // Add more test vector generators as you need them. This is not a complete list.
   const vectorFilePair: { filename: string, vector: TestVector }[] = [
     { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
+    { filename: 'parse-balance.json', vector: await generateParseBalanceVector() },
     { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
     { filename: 'parse-close.json', vector: await generateParseCloseVector() },
     { filename: 'parse-rfq.json', vector: await generateParseRfqVector() },

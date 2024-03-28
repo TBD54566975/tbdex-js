@@ -5,7 +5,8 @@ import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
-import { Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
+import { Balance, Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 
 describe('TbdexTestVectorsProtocol', function () {
@@ -80,5 +81,17 @@ describe('TbdexTestVectorsProtocol', function () {
     const rfq = await Rfq.parse(ParseRfq.input)
     expect(rfq.isRfq()).to.be.true
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
+  })
+
+  it('parse_balance', async () => {
+    // Parse with parseResource()
+    const resource = await Parser.parseResource(ParseBalance.input)
+    expect(resource.isBalance()).to.be.true
+    expect(resource.toJSON()).to.deep.eq(ParseBalance.output)
+
+    // Parse with Balance.parse()
+    const balance = await Balance.parse(ParseBalance.input)
+    expect(balance.isBalance()).to.be.true
+    expect(balance.toJSON()).to.deep.eq(ParseBalance.output)
   })
 })
