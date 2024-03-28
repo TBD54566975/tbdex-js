@@ -106,7 +106,7 @@ const generateParseRfqVector = async () => {
 
 const generateParseRfqOmitPrivateDataVector = async () => {
   const vc = await VerifiableCredential.create({
-    type    : 'PuupuuCredential',
+    type    : 'PewPewCredential',
     issuer  : aliceDid.uri,
     subject : aliceDid.uri,
     data    : {
