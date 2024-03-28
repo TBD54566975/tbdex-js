@@ -1,7 +1,7 @@
 import { DevTools, Offering } from '@tbdex/protocol'
 import type { Server } from 'http'
 
-import { GetOfferingsFilter, RequestContext, TbdexHttpServer } from '../src/main.js'
+import { RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
 import Sinon from 'sinon'
@@ -36,46 +36,13 @@ describe('GET /offerings', () => {
     expect(responseBody.data[0]).to.deep.eq(offering.toJSON())
   })
 
-  it('constructs the filter from query params and passes it to OfferingsApi', async () => {
-    const pfiDid = await DidJwk.create()
-
-    // Add an offering to OfferingsApi
-    const offering = DevTools.createOffering()
-    await offering.sign(pfiDid);
-    (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
-
-    // Set up spy
-    const exchangesApiSpy = Sinon.spy(api.offeringsApi, 'getOfferings')
-
-    // Specify query params
-    const queryParams: GetOfferingsFilter = {
-      id               : offering.metadata.id,
-      payinCurrency    : offering.data.payin.currencyCode,
-      payoutCurrency   : offering.data.payout.currencyCode,
-      payinMethodKind  : offering.data.payin.methods[0].kind,
-      payoutMethodKind : offering.data.payout.methods[0].kind
-    }
-    const queryParamsString: string =
-      Object.entries(queryParams)
-        .map(([k, v]) => `${k}=${v}`)
-        .join('&')
-
-
-    const response = await fetch(`http://localhost:8000/offerings?${queryParamsString}`)
-
-    expect(response.status).to.equal(200)
-
-    expect(exchangesApiSpy.calledOnce).to.be.true
-    expect(exchangesApiSpy.firstCall.args[0]?.filter).to.deep.eq(queryParams)
-  })
-
   it('calls the callback if it is provided', async () => {
     const pfiDid = await DidJwk.create()
     const offering = DevTools.createOffering()
     await offering.sign(pfiDid);
     (api.offeringsApi as InMemoryOfferingsApi).addOffering(offering)
 
-    const callbackSpy = Sinon.spy((_ctx: RequestContext, _filter: GetOfferingsFilter) => Promise.resolve())
+    const callbackSpy = Sinon.spy((_ctx: RequestContext) => Promise.resolve())
     api.onGetOfferings(callbackSpy)
 
     const response = await fetch('http://localhost:8000/offerings?filter=')
