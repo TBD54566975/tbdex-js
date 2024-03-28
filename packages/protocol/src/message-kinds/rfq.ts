@@ -1,4 +1,4 @@
-import type { MessageKind, MessageModel, PayinMethod, RfqData, RfqMetadata, RfqPrivateData, SelectedPayoutMethod, UnhashedRfqData } from '../types.js'
+import type { MessageKind, MessageModel, PayinMethod, RfqData, RfqMetadata, RfqPrivateData, UnhashedRfqData } from '../types.js'
 
 import { BigNumber } from 'bignumber.js'
 import { Crypto } from '../crypto.js'
@@ -9,7 +9,6 @@ import Ajv from 'ajv'
 import { Parser } from '../parser.js'
 import { validate } from '../validator.js'
 import { Convert } from '@web5/common'
-import { Hash } from '@noble/hashes/utils'
 
 /**
  * Options passed to {@link Rfq.create}
@@ -123,7 +122,7 @@ export class Rfq extends Message {
 
   /**
    * Hash private RFQ data and set private fields in an RfqPrivateData object
-   * @param unhashedRfqData 
+   * @param unhashedRfqData
    * @returns An object with fields data and privateData.
    * @returns {@link RfqData} The value of data field.
    * @returns {@link RfqPrivateData} The value of privateData field.
@@ -142,9 +141,9 @@ export class Rfq extends Message {
 
     const data = {
       ...remainingRfqData,
-      payin: remainingPayin,
-      payout: remainingPayout,
-      claimsHashes: claims.map((claim) => Rfq.digestPrivateData(salt, claim))
+      payin        : remainingPayin,
+      payout       : remainingPayout,
+      claimsHashes : claims.map((claim) => Rfq.digestPrivateData(salt, claim))
     }
     if (payinDetails !== undefined) {
       data.payin.paymentDetailsHash = Rfq.digestPrivateData(salt, payinDetails)
@@ -269,8 +268,8 @@ export class Rfq extends Message {
 
   /**
    * Given a salt and a value, compute a deterministic digest used in hashed fields in RfqData
-   * @param salt 
-   * @param value 
+   * @param salt
+   * @param value
    * @returns salted hash of the private data value
    */
   private static digestPrivateData(salt: string, value: any): string {
@@ -333,7 +332,7 @@ export class Rfq extends Message {
       this.data.payout.paymentDetailsHash,
       this.privateData?.payout?.paymentDetails,
       offering.data.payout.methods,
-     'payout'
+      'payout'
     )
 
     await this.verifyClaims(offering)

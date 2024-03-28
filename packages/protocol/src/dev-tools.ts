@@ -1,5 +1,5 @@
 
-import type { OfferingData, QuoteData, RfqData, UnhashedRfqData } from './types.js'
+import type { OfferingData, QuoteData, UnhashedRfqData } from './types.js'
 import type { BearerDid } from '@web5/dids'
 
 import { Offering } from './resource-kinds/index.js'
