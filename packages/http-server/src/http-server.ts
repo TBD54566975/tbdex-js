@@ -23,7 +23,6 @@ import { InMemoryExchangesApi } from './in-memory-exchanges-api.js'
 import { submitMessage } from './request-handlers/submit-message.js'
 import { getExchange } from './request-handlers/get-exchange.js'
 import { getBalances } from './request-handlers/get-balances.js'
-import { InMemoryBalancesApi } from './in-memory-balances-api.js'
 
 /**
  * Maps the requests to their respective callbacks handlers
@@ -43,17 +42,14 @@ type CallbackMap = {
  * Options for creating a new HttpServer
  * @param opts.offeringsApi Optionally accepts an {@link OfferingsApi}. Defaults to an {@link InMemoryOfferingsApi} which supports additional methods.
  * @param opts.exchangesApi Optionally accepts an {@link ExchangesApi}. Defaults to an {@link InMemoryExchangesApi} which supports additional methods.
- * @param opts.balances Optionally accepts an `{ }` with 0-1 properties to indicate that this HttpServer should support the optional `balance` endpoint. Else, leave `undefined`.
- * @param opts.balancesApi Optionally accepts a {@link BalancesApi}. Defaults to an {@link InMemoryBalancesApi} which supports additional methods.
+ * @param opts.balancesApi Optionally accepts a {@link BalancesApi}. Example: {@link InMemoryBalancesApi} which supports additional methods. Else, leave `undefined` if not supporting the balances endpoint.
  * @param opts.pfiDid Required if instantiating the HttpServer with options. Else, defaults to an arbitrary string for example purposes only.
  * @beta
  */
 type NewHttpServerOptions = {
   offeringsApi?: OfferingsApi
   exchangesApi?: ExchangesApi,
-  balances?: {
-    balancesApi?: BalancesApi,
-  }
+  balancesApi?: BalancesApi,
   pfiDid: string
 }
 
@@ -97,7 +93,7 @@ export class TbdexHttpServer {
 
     this.exchangesApi = opts?.exchangesApi ?? new InMemoryExchangesApi()
     this.offeringsApi = opts?.offeringsApi ?? new InMemoryOfferingsApi()
-    this.balancesApi = opts?.balances ? opts?.balances.balancesApi ?? new InMemoryBalancesApi() : undefined
+    this.balancesApi = opts?.balancesApi ?? undefined
     this.pfiDid = opts?.pfiDid ?? 'did:ex:pfi'
 
     // initialize api here so that consumers can attach custom endpoints

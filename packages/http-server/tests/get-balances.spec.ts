@@ -1,19 +1,19 @@
 import { DevTools, Balance } from '@tbdex/protocol'
 import type { Server } from 'http'
 
-import { ErrorDetail, RequestContext, TbdexHttpServer } from '../src/main.js'
+import { RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryBalancesApi } from '../src/in-memory-balances-api.js'
 import Sinon from 'sinon'
 import { DidJwk } from '@web5/dids'
-import { TbdexHttpClient } from '@tbdex/http-client'
+import { ErrorDetail, TbdexHttpClient } from '@tbdex/http-client'
 
 describe('GET /balances', () => {
   let api: TbdexHttpServer
   let server: Server
 
   beforeEach(() => {
-    api =  new TbdexHttpServer({ balances: { }, pfiDid: 'did:ex:pfi' })
+    api =  new TbdexHttpServer({ balancesApi: new InMemoryBalancesApi(), pfiDid: 'did:ex:pfi' })
     server = api.listen(8000)
   })
 
