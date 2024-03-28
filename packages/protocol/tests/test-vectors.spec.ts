@@ -5,11 +5,8 @@ import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
-// TODO: Uncomment after we gen tbdex vectors
-// import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
-// TODO: Uncomment and consolidate with import below after we gen tbdex vectors
-// import { Balance } from '../src/main.js'
-import { Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
+import { Balance, Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 
 describe('TbdexTestVectorsProtocol', function () {
@@ -86,16 +83,15 @@ describe('TbdexTestVectorsProtocol', function () {
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
   })
 
-  // TODO: Uncomment after we gen tbdex vectors
-  // it.skip('parse_balance', async () => {
-  //   // Parse with parseResource()
-  //   const resource = await Parser.parseResource(ParseBalance.input)
-  //   expect(resource.isBalance()).to.be.true
-  //   expect(resource.toJSON()).to.deep.eq(ParseBalance.output)
+  it('parse_balance', async () => {
+    // Parse with parseResource()
+    const resource = await Parser.parseResource(ParseBalance.input)
+    expect(resource.isBalance()).to.be.true
+    expect(resource.toJSON()).to.deep.eq(ParseBalance.output)
 
-  //   // Parse with Balance.parse()
-  //   const balance = await Balance.parse(ParseBalance.input)
-  //   expect(balance.isBalance()).to.be.true
-  //   expect(balance.toJSON()).to.deep.eq(ParseBalance.output)
-  // })
+    // Parse with Balance.parse()
+    const balance = await Balance.parse(ParseBalance.input)
+    expect(balance.isBalance()).to.be.true
+    expect(balance.toJSON()).to.deep.eq(ParseBalance.output)
+  })
 })
