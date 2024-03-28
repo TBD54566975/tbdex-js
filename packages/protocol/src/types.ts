@@ -343,5 +343,5 @@ export type CloseData = {
   /** an explanation of why the exchange is being closed */
   reason?: string
   /** indicates whether or not the exchange successfully completed */
-  success?: string
+  success?: boolean
 }
