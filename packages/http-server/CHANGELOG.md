@@ -1,5 +1,17 @@
 # @tbdex/http-server
 
+## 0.28.0
+
+### Minor Changes
+
+- [#204](https://github.com/TBD54566975/tbdex-js/pull/204) [`69d10f0`](https://github.com/TBD54566975/tbdex-js/commit/69d10f08956cd08446494d85208d68570f1bc3d1) Thanks [@diehuxx](https://github.com/diehuxx)! - Restructure HTTP exchange endpoints
+
+### Patch Changes
+
+- Updated dependencies [[`69d10f0`](https://github.com/TBD54566975/tbdex-js/commit/69d10f08956cd08446494d85208d68570f1bc3d1)]:
+  - @tbdex/http-client@0.28.0
+  - @tbdex/protocol@0.28.0
+
 ## 0.27.0
 
 ### Minor Changes
