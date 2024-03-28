@@ -45,7 +45,7 @@ type CallbackMap = {
  * @param opts.exchangesApi Optionally accepts an {@link ExchangesApi}. Defaults to an {@link InMemoryExchangesApi} which supports additional methods.
  * @param opts.balances Optionally accepts an `{ }` with 0-1 properties to indicate that this HttpServer should support the optional `balance` endpoint. Else, leave `undefined`.
  * @param opts.balancesApi Optionally accepts a {@link BalancesApi}. Defaults to an {@link InMemoryBalancesApi} which supports additional methods.
- * @param opts.pfiDid Required if instantiating the HttpServer with options.
+ * @param opts.pfiDid Required if instantiating the HttpServer with options. Else, defaults to an arbitrary string for example purposes only.
  * @beta
  */
 type NewHttpServerOptions = {
