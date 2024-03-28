@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import type { GetOfferingsCallback, GetOfferingsFilter, OfferingsApi } from '../types.js'
+import type { GetOfferingsCallback, OfferingsApi } from '../types.js'
 
 type GetOfferingsOpts = {
   callback?: GetOfferingsCallback
@@ -9,18 +9,12 @@ type GetOfferingsOpts = {
 export async function getOfferings(request: Request, response: Response, opts: GetOfferingsOpts): Promise<void> {
   const { callback, offeringsApi } = opts
 
-  const filter: GetOfferingsFilter = {
-    payinCurrency  : request.query.payinCurrency?.toString(),
-    payoutCurrency : request.query.payoutCurrency?.toString(),
-    id             : request.query.id?.toString()
-  }
-
-  const offerings = await offeringsApi.getOfferings({ filter })
+  const offerings = await offeringsApi.getOfferings()
 
   if (callback) {
     // TODO: figure out what to do with callback result. should we pass through the offerings we've fetched
     //       and allow the callback to modify what's returned? (issue #11)
-    await callback({ request, response }, filter)
+    await callback({ request, response })
   }
 
   response.status(200).json({ data: offerings })

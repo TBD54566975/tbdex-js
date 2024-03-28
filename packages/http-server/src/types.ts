@@ -18,7 +18,7 @@ export type GetExchangesCallback = (ctx: RequestContext, filter: GetExchangesFil
  * Callback handler for GetOfferings requests
  * @beta
  */
-export type GetOfferingsCallback = (ctx: RequestContext, filter: GetOfferingsFilter) => any
+export type GetOfferingsCallback = (ctx: RequestContext) => any
 
 /**
  * Callback handler for the SubmitRfq requests
@@ -43,20 +43,6 @@ export type SubmitCloseCallback = (ctx: RequestContext, message: Close) => Promi
  * @beta
  */
 export type SubmitMessageCallback = SubmitOrderCallback | SubmitCloseCallback
-
-
-/**
- * Filter options for retrieving a list of offerings
- * @beta
- */
-export type GetOfferingsFilter = {
-  /** ISO 3166 currency code string */
-  payinCurrency?: string
-  /** ISO 3166 currency code string */
-  payoutCurrency?: string
-  /** Offering ID */
-  id?: string
-}
 
 /**
  * Filter options for retrieving a list of exchanges
@@ -93,7 +79,7 @@ export interface OfferingsApi {
   /**
    * Retrieve a list of offerings based on the given filter
    */
-  getOfferings(opts?: { filter: GetOfferingsFilter }): Promise<Offering[]>
+  getOfferings(): Promise<Offering[]>
 }
 
 /**
