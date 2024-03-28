@@ -263,12 +263,19 @@ export type RfqPrivateData = {
   payout?: PrivatePaymentDetails
 }
 
+/**
+ * Data contained in a RFQ message, including data which will be placed in {@link RfqPrivateData}
+ * @beta
+ */
 export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHashes'> & {
   payin: Omit<SelectedPayinMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails
   payout: Omit<SelectedPayoutMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails,
   claims: string[]
 }
 
+/**
+ * @beta
+ */
 export type PrivatePaymentDetails = {
   /**
    * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.

@@ -9,6 +9,7 @@ import Ajv from 'ajv'
 import { Parser } from '../parser.js'
 import { validate } from '../validator.js'
 import { Convert } from '@web5/common'
+import { randomBytes } from '@web5/crypto/utils'
 
 /**
  * Options passed to {@link Rfq.create}
@@ -20,14 +21,14 @@ export type CreateRfqOptions = {
 }
 
 /**
- * Options passed to {@link Rfq.verify}
+ * Options passed to {@link Rfq.parse}
  * @beta
  */
-export type VerifyRfqOptions = {
+export type ParseRfqOptions = {
   /**
    * If true, validate that all private data properties are present and run integrity check.
    * Otherwise, only check integrity of private fields which are present.
-   * @default false
+   * If false, validate only the private data properties that are currently present in `privateData`
    */
   requireAllPrivateData: boolean
 }
@@ -62,7 +63,7 @@ export class Rfq extends Message {
    * @throws if the rfq could not be parsed or is not a valid Rfq
    * @returns The parsed Rfq
    */
-  static async parse(rawMessage: MessageModel | string, opts?: VerifyRfqOptions): Promise<Rfq> {
+  static async parse(rawMessage: MessageModel | string, opts?: ParseRfqOptions): Promise<Rfq> {
     const jsonMessage = Parser.rawToMessageModel(rawMessage)
 
     const rfq = new Rfq(
@@ -122,13 +123,13 @@ export class Rfq extends Message {
 
   /**
    * Hash private RFQ data and set private fields in an RfqPrivateData object
-   * @param unhashedRfqData
+   * @param - unhashedRfqData
    * @returns An object with fields data and privateData.
    * @returns {@link RfqData} The value of data field.
    * @returns {@link RfqPrivateData} The value of privateData field.
    */
   private static hashPrivateData(unhashedRfqData: UnhashedRfqData): { data: RfqData, privateData: RfqPrivateData } {
-    const salt = '123' // TODO: generate randomly
+    const salt = Convert.uint8Array(randomBytes(16)).toString()
 
     const {
       claims,
@@ -268,8 +269,8 @@ export class Rfq extends Message {
 
   /**
    * Given a salt and a value, compute a deterministic digest used in hashed fields in RfqData
-   * @param salt
-   * @param value
+   * @param - salt
+   * @param - value
    * @returns salted hash of the private data value
    */
   private static digestPrivateData(salt: string, value: any): string {
