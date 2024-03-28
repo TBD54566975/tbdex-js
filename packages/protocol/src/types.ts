@@ -287,25 +287,21 @@ export type SelectedPayinMethod = {
  */
 export type SelectedPayoutMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
-  kind: PaymentMethodKinds | string
+  /**
+   * Some payment methods should be consistent across PFIs and therefore have reserved kind values.
+   * PFIs may provide, as a feature, stored balances, which are effectively the PFI custodying assets
+   * or funds onbehalf of their customer. Customers can top up this balance and their transactions
+   * can draw against this balance.
+   *
+   * If a PFI offers STORED_BALANCE as a payout kind, they MUST necessarily have a respective
+   * offering with STORED_BALANCE as a payin kind.
+   */
+  kind: 'STORED_BALANCE' | string
   /**
    * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
    * Omitted from the signature payload.
    */
   paymentDetails?: Record<string, any>
-}
-
-/**
- * Some payment methods should be consistent across PFIs and therefore have reserved kind values.
- * PFIs may provide, as a feature, stored balances, which are effectively the PFI custodying assets
- * or funds onbehalf of their customer. Customers can top up this balance and their transactions
- * can draw against this balance.
- *
- * If a PFI offers STORED_BALANCE as a payout kind, they MUST necessarily have a respective
- * offering with STORED_BALANCE as a payin kind.
- */
-export enum PaymentMethodKinds {
-  STORED_BALANCE = 'STORED_BALANCE'
 }
 
 /**
