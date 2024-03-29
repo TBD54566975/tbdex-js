@@ -123,7 +123,8 @@ const generateParseCloseVector = async () => {
   const close = Close.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq'),  protocol: '1.0' },
     data     : {
-      reason: 'The reason for closing the exchange'
+      reason  : 'The reason for closing the exchange',
+      success : true
     }
   })
 
