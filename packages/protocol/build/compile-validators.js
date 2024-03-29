@@ -69,4 +69,4 @@ const moduleCode = replaceRequireWithImport(generatedCode)
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 
 await mkdirp(path.join(__dirname, '../generated'))
-fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.cjs'), moduleCode)
+fs.writeFileSync(path.join(__dirname, '../generated/compiled-validators.js'), moduleCode)
