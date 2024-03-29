@@ -93,7 +93,7 @@ export class TbdexHttpServer {
 
     this.exchangesApi = opts?.exchangesApi ?? new InMemoryExchangesApi()
     this.offeringsApi = opts?.offeringsApi ?? new InMemoryOfferingsApi()
-    this.balancesApi = opts?.balancesApi ?? undefined
+    this.balancesApi = opts?.balancesApi
     this.pfiDid = opts?.pfiDid ?? 'did:ex:pfi'
 
     // initialize api here so that consumers can attach custom endpoints

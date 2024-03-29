@@ -93,14 +93,6 @@ describe('Balance', () => {
         expect(e.message).to.include(`must have required property 'signature'`)
       }
     })
-
-    xit('throws an error if signature is not a valid compact JWS')
-    xit('throws an error if signature is payload is included in JWS')
-    xit('throws an error if JWS header doesnt include alg and kid properties')
-    xit('throws an error if DID in kid of JWS header doesnt match metadata.from in message')
-    xit('throws an error if no verification method can be found in signers DID Doc')
-    xit('throws an error if verification method does not include publicKeyJwk')
-
   })
 
   describe('parse', () => {
