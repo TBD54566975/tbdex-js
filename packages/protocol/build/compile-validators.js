@@ -20,6 +20,7 @@ import { mkdirp } from 'mkdirp'
 import CloseSchema from '../../../tbdex/hosted/json-schemas/close.schema.json' assert { type: 'json' }
 import DefinitionsSchema from '../../../tbdex/hosted/json-schemas/definitions.json' assert { type: 'json' }
 import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.json' assert { type: 'json' }
+import BalanceSchema from '../../../tbdex/hosted/json-schemas/balance.schema.json' assert { type: 'json' }
 import MessageSchema from '../../../tbdex/hosted/json-schemas/message.schema.json' assert { type: 'json' }
 import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' assert { type: 'json' }
 import OrderstatusSchema from '../../../tbdex/hosted/json-schemas/orderstatus.schema.json' assert { type: 'json' }
@@ -31,6 +32,7 @@ const schemas = {
   close       : CloseSchema,
   definitions : DefinitionsSchema,
   offering    : OfferingSchema,
+  balance     : BalanceSchema,
   message     : MessageSchema,
   order       : OrderSchema,
   orderstatus : OrderstatusSchema,
@@ -51,15 +53,15 @@ const generatedCode = standaloneCode(validator)
 // ESM generation is broken in AJV standalone.
 // In particular, it will "require" files from AJVs runtime directory instead of "import"ing.
 function replaceRequireWithImport(inputString) {
-  const variableNameRegex = /\w+/; // Matches the variable name
-  const moduleNameRegex = /[^"']+/; // Matches the module name
+  const variableNameRegex = /\w+/ // Matches the variable name
+  const moduleNameRegex = /[^"']+/ // Matches the module name
   const regex = new RegExp(
-      `const\\s+(${variableNameRegex.source})\\s*=\\s*require\\s*\\(\\s*[\"'](${moduleNameRegex.source})[\"']\\s*\\)\\.default`,
-      'g'
-  );
+    `const\\s+(${variableNameRegex.source})\\s*=\\s*require\\s*\\(\\s*[\"'](${moduleNameRegex.source})[\"']\\s*\\)\\.default`,
+    'g'
+  )
 
-  const replacedString = inputString.replace(regex, 'import { default as $1 } from "$2.js"');
-  return replacedString;
+  const replacedString = inputString.replace(regex, 'import { default as $1 } from "$2.js"')
+  return replacedString
 }
 const moduleCode = replaceRequireWithImport(generatedCode)
 

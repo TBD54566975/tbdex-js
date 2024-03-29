@@ -336,6 +336,56 @@ describe('client', () => {
     })
   })
 
+  describe('getBalances', () => {
+    it('throws RequestError if service endpoint url is garbage', async () => {
+      getPfiServiceEndpointStub.resolves('garbage')
+      fetchStub.rejects({message: 'Failed to fetch on URL'})
+
+      try {
+        await TbdexHttpClient.getBalances({ pfiDid: pfiDid.uri, did: aliceDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('RequestError')
+        expect(e).to.be.instanceof(RequestError)
+        expect(e.message).to.include('Failed to get balances')
+        expect(e.cause).to.exist
+        expect(e.cause.message).to.include('URL')
+      }
+    })
+
+    it('throws ResponseError if response status is not ok', async () => {
+      fetchStub.resolves({
+        ok     : false,
+        status : 400,
+        json   : () => Promise.resolve({
+          detail: 'some error'
+        })
+      } as Response)
+
+      try {
+        await TbdexHttpClient.getBalances({ pfiDid: pfiDid.uri, did: aliceDid })
+        expect.fail()
+      } catch(e) {
+        expect(e.name).to.equal('ResponseError')
+        expect(e).to.be.instanceof(ResponseError)
+        expect(e.statusCode).to.exist
+        expect(e.details).to.exist
+        expect(e.recipientDid).to.equal(pfiDid.uri)
+        expect(e.url).to.equal('https://localhost:9000/balances')
+      }
+    })
+
+    it('returns balances array if response is ok', async () => {
+      fetchStub.resolves({
+        ok   : true,
+        json : () => Promise.resolve({ data: [] })
+      } as Response)
+
+      const balances = await TbdexHttpClient.getBalances({ pfiDid: pfiDid.uri, did: aliceDid })
+      expect(balances).to.have.length(0)
+    })
+  })
+
   describe('getExchange', () => {
     it('throws RequestError if service endpoint url is garbage', async () => {
       getPfiServiceEndpointStub.resolves('garbage')

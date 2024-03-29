@@ -1,5 +1,5 @@
 import type { ResourceModel, ResourceMetadata, ResourceKind, ResourceData } from './types.js'
-import type { Offering } from './resource-kinds/index.js'
+import type { Balance, Offering } from './resource-kinds/index.js'
 
 import { typeid } from 'typeid-js'
 import { Crypto } from './crypto.js'
@@ -160,5 +160,10 @@ export abstract class Resource {
   /** offering type guard */
   isOffering(): this is Offering {
     return this.metadata.kind === 'offering'
+  }
+
+  /** balance type guard */
+  isBalance(): this is Balance {
+    return this.metadata.kind === 'balance'
   }
 }
