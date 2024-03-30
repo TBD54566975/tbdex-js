@@ -1,11 +1,11 @@
-import type { MessageModel, ResourceModel, RfqMetadata, RfqData, QuoteData, QuoteMetadata, OrderData, OrderMetadata, OrderStatusMetadata, OrderStatusData, CloseMetadata, CloseData, OfferingMetadata, OfferingData } from './types.js'
+import type { MessageModel, ResourceModel, RfqMetadata, RfqData, QuoteData, QuoteMetadata, OrderData, OrderMetadata, OrderStatusMetadata, OrderStatusData, CloseMetadata, CloseData, OfferingMetadata, OfferingData, BalanceMetadata, BalanceData } from './types.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Resource } from './resource.js'
 import type { Message } from './message.js'
 
 import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
-import { Offering } from './resource-kinds/index.js'
+import { Balance, Offering } from './resource-kinds/index.js'
 
 /**
  * Utility functions for parsing Messages and Resources
@@ -95,6 +95,13 @@ export class Parser {
         resource = new Offering(
           jsonResource.metadata as OfferingMetadata,
           jsonResource.data as OfferingData,
+          jsonResource.signature
+        )
+        break
+      case 'balance':
+        resource = new Balance(
+          jsonResource.metadata as BalanceMetadata,
+          jsonResource.data as BalanceData,
           jsonResource.signature
         )
         break

@@ -37,6 +37,19 @@ const generateParseOfferingVector = async () => {
   }
 }
 
+const generateParseBalanceVector = async () => {
+  const balance = DevTools.createBalance({ from: pfiDid.uri })
+
+  await balance.sign(pfiDid)
+
+  return {
+    description : 'Balance parses from string',
+    input       : JSON.stringify(balance.toJSON()),
+    output      : balance.toJSON(),
+    error       : false,
+  }
+}
+
 const generateParseQuoteVector = async () => {
 
   const quote = Quote.create({
@@ -172,7 +185,8 @@ const generateParseCloseVector = async () => {
   const close = Close.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq'),  protocol: '1.0' },
     data     : {
-      reason: 'The reason for closing the exchange'
+      reason  : 'The reason for closing the exchange',
+      success : true
     }
   })
 
@@ -211,13 +225,14 @@ const overWriteTestVectors = async () => {
 
   // Add more test vector generators as you need them. This is not a complete list.
   const vectorFilePair: { filename: string, vector: TestVector }[] = [
-    // { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
-    // { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
-    // { filename: 'parse-close.json', vector: await generateParseCloseVector() },
+    { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
+    { filename: 'parse-balance.json', vector: await generateParseBalanceVector() },
+    { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
+    { filename: 'parse-close.json', vector: await generateParseCloseVector() },
     { filename: 'parse-rfq.json', vector: await generateParseRfqVector() },
     { filename: 'parse-rfq-omit-private-data.json', vector: await generateParseRfqOmitPrivateDataVector() },
-    // { filename: 'parse-order.json', vector: await generateParseOrderVector() },
-    // { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
+    { filename: 'parse-order.json', vector: await generateParseOrderVector() },
+    { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
   ]
 
   for (const { filename, vector } of vectorFilePair) {

@@ -1,8 +1,8 @@
 
-import type { OfferingData, QuoteData, UnhashedRfqData } from './types.js'
+import type { BalanceData, OfferingData, QuoteData, UnhashedRfqData } from './types.js'
 import type { BearerDid } from '@web5/dids'
 
-import { Offering } from './resource-kinds/index.js'
+import { Balance, Offering } from './resource-kinds/index.js'
 import { Rfq } from './message-kinds/index.js'
 import { Resource } from './resource.js'
 import { VerifiableCredential } from '@web5/credentials'
@@ -117,6 +117,26 @@ export class DevTools {
           }
         }]
       }
+    }
+  }
+
+  /**
+   * creates and returns an example balance. Useful for testing purposes
+   */
+  static createBalance(opts?: { from?: string, balanceData?: BalanceData }): Balance {
+    return Balance.create({
+      metadata : { from: opts?.from ?? 'did:ex:pfi' },
+      data     : opts?.balanceData ?? DevTools.createBalanceData()
+    })
+  }
+
+  /**
+   * creates an example BalanceData. Useful for testing purposes
+   */
+  static createBalanceData(): BalanceData {
+    return {
+      currencyCode : 'USD',
+      available    : '400.00'
     }
   }
 

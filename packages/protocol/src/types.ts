@@ -36,22 +36,22 @@ export type ResourceMetadata = {
 }
 
 /**
- * Offering's metadata
- * @beta
- */
-export type OfferingMetadata = ResourceMetadata & { kind: 'offering' }
-
-/**
  * Type alias to represent a set of resource kind string keys
  * @beta
  */
-export type ResourceKind = 'offering'
+export type ResourceKind = 'offering' | 'balance'
 
 /**
  * Resource's data
  * @beta
  */
-export type ResourceData = OfferingData
+export type ResourceData = OfferingData | BalanceData
+
+/**
+ * Offering's metadata
+ * @beta
+ */
+export type OfferingMetadata = ResourceMetadata & { kind: 'offering' }
 
 /**
  * An Offering is used by the PFI to describe a currency pair they have to offer
@@ -151,6 +151,24 @@ export type PayoutMethod = {
   /** maximum amount allowed when using this payment method. */
   max?: string
   /** */
+}
+
+/**
+ * Balance's metadata
+ * @beta
+ */
+export type BalanceMetadata = ResourceMetadata & { kind: 'balance' }
+
+/**
+ * A Balance is a protected resource used to communicate the amounts of each
+ * currency held by the PFI on behalf of its customer.
+ * @beta
+ */
+export type BalanceData = {
+  /** ISO 3166 currency code string */
+  currencyCode: string
+  /** The amount available to be transacted with */
+  available: string
 }
 
 /**
@@ -307,7 +325,16 @@ export type SelectedPayinMethod = {
  */
 export type SelectedPayoutMethod = {
   /** Type of payment method e.g. BTC_ADDRESS, DEBIT_CARD, MOMO_MPESA */
-  kind: string
+  /**
+   * Some payment methods should be consistent across PFIs and therefore have reserved kind values.
+   * PFIs may provide, as a feature, stored balances, which are effectively the PFI custodying assets
+   * or funds onbehalf of their customer. Customers can top up this balance and their transactions
+   * can draw against this balance.
+   *
+   * If a PFI offers STORED_BALANCE as a payout kind, they MUST necessarily have a respective
+   * offering with STORED_BALANCE as a payin kind.
+   */
+  kind: 'STORED_BALANCE' | string
   /**
    * An object containing the properties defined in the respective Offering's requiredPaymentDetails json schema.
    * Omitted from the signature payload.
