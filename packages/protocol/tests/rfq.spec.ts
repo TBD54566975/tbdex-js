@@ -206,13 +206,13 @@ describe('Rfq', () => {
         }
       })
 
-      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHashes is present', async () => {
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
           data     : await DevTools.createRfqData()
         })
-        rfq.data.claimsHashes = ['not right']
+        rfq.data.claimsHash = 'not right'
         await rfq.sign(aliceDid)
 
         const rfqJson = rfq.toJSON()
@@ -221,7 +221,7 @@ describe('Rfq', () => {
           await Rfq.parse(rfqJson, { requireAllPrivateData: true })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include('data.claimsHashes[0] does not match digest of privateData.claims[0]')
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
         }
       })
 
@@ -263,7 +263,7 @@ describe('Rfq', () => {
         }
       })
 
-      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHashes is present', async () => {
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
@@ -278,7 +278,7 @@ describe('Rfq', () => {
           await Rfq.parse(rfqJson, { requireAllPrivateData: true })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include('data.claimsHashes[0] does not match digest of privateData.claims[0]')
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
         }
       })
     })
@@ -341,13 +341,13 @@ describe('Rfq', () => {
         }
       })
 
-      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHashes is present', async () => {
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
           data     : await DevTools.createRfqData()
         })
-        rfq.data.claimsHashes = ['not right']
+        rfq.data.claimsHash = 'not right'
         await rfq.sign(aliceDid)
 
         const rfqJson = rfq.toJSON()
@@ -356,7 +356,7 @@ describe('Rfq', () => {
           await Rfq.parse(rfqJson, { requireAllPrivateData: false })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include('data.claimsHashes[0] does not match digest of privateData.claims[0]')
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
         }
       })
     })

@@ -211,13 +211,13 @@ const overWriteTestVectors = async () => {
 
   // Add more test vector generators as you need them. This is not a complete list.
   const vectorFilePair: { filename: string, vector: TestVector }[] = [
-    { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
-    { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
-    { filename: 'parse-close.json', vector: await generateParseCloseVector() },
+    // { filename: 'parse-offering.json', vector: await generateParseOfferingVector() },
+    // { filename: 'parse-quote.json', vector: await generateParseQuoteVector() },
+    // { filename: 'parse-close.json', vector: await generateParseCloseVector() },
     { filename: 'parse-rfq.json', vector: await generateParseRfqVector() },
     { filename: 'parse-rfq-omit-private-data.json', vector: await generateParseRfqOmitPrivateDataVector() },
-    { filename: 'parse-order.json', vector: await generateParseOrderVector() },
-    { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
+    // { filename: 'parse-order.json', vector: await generateParseOrderVector() },
+    // { filename: 'parse-orderstatus.json', vector: await generateParseOrderStatusVector() },
   ]
 
   for (const { filename, vector } of vectorFilePair) {

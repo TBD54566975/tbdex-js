@@ -140,17 +140,19 @@ export class Rfq extends Message {
     const { paymentDetails: payinDetails, ...remainingPayin } = payin
     const { paymentDetails: payoutDetails, ...remainingPayout } = payout
 
-    const data = {
+    const data: RfqData = {
       ...remainingRfqData,
       payin        : remainingPayin,
       payout       : remainingPayout,
-      claimsHashes : claims.map((claim) => Rfq.digestPrivateData(salt, claim))
     }
     if (payinDetails !== undefined) {
-      data.payin.paymentDetailsHash = Rfq.digestPrivateData(salt, payinDetails)
+      data.payin!.paymentDetailsHash = Rfq.digestPrivateData(salt, payinDetails)
     }
     if (payoutDetails !== undefined) {
-      data.payout.paymentDetailsHash = Rfq.digestPrivateData(salt, payoutDetails)
+      data.payout!.paymentDetailsHash = Rfq.digestPrivateData(salt, payoutDetails)
+    }
+    if (claims !== undefined && claims?.length > 0) {
+      data.claimsHash = Rfq.digestPrivateData(salt, claims)
     }
 
     const privateData: RfqPrivateData = {
@@ -191,8 +193,8 @@ export class Rfq extends Message {
     }
 
     // Verify claims
-    if (this.data.claimsHashes.length > 0) {
-      this.verifyClaimsHashes()
+    if (this.data.claimsHash !== undefined) {
+      this.verifyClaimsHash()
     }
   }
 
@@ -213,8 +215,8 @@ export class Rfq extends Message {
     }
 
     // Verify claims
-    if (this.data.claimsHashes.length > 0  && this.privateData?.claims !== undefined) {
-      this.verifyClaimsHashes()
+    if (this.data.claimsHash !== undefined  && this.privateData?.claims !== undefined) {
+      this.verifyClaimsHash()
     }
   }
 
@@ -248,22 +250,20 @@ export class Rfq extends Message {
     }
   }
 
-  private verifyClaimsHashes(): void {
+  private verifyClaimsHash(): void {
     if (this?.privateData?.salt === undefined) {
-      throw new Error('Salt must be present to verify data.claimsHashes')
+      throw new Error('Salt must be present to verify data.claimsHash')
     }
 
-    for (let i = 0; i < this.data.claimsHashes.length; i++) {
-      const claimsHash = this.data.claimsHashes[i]
-      const claim = this.privateData?.claims?.[i]
-      const digest = Rfq.digestPrivateData(this.privateData.salt, claim)
+    const claimsHash = this.data.claimsHash!
+    const claims = this.privateData?.claims
+    const digest = Rfq.digestPrivateData(this.privateData.salt, claims)
 
-      if (digest !== claimsHash) {
-        throw new Error(
-          'Private data integrity check failed: ' +
-          `data.claimsHashes[${i}] does not match digest of privateData.claims[${i}]`
-        )
-      }
+    if (digest !== claimsHash) {
+      throw new Error(
+        'Private data integrity check failed: ' +
+        `data.claimsHash does not match digest of privateData.claims`
+      )
     }
   }
 

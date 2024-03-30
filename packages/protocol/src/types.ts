@@ -245,7 +245,7 @@ export type RfqData = {
   /** Selected payment method that the PFI will use to send the listed base currency to Alice */
   payout: SelectedPayoutMethod
   /** Hashes of claims that fulfill the requirements declared in an Offering */
-  claimsHashes: string[]
+  claimsHash?: string
 }
 
 /**
@@ -267,10 +267,10 @@ export type RfqPrivateData = {
  * Data contained in a RFQ message, including data which will be placed in {@link RfqPrivateData}
  * @beta
  */
-export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHashes'> & {
+export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHash'> & {
   payin: Omit<SelectedPayinMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails
   payout: Omit<SelectedPayoutMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails,
-  claims: string[]
+  claims?: string[]
 }
 
 /**
