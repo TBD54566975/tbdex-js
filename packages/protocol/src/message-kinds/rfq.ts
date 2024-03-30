@@ -142,8 +142,8 @@ export class Rfq extends Message {
 
     const data: RfqData = {
       ...remainingRfqData,
-      payin        : remainingPayin,
-      payout       : remainingPayout,
+      payin  : remainingPayin,
+      payout : remainingPayout,
     }
     if (payinDetails !== undefined) {
       data.payin!.paymentDetailsHash = Rfq.digestPrivateData(salt, payinDetails)
