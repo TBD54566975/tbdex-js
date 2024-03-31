@@ -5,6 +5,7 @@ import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
+import ParseOmitPrivateData from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq-omit-private-data.json' assert { type: 'json' }
 import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
 import { Balance, Close, Offering, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
@@ -71,7 +72,7 @@ describe('TbdexTestVectorsProtocol', function () {
     expect(quote.toJSON()).to.deep.eq(ParseQuote.output)
   })
 
-  it.skip('parse_rfq', async () => {
+  it('parse_rfq', async () => {
     // Parse with parseMessage()
     const message = await Parser.parseMessage(ParseRfq.input)
     expect(message.isRfq()).to.be.true
@@ -81,6 +82,18 @@ describe('TbdexTestVectorsProtocol', function () {
     const rfq = await Rfq.parse(ParseRfq.input)
     expect(rfq.isRfq()).to.be.true
     expect(rfq.toJSON()).to.deep.eq(ParseRfq.output)
+  })
+
+  it('parse_rfq_omit_private_data', async () => {
+    // Parse with parseMessage()
+    const message = await Parser.parseMessage(ParseOmitPrivateData.input)
+    expect(message.isRfq()).to.be.true
+    expect(message.toJSON()).to.deep.eq(ParseOmitPrivateData.output)
+
+    // Parse with Rfq.parse()
+    const rfq = await Rfq.parse(ParseOmitPrivateData.input)
+    expect(rfq.isRfq()).to.be.true
+    expect(rfq.toJSON()).to.deep.eq(ParseOmitPrivateData.output)
   })
 
   it('parse_balance', async () => {

@@ -1,5 +1,5 @@
 
-import type { BalanceData, OfferingData, QuoteData, RfqData } from './types.js'
+import type { BalanceData, OfferingData, QuoteData, UnhashedRfqData } from './types.js'
 import type { BearerDid } from '@web5/dids'
 
 import { Balance, Offering } from './resource-kinds/index.js'
@@ -176,7 +176,7 @@ export class DevTools {
   static async createRfq(opts: MessageOptions) {
     const { sender, receiver } = opts
 
-    const rfqData: RfqData = await DevTools.createRfqData(opts)
+    const rfqData: UnhashedRfqData = await DevTools.createRfqData(opts)
 
     return Rfq.create({
       metadata : { from: sender.uri, to: receiver?.uri ?? 'did:ex:pfi' },
@@ -187,7 +187,7 @@ export class DevTools {
   /**
    * creates an example RfqData. Useful for testing purposes
    */
-  static async createRfqData(opts?: MessageOptions): Promise<RfqData> {
+  static async createRfqData(opts?: MessageOptions): Promise<UnhashedRfqData> {
     let vcJwt: string = ''
 
     if (opts?.sender) {

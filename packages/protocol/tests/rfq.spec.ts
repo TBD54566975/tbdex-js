@@ -114,6 +114,252 @@ describe('Rfq', () => {
 
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
     })
+
+    describe('requireAllPrivateData: true', () => {
+      it('succeeds when all privateData is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+
+        await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+      })
+
+      it('throws if private data is missing but hashed fields are present in Rfq.data', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('Could not verify all privateData because privateData property is missing')
+        }
+      })
+
+      it('throws if salt is missing but hashed fields are present in Rfq.data', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete (rfqJson.privateData as any).salt
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('must have required property \'salt\'')
+        }
+      })
+
+
+      it('throws if Rfq.privateData.payin.paymentDetails is incorrect but Rfq.data.payin.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.payin.paymentDetailsHash = '123'
+        await rfq.sign(aliceDid)
+
+        const rfqJson: any = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payin.paymentDetailsHash does not match digest of privateData.payin.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.payout.paymentDetails is incorrect but Rfq.data.payout.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.payout.paymentDetailsHash = '123'
+        await rfq.sign(aliceDid)
+
+        const rfqJson: any = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payout.paymentDetailsHash does not match digest of privateData.payout.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.claims is incorrect but Rfq.data.claimsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.claimsHash = 'not right'
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
+        }
+      })
+
+      it('throws if Rfq.privateData.payin.paymentDetails is missing but Rfq.data.payin.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.payin!.paymentDetails
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payin.paymentDetailsHash does not match digest of privateData.payin.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.payout.paymentDetails is missing but Rfq.data.payout.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.payout!.paymentDetails
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payout.paymentDetailsHash does not match digest of privateData.payout.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete rfqJson.privateData!.claims
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: true })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
+        }
+      })
+    })
+
+    describe('requireAllPrivateData: false', () => {
+      it('throws if salt is missing but hashed fields are present in Rfq.data', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+        delete (rfqJson.privateData as any).salt
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: false })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('must have required property \'salt\'')
+        }
+      })
+
+      it('throws if Rfq.privateData.payin.paymentDetails is missing but Rfq.data.payin.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.payin.paymentDetailsHash = '123'
+        await rfq.sign(aliceDid)
+
+        const rfqJson: any = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: false })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payin.paymentDetailsHash does not match digest of privateData.payin.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.payout.paymentDetails is missing but Rfq.data.payout.paymentDetailsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.payout.paymentDetailsHash = '123'
+        await rfq.sign(aliceDid)
+
+        const rfqJson: any = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: false })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.payout.paymentDetailsHash does not match digest of privateData.payout.paymentDetails')
+        }
+      })
+
+      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
+        const aliceDid = await DidJwk.create()
+        const rfq = Rfq.create({
+          metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
+          data     : await DevTools.createRfqData()
+        })
+        rfq.data.claimsHash = 'not right'
+        await rfq.sign(aliceDid)
+
+        const rfqJson = rfq.toJSON()
+
+        try {
+          await Rfq.parse(rfqJson, { requireAllPrivateData: false })
+          expect.fail()
+        } catch(e) {
+          expect(e.message).to.include('data.claimsHash does not match digest of privateData.claims')
+        }
+      })
+    })
   })
 
   describe('verifySignature', () => {
