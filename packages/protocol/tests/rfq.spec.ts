@@ -168,7 +168,7 @@ describe('Rfq', () => {
       })
 
 
-      it('throws if Rfq.privateData.payin.paymentDetails is missing but Rfq.data.payin.paymentDetailsHash is present', async () => {
+      it('throws if Rfq.privateData.payin.paymentDetails is incorrect but Rfq.data.payin.paymentDetailsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
@@ -187,7 +187,7 @@ describe('Rfq', () => {
         }
       })
 
-      it('throws if Rfq.privateData.payout.paymentDetails is missing but Rfq.data.payout.paymentDetailsHash is present', async () => {
+      it('throws if Rfq.privateData.payout.paymentDetails is incorrect but Rfq.data.payout.paymentDetailsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
@@ -206,7 +206,7 @@ describe('Rfq', () => {
         }
       })
 
-      it('throws if Rfq.privateData.claims is missing but Rfq.data.claimsHash is present', async () => {
+      it('throws if Rfq.privateData.claims is incorrect but Rfq.data.claimsHash is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
           metadata : { from: aliceDid.uri, to: 'did:ex:pfi' },
