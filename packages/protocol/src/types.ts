@@ -272,7 +272,7 @@ export type RfqData = {
  */
 export type RfqPrivateData = {
   /** Randomly generated cryptographic salt used to hash privateData fields */
-  salt?: string
+  salt: string
   /** claims that fulfill the requirements declared in an Offering */
   claims?: string[]
   /** Selected payment method that Alice will use to send the listed payin currency to the PFI. */

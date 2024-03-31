@@ -157,13 +157,13 @@ describe('Rfq', () => {
         await rfq.sign(aliceDid)
 
         const rfqJson = rfq.toJSON()
-        delete rfqJson.privateData!.salt
+        delete (rfqJson.privateData as any).salt
 
         try {
           await Rfq.parse(rfqJson, { requireAllPrivateData: true })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include('Salt must be present')
+          expect(e.message).to.include("must have required property 'salt'")
         }
       })
 
@@ -293,13 +293,13 @@ describe('Rfq', () => {
         await rfq.sign(aliceDid)
 
         const rfqJson = rfq.toJSON()
-        delete rfqJson.privateData!.salt
+        delete (rfqJson.privateData as any).salt
 
         try {
           await Rfq.parse(rfqJson, { requireAllPrivateData: false })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include('Salt must be present')
+          expect(e.message).to.include("must have required property 'salt'")
         }
       })
 

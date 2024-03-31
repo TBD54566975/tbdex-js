@@ -221,11 +221,7 @@ export class Rfq extends Message {
   }
 
   private verifyPayinDetailsHash(): void {
-    if (this?.privateData?.salt === undefined) {
-      throw new Error('Salt must be present to verify data.payin.paymentDetailsHash')
-    }
-
-    const digest = Rfq.digestPrivateData(this.privateData.salt, this.privateData?.payin?.paymentDetails)
+    const digest = Rfq.digestPrivateData(this.privateData!.salt, this.privateData?.payin?.paymentDetails)
 
     if (digest !== this.data.payin.paymentDetailsHash) {
       throw new Error(
@@ -236,11 +232,7 @@ export class Rfq extends Message {
   }
 
   private verifyPayoutDetailsHash(): void {
-    if (this?.privateData?.salt === undefined) {
-      throw new Error('Salt must be present to verify data.payout.paymentDetailsHash')
-    }
-
-    const digest = Rfq.digestPrivateData(this.privateData.salt, this.privateData?.payout?.paymentDetails)
+    const digest = Rfq.digestPrivateData(this.privateData!.salt, this.privateData?.payout?.paymentDetails)
 
     if (digest !== this.data.payout.paymentDetailsHash) {
       throw new Error(
@@ -251,13 +243,9 @@ export class Rfq extends Message {
   }
 
   private verifyClaimsHash(): void {
-    if (this?.privateData?.salt === undefined) {
-      throw new Error('Salt must be present to verify data.claimsHash')
-    }
-
     const claimsHash = this.data.claimsHash!
     const claims = this.privateData?.claims
-    const digest = Rfq.digestPrivateData(this.privateData.salt, claims)
+    const digest = Rfq.digestPrivateData(this.privateData!.salt, claims)
 
     if (digest !== claimsHash) {
       throw new Error(
