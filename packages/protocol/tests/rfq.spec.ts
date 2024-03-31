@@ -163,7 +163,7 @@ describe('Rfq', () => {
           await Rfq.parse(rfqJson, { requireAllPrivateData: true })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include("must have required property 'salt'")
+          expect(e.message).to.include('must have required property \'salt\'')
         }
       })
 
@@ -299,7 +299,7 @@ describe('Rfq', () => {
           await Rfq.parse(rfqJson, { requireAllPrivateData: false })
           expect.fail()
         } catch(e) {
-          expect(e.message).to.include("must have required property 'salt'")
+          expect(e.message).to.include('must have required property \'salt\'')
         }
       })
 
