@@ -1,4 +1,4 @@
-import type { MessageKind, MessageModel, PayinMethod, RfqData, RfqMetadata, RfqPrivateData, UnhashedRfqData } from '../types.js'
+import type { MessageKind, MessageModel, PayinMethod, RfqData, RfqMetadata, RfqPrivateData, CreateRfqData } from '../types.js'
 
 import { BigNumber } from 'bignumber.js'
 import { Crypto } from '../crypto.js'
@@ -16,7 +16,7 @@ import { randomBytes } from '@web5/crypto/utils'
  * @beta
  */
 export type CreateRfqOptions = {
-  data: UnhashedRfqData
+  data: CreateRfqData
   metadata: Omit<RfqMetadata, 'id' | 'kind' | 'createdAt' | 'exchangeId' | 'protocol'> & { protocol?: RfqMetadata['protocol'] }
 }
 
@@ -128,8 +128,8 @@ export class Rfq extends Message {
    * @returns {@link RfqData} The value of data field.
    * @returns {@link RfqPrivateData} The value of privateData field.
    */
-  private static hashPrivateData(unhashedRfqData: UnhashedRfqData): { data: RfqData, privateData: RfqPrivateData } {
-    const salt = Convert.uint8Array(randomBytes(16)).toString()
+  private static hashPrivateData(unhashedRfqData: CreateRfqData): { data: RfqData, privateData: RfqPrivateData } {
+    const salt = Convert.uint8Array(randomBytes(16)).toBase64Url()
 
     const {
       claims,
