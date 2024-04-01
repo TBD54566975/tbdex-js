@@ -285,14 +285,14 @@ export type RfqPrivateData = {
  * Data contained in a RFQ message, including data which will be placed in {@link RfqPrivateData}
  * @beta
  */
-export type UnhashedRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHash'> & {
+export type CreateRfqData = Omit<RfqData, 'payin' | 'payout' | 'claimsHash'> & {
   payin: Omit<SelectedPayinMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails
   payout: Omit<SelectedPayoutMethod, keyof PrivatePaymentDetails> & PrivatePaymentDetails,
   claims?: string[]
 }
 
 /**
- * A container for the unhashed `paymentDetails`
+ * A container for the cleartext `paymentDetails`
  * @beta
  */
 export type PrivatePaymentDetails = {
