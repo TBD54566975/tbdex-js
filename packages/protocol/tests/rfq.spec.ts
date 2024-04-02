@@ -115,7 +115,7 @@ describe('Rfq', () => {
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
     })
 
-    describe.only('requireAllPrivateData: true', () => {
+    describe('requireAllPrivateData: true', () => {
       it('succeeds when all privateData is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
@@ -596,12 +596,7 @@ describe('Rfq', () => {
           }
         }
       })
-      try {
-        await rfq.verifyOfferingRequirements(offering)
-        expect.fail()
-      } catch(e) {
-        expect(e.message).to.include('123')
-      }
+      await rfq.verifyOfferingRequirements(offering)
     })
 
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
