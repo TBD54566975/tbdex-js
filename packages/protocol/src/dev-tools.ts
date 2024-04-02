@@ -107,13 +107,16 @@ export class DevTools {
         input_descriptors : [{
           id          : 'bbdb9b7c-5754-4f46-b63b-590bada959e0',
           constraints : {
-            fields: [{
-              path   : ['$.type'],
-              filter : {
-                type  : 'string',
-                const : 'YoloCredential'
-              }
-            }]
+            fields: [
+              {
+                path   : ['$.type[*]'],
+                filter : {
+                  type    : 'string',
+                  pattern : '^YoloCredential$'
+                }
+              },
+
+            ]
           }
         }]
       }

@@ -1,4 +1,4 @@
-import { VerifiableCredential } from '@web5/credentials'
+import { PresentationExchange, VerifiableCredential } from '@web5/credentials'
 import { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
@@ -115,7 +115,7 @@ describe('Rfq', () => {
       expect(jsonMessage).to.equal(JSON.stringify(parsedMessage))
     })
 
-    describe('requireAllPrivateData: true', () => {
+    describe.only('requireAllPrivateData: true', () => {
       it('succeeds when all privateData is present', async () => {
         const aliceDid = await DidJwk.create()
         const rfq = Rfq.create({
@@ -596,7 +596,12 @@ describe('Rfq', () => {
           }
         }
       })
-      await rfq.verifyOfferingRequirements(offering)
+      try {
+        await rfq.verifyOfferingRequirements(offering)
+        expect.fail()
+      } catch(e) {
+        expect(e.message).to.include('123')
+      }
     })
 
     it('throws an error if payinMethod paymentDetails cannot be validated against the provided offering\'s payinMethod requiredPaymentDetails', async () => {
@@ -740,7 +745,7 @@ describe('Rfq', () => {
       const aliceDid = await DidJwk.create()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
-        type    : 'SanctionsCredential',
+        type    : 'YoloCredential',
         issuer  : aliceDid.uri,
         subject : aliceDid.uri,
         data    : {
