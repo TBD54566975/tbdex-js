@@ -1,4 +1,4 @@
-import { PresentationExchange, VerifiableCredential } from '@web5/credentials'
+import { VerifiableCredential } from '@web5/credentials'
 import { CreateRfqOptions, Offering } from '../src/main.js'
 
 import { Rfq, DevTools } from '../src/main.js'
