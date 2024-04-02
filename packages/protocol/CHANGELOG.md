@@ -1,5 +1,19 @@
 # @tbdex/protocol
 
+## 0.28.0
+
+### Minor Changes
+
+- [#226](https://github.com/TBD54566975/tbdex-js/pull/226) [`65439c2`](https://github.com/TBD54566975/tbdex-js/commit/65439c2386901240fde35a52f72bf552ace21351) Thanks [@kirahsapong](https://github.com/kirahsapong)! - Add new `Balance` Resource type and associated server endpoint, config, and client calling methods
+
+  Update `Offering` Resource and `RFQ` Message type to accept new simplified fields.
+
+  Add detachable `privateData` field to `RFQ` Message type and hash data into `data` field
+
+  Add optional `success` field to `Close` message
+
+- [#227](https://github.com/TBD54566975/tbdex-js/pull/227) [`90ee330`](https://github.com/TBD54566975/tbdex-js/commit/90ee330bd27981da6e2bf4c992f22d86d0acbf6b) Thanks [@kirahsapong](https://github.com/kirahsapong)! - Bumps Web5 packages
+
 ## 0.27.0
 
 ### Minor Changes
