@@ -1,13 +1,13 @@
 import type { DidDocument, DidResource, DidVerificationMethod } from '@web5/dids'
 
-import { DidResolver as Web5DidResolver, DidDht, DidJwk, DidWeb } from '@web5/dids'
+import { UniversalResolver, DidDht, DidJwk, DidWeb } from '@web5/dids'
 
 /**
  * Can be used to resolve and dereference did:dht, did:jwk, and did:web DIDs
  *
  * @beta
  */
-export const DidResolver = new Web5DidResolver({
+export const DidResolver = new UniversalResolver({
   didResolvers: [DidDht, DidJwk, DidWeb]
 })
 

@@ -23,7 +23,7 @@
   "dependencies": {
     "@tbdex/http-client": "workspace:*",
     "@tbdex/protocol": "workspace:*",
-    "@web5/dids": "0.4.1",
+    "@web5/dids": "0.4.3",
     "cors": "2.8.5",
     "express": "4.19.2"
   },

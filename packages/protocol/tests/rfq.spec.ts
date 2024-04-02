@@ -385,7 +385,7 @@ describe('Rfq', () => {
     beforeEach(async () => {
       const aliceDid = await DidJwk.create()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
-        type    : 'SanctionsCredential',
+        type    : 'YoloCredential',
         issuer  : aliceDid.uri,
         subject : aliceDid.uri,
         data    : {
@@ -740,7 +740,7 @@ describe('Rfq', () => {
       const aliceDid = await DidJwk.create()
       const offering = DevTools.createOffering()
       const vc = await VerifiableCredential.create({ // this credential fulfills the offering's required claims
-        type    : 'SanctionsCredential',
+        type    : 'YoloCredential',
         issuer  : aliceDid.uri,
         subject : aliceDid.uri,
         data    : {
