@@ -66,17 +66,17 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/common':
-        specifier: 0.2.4
-        version: 0.2.4
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/credentials':
-        specifier: 0.4.5
-        version: 0.4.5
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/crypto':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/dids':
-        specifier: 0.4.3
-        version: 0.4.3
+        specifier: 1.0.0
+        version: 1.0.0
       ms:
         specifier: 2.1.3
         version: 2.1.3
@@ -163,8 +163,8 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/dids':
-        specifier: 0.4.3
-        version: 0.4.3
+        specifier: 1.0.0
+        version: 1.0.0
       cors:
         specifier: 2.8.5
         version: 2.8.5
@@ -218,17 +218,17 @@ importers:
         specifier: ^7.0.5
         version: 7.10.14
       '@web5/common':
-        specifier: 0.2.4
-        version: 0.2.4
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/credentials':
-        specifier: 0.4.5
-        version: 0.4.5
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/crypto':
-        specifier: 0.4.1
-        version: 0.4.1
+        specifier: 1.0.0
+        version: 1.0.0
       '@web5/dids':
-        specifier: 0.4.3
-        version: 0.4.3
+        specifier: 1.0.0
+        version: 1.0.0
       ajv:
         specifier: 8.12.0
         version: 8.12.0
@@ -1963,8 +1963,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@web5/common@0.2.4:
-    resolution: {integrity: sha512-h7I+FbAzTbkQWnv5RZCtE1lFsOzwssvcr4aQuQvO1mx8qTjzl5gGXhFIpl6JB9aSE2FayNUV6kQBID8Sb5HXTQ==}
+  /@web5/common@1.0.0:
+    resolution: {integrity: sha512-3JHF6X5o0h+3oAVQeBC4XpMoZeEYZYdEmQdgpOfKv/rnSru2yHQSAM+0wbIvEFcSCmelBT3u7rUAcpJjelLB0w==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@isaacs/ttlcache': 1.4.1
@@ -1973,34 +1973,34 @@ packages:
       readable-stream: 4.4.2
     dev: false
 
-  /@web5/credentials@0.4.5:
-    resolution: {integrity: sha512-gr5VwGlOV0w7FPLdIoHUWwiY4oDxr0CIiq/nl9rIRF4PyU5v3itaUrb9gP67w+m5Nw6Esl/zryRypwJZ3Q24sQ==}
+  /@web5/credentials@1.0.0:
+    resolution: {integrity: sha512-rlVaPA+eyTmoscMCiK3OCg8mucZ1jex/xo6dDOV4Fll3S7vVGocG8wZXK7x281xrcqWhypDyeidU8r1tJBBp0w==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@sphereon/pex': 2.1.0
-      '@web5/common': 0.2.4
-      '@web5/crypto': 0.4.1
-      '@web5/dids': 0.4.3
+      '@web5/common': 1.0.0
+      '@web5/crypto': 1.0.0
+      '@web5/dids': 1.0.0
     dev: false
 
-  /@web5/crypto@0.4.1:
-    resolution: {integrity: sha512-23LxbdnpTnHBfspqin2L+qy0UKPgdx212SUg6K1pgj2oTvP7gyCKDOyN6yJ4HhexlT0AQxZ6TJ5reoTVn8Cu+g==}
+  /@web5/crypto@1.0.0:
+    resolution: {integrity: sha512-z1CsgycTqiXEsS6pPlJDDLGAeGsgzfdBeWvyxLXTgh08Q8ACULmEGRXjSsgWHFn6DO6MpWFn55h/hF4wZZRxvA==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@noble/ciphers': 0.4.1
       '@noble/curves': 1.3.0
       '@noble/hashes': 1.3.3
-      '@web5/common': 0.2.4
+      '@web5/common': 1.0.0
     dev: false
 
-  /@web5/dids@0.4.3:
-    resolution: {integrity: sha512-VyTG8dY7iY3j8O055/wBFoGU5Xu1rwTF0RJpFazUE/6W3IuZEYAFTNl2mZ5KSuNRDT1f0VcwebuXW9PbzGuAaw==}
+  /@web5/dids@1.0.0:
+    resolution: {integrity: sha512-TJPRyNIuS50Za3qMHBgNDgwbJQUcVVWXm3Uc3UsDtZIpTLjYb+4LRaynlKzjRPAOR44Q185a+59//5Lyffon+Q==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@decentralized-identity/ion-sdk': 1.0.1
       '@dnsquery/dns-packet': 6.1.1
-      '@web5/common': 0.2.4
-      '@web5/crypto': 0.4.1
+      '@web5/common': 1.0.0
+      '@web5/crypto': 1.0.0
       abstract-level: 1.0.4
       bencode: 4.0.0
       buffer: 6.0.3
