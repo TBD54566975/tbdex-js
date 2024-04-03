@@ -24,7 +24,7 @@ Or to add submodules after cloning
 ```sh
 git submodule update --init
 ```
-We recommend running the command below once which will configure your environemnt to only checkout the `hosted` directory udner the `tbdex` git submodule directory, which contains files relevant to this repo, such as tbDEX spec test vectors and schemas.
+We recommend running the command below once which will configure your environment to only checkout the `hosted` directory under the `tbdex` git submodule directory, which contains files relevant to this repo, such as tbDEX spec test vectors and schemas.
 
 ```sh
 git -C tbdex sparse-checkout set hosted
