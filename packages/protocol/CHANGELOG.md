@@ -1,5 +1,11 @@
 # @tbdex/protocol
 
+## 1.0.0
+
+### Major Changes
+
+- [#229](https://github.com/TBD54566975/tbdex-js/pull/229) [`e852f25`](https://github.com/TBD54566975/tbdex-js/commit/e852f25015bccb9a378d265f516ec4f042dfb25f) Thanks [@leordev](https://github.com/leordev)! - Official tbDEX v1 release 🎉
+
 ## 0.28.0
 
 ### Minor Changes
