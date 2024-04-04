@@ -16,6 +16,10 @@
     "./dist",
     "./src"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "exports": {
     "types": "./dist/types/main.d.ts",
     "import": "./dist/main.js"
