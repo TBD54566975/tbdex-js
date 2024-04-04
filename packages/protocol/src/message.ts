@@ -185,7 +185,6 @@ export abstract class Message {
 
   /**
    * returns the message as a json object. Automatically used by `JSON.stringify` method.
-   * @throws if message is missing signature
    */
   toJSON() {
     const message: MessageModel = {
