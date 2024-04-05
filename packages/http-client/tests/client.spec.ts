@@ -326,13 +326,17 @@ describe('client', () => {
     })
 
     it('returns offerings array if response is ok', async () => {
+      const pfiDid = await DidJwk.create()
+      const stubbedOffering = DevTools.createOffering({ from: pfiDid.uri })
+      await stubbedOffering.sign(pfiDid)
+      const stubbedOfferings = [stubbedOffering.toJSON()]
       fetchStub.resolves({
         ok   : true,
-        json : () => Promise.resolve({ data: [] })
+        json : () => Promise.resolve({ data: stubbedOfferings })
       } as Response)
 
       const offerings = await TbdexHttpClient.getOfferings({ pfiDid: pfiDid.uri })
-      expect(offerings).to.have.length(0)
+      expect(offerings).to.have.length(1)
     })
   })
 
@@ -426,13 +430,17 @@ describe('client', () => {
     })
 
     it('returns exchange array if response is ok', async () => {
+      const alice = await DidJwk.create()
+      const stubbedRfq = await DevTools.createRfq({ sender: alice })
+      await stubbedRfq.sign(alice)
+      const messages = [stubbedRfq.toJSON()]
       fetchStub.resolves({
         ok   : true,
-        json : () => Promise.resolve({ data: [] })
+        json : () => Promise.resolve({ data: messages })
       } as Response)
 
       const exchanges = await TbdexHttpClient.getExchange({ pfiDid: pfiDid.uri, exchangeId: '123', did: pfiDid })
-      expect(exchanges).to.have.length(0)
+      expect(exchanges).to.have.length(1)
     })
   })
 
@@ -475,14 +483,29 @@ describe('client', () => {
       }
     })
 
-    it('returns empty exchanges array if response is ok and body is empty array', async () => {
+
+    it('returns array of message exchanges given a list of exchange IDs', async () => {
+      const alice = await DidJwk.create()
+      const aliceRfq1 = await DevTools.createRfq({ sender: alice })
+      await aliceRfq1.sign(alice)
+
+      const aliceRfq2 = await DevTools.createRfq({ sender: alice })
+      await aliceRfq2.sign(alice)
+
       fetchStub.resolves({
         ok   : true,
-        json : () => Promise.resolve({ data: [] })
+        json : () => Promise.resolve({ data: [
+          [aliceRfq1.toJSON()],
+          [aliceRfq2.toJSON()]
+        ] })
       } as Response)
 
-      const exchanges = await TbdexHttpClient.getExchanges({ pfiDid: pfiDid.uri, did: pfiDid })
-      expect(exchanges).to.have.length(0)
+      const exchanges = await TbdexHttpClient.getExchanges({
+        pfiDid : pfiDid.uri,
+        did    : alice,
+        filter : { id: [aliceRfq1.metadata.id, aliceRfq2.metadata.id]}
+      })
+      expect(exchanges).to.have.length(2)
     })
   })
 
@@ -571,7 +594,7 @@ describe('client', () => {
         aud : pfiBearerDid.uri,
         iss : aliceBearerDid.uri,
         exp : Math.floor(Date.now() / 1000 + 60),
-        jti : 'randomnonce'
+        jti : 'random-nonce'
       }
     })
 

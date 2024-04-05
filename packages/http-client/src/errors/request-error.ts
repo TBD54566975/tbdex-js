@@ -25,7 +25,5 @@ export class RequestError extends Error {
     this.name = this.constructor.name
     this.recipientDid = params.recipientDid
     this.url = params.url
-
-    Object.setPrototypeOf(this, RequestError.prototype)
   }
 }
