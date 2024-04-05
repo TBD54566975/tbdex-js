@@ -486,25 +486,24 @@ describe('client', () => {
 
     it('returns array of message exchanges given a list of exchange IDs', async () => {
       const alice = await DidJwk.create()
-      const aliceRfq = await DevTools.createRfq({ sender: alice })
-      await aliceRfq.sign(alice)
+      const aliceRfq1 = await DevTools.createRfq({ sender: alice })
+      await aliceRfq1.sign(alice)
 
-      const bob = await DidJwk.create()
-      const bobRfq = await DevTools.createRfq({ sender: bob })
-      await bobRfq.sign(bob)
+      const aliceRfq2 = await DevTools.createRfq({ sender: alice })
+      await aliceRfq2.sign(alice)
 
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve({ data: [
-          [aliceRfq.toJSON()],
-          [bobRfq.toJSON()]
+          [aliceRfq1.toJSON()],
+          [aliceRfq2.toJSON()]
         ] })
       } as Response)
 
       const exchanges = await TbdexHttpClient.getExchanges({
         pfiDid : pfiDid.uri,
-        did    : pfiDid,
-        filter : { id: [aliceRfq.metadata.id, bobRfq.metadata.id]}
+        did    : alice,
+        filter : { id: [aliceRfq1.metadata.id, aliceRfq2.metadata.id]}
       })
       expect(exchanges).to.have.length(2)
     })

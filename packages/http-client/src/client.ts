@@ -427,8 +427,11 @@ export type GetExchangeOptions = {
 export type GetExchangesOptions = {
   /** the DID of the PFI from whom you want to get offerings */
   pfiDid: string
+  /** the message author's DID */
   did: BearerDid,
+  /** the filter to select the desired exchanges */
   filter?: {
+    /** ID or IDs of exchanges to get */
     id: string | string[]
   }
 }
