@@ -22,7 +22,5 @@ export class CallbackError extends Error {
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor)
     }
-
-    Object.setPrototypeOf(this, CallbackError.prototype)
   }
 }

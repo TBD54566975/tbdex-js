@@ -148,7 +148,7 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get offerings from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const data: Offering[] = []
+    const offerings: Offering[] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
@@ -159,10 +159,10 @@ export class TbdexHttpClient {
     const jsonOfferings = responseBody.data as any[]
     for (let jsonOffering of jsonOfferings) {
       const offering = await Offering.parse(jsonOffering)
-      data.push(offering)
+      offerings.push(offering)
     }
 
-    return data
+    return offerings
   }
 
   /**
@@ -221,7 +221,7 @@ export class TbdexHttpClient {
       throw new RequestError({ message: `Failed to get exchange from ${pfiDid}`, recipientDid: pfiDid, url: apiRoute, cause: e })
     }
 
-    const data: Message[] = []
+    const messages: Message[] = []
 
     if (!response.ok) {
       const errorDetails = await response.json() as ErrorDetail[]
@@ -231,17 +231,17 @@ export class TbdexHttpClient {
     const responseBody = await response.json() as { data: MessageModel[] }
     for (let jsonMessage of responseBody.data) {
       const message = await Parser.parseMessage(jsonMessage)
-      data.push(message)
+      messages.push(message)
     }
 
-    return data
+    return messages
 
   }
 
   // TODO: Wrap Message[] in Exchange object and verify each message
   /**
    * returns all exchanges created by requester
-   * @param _opts - options
+   * @param opts - options
    */
   static async getExchanges(opts: GetExchangesOptions): Promise<Message[][]> {
     const { pfiDid, filter, did } = opts

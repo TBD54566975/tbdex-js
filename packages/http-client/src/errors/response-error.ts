@@ -37,7 +37,5 @@ export class ResponseError extends Error {
     this.details = params.details
     this.recipientDid = params.recipientDid
     this.url = params.url
-
-    Object.setPrototypeOf(this, ResponseError.prototype)
   }
 }
