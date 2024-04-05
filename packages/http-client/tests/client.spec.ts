@@ -11,7 +11,7 @@ import {
   RequestTokenSigningError,
   RequestTokenIssuerSignerMismatchError
 } from '../src/errors/index.js'
-import { DevTools, Offering } from '@tbdex/protocol'
+import { DevTools } from '@tbdex/protocol'
 import * as sinon from 'sinon'
 import { JwtHeaderParams, JwtPayload } from '@web5/crypto'
 import { Convert } from '@web5/common'
@@ -496,15 +496,15 @@ describe('client', () => {
       fetchStub.resolves({
         ok   : true,
         json : () => Promise.resolve({ data: [
-          [aliceRfq.toJSON()], 
+          [aliceRfq.toJSON()],
           [bobRfq.toJSON()]
         ] })
       } as Response)
 
       const exchanges = await TbdexHttpClient.getExchanges({
-        pfiDid: pfiDid.uri,
-        did: pfiDid,
-        filter: { id: [aliceRfq.metadata.id, bobRfq.metadata.id]}
+        pfiDid : pfiDid.uri,
+        did    : pfiDid,
+        filter : { id: [aliceRfq.metadata.id, bobRfq.metadata.id]}
       })
       expect(exchanges).to.have.length(2)
     })
