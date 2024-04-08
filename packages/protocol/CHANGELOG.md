@@ -1,5 +1,11 @@
 # @tbdex/protocol
 
+## 1.0.1
+
+### Patch Changes
+
+- [#233](https://github.com/TBD54566975/tbdex-js/pull/233) [`b7e3a9b`](https://github.com/TBD54566975/tbdex-js/commit/b7e3a9bdd99b2307972b27754520287a13198c28) Thanks [@leordev](https://github.com/leordev)! - Add provenance config to the build
+
 ## 1.0.0
 
 ### Major Changes
