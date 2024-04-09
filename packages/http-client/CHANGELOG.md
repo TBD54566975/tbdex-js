@@ -1,5 +1,12 @@
 # @tbdex/http-client
 
+## 1.0.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @tbdex/protocol@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
