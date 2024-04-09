@@ -1,5 +1,6 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
+import queryString from 'query-string'
 import sinonChai from 'sinon-chai'
 import chai from 'chai'
 
@@ -114,17 +115,16 @@ describe('GET /exchanges', () => {
       exchangesApiSpy.restore()
     })
 
-    it('passes the id array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
+    it.only('passes the id array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
       const alice = await DidJwk.create()
 
       const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
 
       const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
 
-      // `id` query param contains an array
-      const idQueryParam = ['1234', '5678']
-      const idQueryParamString = JSON.stringify(idQueryParam) // '["1234","5678"]'
-      const resp = await fetch(`http://localhost:8000/exchanges?id=${idQueryParamString}`, {
+      const queryParams = { id: ['1234', '5678'] }
+      const queryParamsString = queryString.stringify(queryParams)
+      const resp = await fetch(`http://localhost:8000/exchanges?${queryParamsString}`, {
         headers: {
           'Authorization': `Bearer ${requestToken}`
         }
@@ -133,8 +133,8 @@ describe('GET /exchanges', () => {
       expect(resp.ok).to.be.true
       expect(exchangesApiSpy).to.have.been.calledWith({
         filter: {
-          from : alice.uri,
-          id   : idQueryParam
+          from: alice.uri,
+          ...queryParams
         }
       })
 

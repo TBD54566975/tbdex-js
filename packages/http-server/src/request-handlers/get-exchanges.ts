@@ -39,9 +39,8 @@ export async function getExchanges(request: Request, response: Response, opts: G
   }
 
   if (request.query.id !== undefined) {
-    const idQueryParam = JSON.parse(request.query.id.toString())
-    if (Array.isArray(idQueryParam)) {
-      queryParams.id = idQueryParam.map((id) => id.toString())
+    if (Array.isArray(request.query.id)) {
+      queryParams.id = request.query.id.map((id) => id.toString())
     } else {
       queryParams.id = [request.query.id.toString()]
     }
