@@ -1,6 +1,7 @@
 import type { ExchangesApi, GetExchangesCallback, GetExchangesFilter } from '../types.js'
 
 import { TbdexHttpClient } from '@tbdex/http-client'
+import { Message } from '@tbdex/protocol'
 import { Request, Response } from 'express'
 
 type GetExchangesOpts = {
@@ -53,5 +54,7 @@ export async function getExchanges(request: Request, response: Response, opts: G
     const _result = await callback({ request, response }, queryParams)
   }
 
-  response.status(200).json({ data: exchanges })
+  const data: Message[][] = exchanges.map(exchange => exchange.messages)
+
+  response.status(200).json({ data })
 }
