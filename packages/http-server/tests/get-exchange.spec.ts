@@ -1,11 +1,15 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
+import sinonChai from 'sinon-chai'
+import chai from 'chai'
 
 import { TbdexHttpServer, RequestContext } from '../src/main.js'
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import { DevTools, ErrorDetail, TbdexHttpClient } from '@tbdex/http-client'
+
+chai.use(sinonChai)
 
 describe('GET /exchanges', () => {
   let server: Server
@@ -112,9 +116,9 @@ describe('GET /exchanges', () => {
 
     expect(resp.ok).to.be.true
     expect(exchangesApiSpy.calledOnce).to.be.true
-    expect(exchangesApiSpy.calledWith({
+    expect(exchangesApiSpy).to.have.been.calledWith({
       id: exchangeId,
-    })).to.be.true
+    })
 
     exchangesApiSpy.restore()
   })

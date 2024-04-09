@@ -1,11 +1,15 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
+import sinonChai from 'sinon-chai'
+import chai from 'chai'
 
 import { TbdexHttpServer, RequestContext, GetExchangesFilter } from '../src/main.js'
 import { DidJwk } from '@web5/dids'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import { DevTools, ErrorDetail, TbdexHttpClient } from '@tbdex/http-client'
+
+chai.use(sinonChai)
 
 describe('GET /exchanges', () => {
   let server: Server
@@ -74,11 +78,11 @@ describe('GET /exchanges', () => {
 
       expect(resp.ok).to.be.true
       expect(exchangesApiSpy.calledOnce).to.be.true
-      expect(exchangesApiSpy.calledWith({
+      expect(exchangesApiSpy).to.have.been.calledWith({
         filter: {
           from: alice.uri
         }
-      })).to.be.true
+      })
 
       exchangesApiSpy.restore()
     })
@@ -100,12 +104,12 @@ describe('GET /exchanges', () => {
 
       expect(resp.ok).to.be.true
       expect(exchangesApiSpy.calledOnce).to.be.true
-      expect(exchangesApiSpy.calledWith({
+      expect(exchangesApiSpy).to.have.been.calledWith({
         filter: {
           from : alice.uri,
           id   : [idQueryParam]
         }
-      }))
+      })
 
       exchangesApiSpy.restore()
     })
@@ -119,20 +123,20 @@ describe('GET /exchanges', () => {
 
       // `id` query param contains an array
       const idQueryParam = ['1234', '5678']
-      const resp = await fetch(`http://localhost:8000/exchanges?id=[${idQueryParam.join(',')}]`, {
+      const idQueryParamString = JSON.stringify(idQueryParam) // '["1234","5678"]'
+      const resp = await fetch(`http://localhost:8000/exchanges?id=${idQueryParamString}`, {
         headers: {
           'Authorization': `Bearer ${requestToken}`
         }
       })
 
       expect(resp.ok).to.be.true
-      expect(exchangesApiSpy.calledOnce).to.be.true
-      expect(exchangesApiSpy.calledWith({
+      expect(exchangesApiSpy).to.have.been.calledWith({
         filter: {
           from : alice.uri,
           id   : idQueryParam
         }
-      }))
+      })
 
       exchangesApiSpy.restore()
     })
