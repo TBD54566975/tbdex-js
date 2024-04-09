@@ -1,5 +1,6 @@
 import type { ExchangesApi, GetExchangeCallback } from '../types.js'
 import { TbdexHttpClient } from '@tbdex/http-client'
+import { Message } from '@tbdex/protocol'
 import { Request, Response } from 'express'
 
 type GetExchangeOpts = {
@@ -49,5 +50,7 @@ export async function getExchange(request: Request, response: Response, opts: Ge
     const _result = await callback({ request, response })
   }
 
-  response.status(200).json({ data: exchange })
+  const data: Message[] = exchange.messages
+
+  response.status(200).json({ data })
 }

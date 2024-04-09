@@ -160,4 +160,27 @@ describe('GET /exchanges', () => {
     expect(callbackSpy.callCount).to.eq(1)
     // TODO: Check what arguments are passed to callback after we finalize its behavior
   })
+
+  it(`returns an array of Exchange.messages from ExchangesApi.getExchanges`, async () => {
+    const aliceDid = await DidJwk.create()
+    const pfiDid = await DidJwk.create()
+    const rfq = await DevTools.createRfq({ sender: aliceDid, receiver: pfiDid })
+    await rfq.sign(aliceDid);
+    (api.exchangesApi as InMemoryExchangesApi).addMessage(rfq)
+
+    const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
+
+    const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: aliceDid, pfiDid: api.pfiDid })
+    const resp = await fetch(`http://localhost:8000/exchanges`, {
+      headers: {
+        'Authorization': `Bearer ${requestToken}`
+      }
+    })
+
+    const data: any = await resp.json()
+    const rfqJson = rfq.toJSON()
+    expect(data).to.deep.equal({ data: [[ rfqJson ]] })
+
+    exchangesApiSpy.restore()
+  })
 })
