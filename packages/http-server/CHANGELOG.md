@@ -1,5 +1,15 @@
 # @tbdex/http-server
 
+## 1.0.2
+
+### Patch Changes
+
+- [#237](https://github.com/TBD54566975/tbdex-js/pull/237) [`cf1c881`](https://github.com/TBD54566975/tbdex-js/commit/cf1c881c057e6251769d1fad6f0d13e944cecf37) Thanks [@kirahsapong](https://github.com/kirahsapong)! - Fixes http-server GET /exchange/\* responses
+
+- Updated dependencies []:
+  - @tbdex/protocol@1.0.2
+  - @tbdex/http-client@1.0.2
+
 ## 1.0.1
 
 ### Patch Changes
