@@ -1,7 +1,7 @@
 import { ErrorDetail, Offering, Order, Rfq } from '@tbdex/http-client'
 import type { Server } from 'http'
 
-import { DevTools, RequestContext, TbdexHttpServer } from '../src/main.js'
+import { CallbackError, DevTools, RequestContext, TbdexHttpServer } from '../src/main.js'
 import { expect } from 'chai'
 import { InMemoryExchangesApi } from '../src/in-memory-exchanges-api.js'
 import { InMemoryOfferingsApi } from '../src/in-memory-offerings-api.js'
@@ -340,6 +340,44 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       const lastCallbackArg = callbackSpy.firstCall.args.at(2) as { offering: Offering, replyTo?: string }
       expect(lastCallbackArg.offering).to.deep.eq(offering)
       expect(lastCallbackArg.replyTo).to.be.undefined
+    })
+
+    it('propagates the status code and detail if custom handler throws a custom error', async () => {
+      const customErrorStatus = 456
+      const customErrorDetail: ErrorDetail[] = [{ detail: 'custom-error-detail' }]
+      const callbackSpy = Sinon.spy(
+        (_ctx: RequestContext, _message: Rfq, _opts: { offering: Offering, replyTo?: string }) => {
+          return Promise.reject(new CallbackError(customErrorStatus, customErrorDetail))
+        })
+      api.onCreateExchange(callbackSpy)
+
+      const response = await fetch('http://localhost:8000/exchanges', {
+        method : 'POST',
+        body   : JSON.stringify({ rfq })
+      })
+
+      expect(response.status).to.equal(customErrorStatus)
+
+      const responseBody = await response.json() as { errors: ErrorDetail[] }
+      expect(responseBody.errors).to.deep.equal(customErrorDetail)
+    })
+
+    it('returns a 500 Internal Server Error if custom handler throws a generic unexpected error', async () => {
+      const callbackSpy = Sinon.spy(
+        (_ctx: RequestContext, _message: Rfq, _opts: { offering: Offering, replyTo?: string }) => {
+          return Promise.reject(new Error('generic unexpected error'))
+        })
+      api.onCreateExchange(callbackSpy)
+
+      const response = await fetch('http://localhost:8000/exchanges', {
+        method : 'POST',
+        body   : JSON.stringify({ rfq })
+      })
+
+      expect(response.status).to.equal(500)
+
+      const responseBody = await response.json() as { errors: ErrorDetail[] }
+      expect(responseBody.errors).to.deep.equal([{ detail: 'Internal Server Error' }])
     })
 
     it('passes replyTo to the callback if it is provided in the request', async () => {
