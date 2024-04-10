@@ -2,4 +2,4 @@
 "@tbdex/http-server": patch
 ---
 
-Fixed bug where IDs passed to getExchanges is handled incorrectly.
+Fixed bugs in tests involving calledWith() and increased code coverage.
