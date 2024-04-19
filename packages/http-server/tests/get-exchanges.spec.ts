@@ -87,59 +87,6 @@ describe('GET /exchanges', () => {
 
       exchangesApiSpy.restore()
     })
-
-    it('passes the id non-array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
-      const alice = await DidJwk.create()
-
-      const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
-
-      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
-
-      // `id` query param contains a single string
-      const idQueryParam = '1234'
-      const resp = await fetch(`http://localhost:8000/exchanges?id=${idQueryParam}`, {
-        headers: {
-          'Authorization': `Bearer ${requestToken}`
-        }
-      })
-
-      expect(resp.ok).to.be.true
-      expect(exchangesApiSpy.calledOnce).to.be.true
-      expect(exchangesApiSpy).to.have.been.calledWith({
-        filter: {
-          from : alice.uri,
-          id   : [idQueryParam]
-        }
-      })
-
-      exchangesApiSpy.restore()
-    })
-
-    it.only('passes the id array query param as an array to the filter of ExchangesApi.getExchanges', async () => {
-      const alice = await DidJwk.create()
-
-      const exchangesApiSpy = sinon.spy(api.exchangesApi, 'getExchanges')
-
-      const requestToken = await TbdexHttpClient.generateRequestToken({ requesterDid: alice, pfiDid: api.pfiDid })
-
-      const queryParams = { id: ['1234', '5678'] }
-      const queryParamsString = queryString.stringify(queryParams)
-      const resp = await fetch(`http://localhost:8000/exchanges?${queryParamsString}`, {
-        headers: {
-          'Authorization': `Bearer ${requestToken}`
-        }
-      })
-
-      expect(resp.ok).to.be.true
-      expect(exchangesApiSpy).to.have.been.calledWith({
-        filter: {
-          from: alice.uri,
-          ...queryParams
-        }
-      })
-
-      exchangesApiSpy.restore()
-    })
   })
 
   it('calls the callback if it is provided', async () => {

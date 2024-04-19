@@ -34,24 +34,16 @@ export async function getExchanges(request: Request, response: Response, opts: G
     return
   }
 
-  const queryParams: GetExchangesFilter = {
+  const filter: GetExchangesFilter = {
     from: requesterDid,
   }
 
-  if (request.query.id !== undefined) {
-    if (Array.isArray(request.query.id)) {
-      queryParams.id = request.query.id.map((id) => id.toString())
-    } else {
-      queryParams.id = [request.query.id.toString()]
-    }
-  }
-
-  const exchanges = await exchangesApi.getExchanges({ filter: queryParams })
+  const exchanges = await exchangesApi.getExchanges({ filter })
 
   if (callback) {
     // TODO: figure out what to do with callback result. should we pass through the exchanges we've fetched
     //       and allow the callback to modify what's returned? (issue #10)
-    const _result = await callback({ request, response }, queryParams)
+    const _result = await callback({ request, response }, filter)
   }
 
   const data: Message[][] = exchanges.map(exchange => exchange.messages)
