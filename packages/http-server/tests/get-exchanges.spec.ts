@@ -1,6 +1,5 @@
 import type { Server } from 'http'
 import Sinon, * as sinon from 'sinon'
-import queryString from 'query-string'
 import sinonChai from 'sinon-chai'
 import chai from 'chai'
 
