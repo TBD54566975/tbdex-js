@@ -24,25 +24,14 @@ export class InMemoryExchangesApi implements ExchangesApi {
     }
 
     const exchanges: Exchange[] = []
-    if (opts.filter.id) {
-      // filter has `id` and `from`
-
-      for (const id of opts.filter.id) {
-        const exchange = this.exchangeMessagesMap.get(id)
-        if (exchange?.rfq?.from === opts.filter.from) {
-          exchanges.push(exchange)
-        }
+    // filter only has `from`
+    this.exchangeMessagesMap.forEach((exchange, _id) => {
+      // You definitely shouldn't use InMemoryExchangesApi in production.
+      // This will get really slow
+      if (exchange?.rfq?.from === opts.filter.from) {
+        exchanges.push(exchange)
       }
-    } else {
-      // filter only has `from`
-      this.exchangeMessagesMap.forEach((exchange, _id) => {
-        // You definitely shouldn't use InMemoryExchangesApi in production.
-        // This will get really slow
-        if (exchange?.rfq?.from === opts.filter.from) {
-          exchanges.push(exchange)
-        }
-      })
-    }
+    })
 
     return exchanges
   }
