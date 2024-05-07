@@ -80,7 +80,7 @@ export abstract class Resource {
     const signer = await Crypto.verify({ detachedPayload: this.digest(), signature: this.signature })
 
     if (this.metadata.from !== signer) { // ensure that DID used to sign matches `from` property in metadata
-      throw new Error('Signature verification failed: Expected DID in kid of JWS header must match metadata.from')
+      throw new Error('Signature verification failed: Expected DID in kid of JWS header must to metadata.from')
     }
 
     return signer
