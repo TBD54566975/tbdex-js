@@ -30,7 +30,7 @@ jobs:
         uses: cashapp/activate-hermit@v1
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
       - name: Report known vulnerabilities
         run: pnpm run audit-ci
