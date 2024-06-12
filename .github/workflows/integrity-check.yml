@@ -27,7 +27,7 @@ jobs:
         uses: cashapp/activate-hermit@v1
 
       - name: Report known vulnerabilities
-        run: pnpm audit
+        run: pnpm run audit-ci
 
   test-with-node:
     runs-on: macos-latest
