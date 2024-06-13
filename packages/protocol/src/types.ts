@@ -124,6 +124,10 @@ export type PayinMethod = {
   min?: string
   /** maximum amount allowed when using this payment method. */
   max?: string
+  /** Fee charged to use this payment method as a decimal string. */
+  fee?: string
+
+
 }
 
 /**
@@ -150,7 +154,9 @@ export type PayoutMethod = {
   min?: string
   /** maximum amount allowed when using this payment method. */
   max?: string
-  /** */
+  /** Fee charged to use this payment method as a decimal string. */
+  fee?: string
+
 }
 
 /**

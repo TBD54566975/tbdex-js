@@ -8,7 +8,8 @@
     "lint": "pnpm recursive run lint",
     "lint:fix": "pnpm recursive run lint:fix",
     "test:node": "pnpm recursive run test:node --color",
-    "test:browser": "pnpm recursive run test:browser"
+    "test:browser": "pnpm recursive run test:browser",
+    "audit-ci": "audit-ci --config ./audit-ci.json"
   },
   "repository": {
     "type": "git",
@@ -30,7 +31,8 @@
     "mocha-junit-reporter": "2.2.1",
     "npkill": "0.11.3",
     "semver": "7.5.4",
-    "typescript": "5.2.2"
+    "typescript": "5.2.2",
+    "audit-ci": "7.0.1"
   },
   "pnpm": {
     "overrides": {

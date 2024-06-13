@@ -16,21 +16,9 @@ env:
   PNPM_CACHE_FOLDER: .pnpm-store
 
 jobs:
-  security-audit:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
-
-      # https://cashapp.github.io/hermit/usage/ci/
-      - name: Init Hermit
-        uses: cashapp/activate-hermit@v1
-
-      - name: Report known vulnerabilities
-        run: pnpm audit
 
   test-with-node:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
@@ -43,6 +31,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install
+
+      - name: Report known vulnerabilities
+        run: pnpm run audit-ci
 
       - name: Build all workspace packages
         run: pnpm build
