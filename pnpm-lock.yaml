@@ -69,17 +69,17 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/common':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@web5/credentials':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.3
+        version: 1.0.3
       '@web5/crypto':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@web5/dids':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.1.1
+        version: 1.1.1
       ms:
         specifier: 2.1.3
         version: 2.1.3
@@ -166,8 +166,8 @@ importers:
         specifier: workspace:*
         version: link:../protocol
       '@web5/dids':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.1.1
+        version: 1.1.1
       cors:
         specifier: 2.8.5
         version: 2.8.5
@@ -230,17 +230,17 @@ importers:
         specifier: ^7.0.5
         version: 7.10.14
       '@web5/common':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@web5/credentials':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.3
+        version: 1.0.3
       '@web5/crypto':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       '@web5/dids':
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.1.1
+        version: 1.1.1
       ajv:
         specifier: 8.12.0
         version: 8.12.0
@@ -557,14 +557,13 @@ packages:
       prettier: 2.8.8
     dev: true
 
-  /@decentralized-identity/ion-sdk@1.0.1:
-    resolution: {integrity: sha512-+P+DXcRSFjsEsI5KIqUmVjpzgUT28B2lWpTO+IxiBcfibAN/1Sg20NebGTO/+serz2CnSZf95N2a1OZ6eXypGQ==}
+  /@decentralized-identity/ion-sdk@1.0.4:
+    resolution: {integrity: sha512-pOWrlTH5ChxUKRHOgfG2ZeTioWEFJXADyErCQOJ0BqYNDKfP+CM09Vss+9ei6PNOABQlcDn0mEDFZtpO+DXl8A==}
     dependencies:
       '@noble/ed25519': 2.1.0
       '@noble/secp256k1': 2.1.0
       canonicalize: 2.0.0
       multiformats: 12.1.3
-      multihashes: 4.0.3
       uri-js: 4.4.1
     dev: false
 
@@ -908,10 +907,6 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@multiformats/base-x@4.0.1:
-    resolution: {integrity: sha512-eMk0b9ReBbV23xXU693TAIrLyeO5iTgBZGSJfpqriG8UkYvr/hC9u9pyMlAakDNHWmbhMZCDs6KQO0jzKD8OTw==}
-    dev: false
-
   /@noble/ciphers@0.4.1:
     resolution: {integrity: sha512-QCOA9cgf3Rc33owG0AYBB9wszz+Ul2kramWN8tXG44Gyciud/tbkEqvxRF/IpqQaBpRBNi9f4jdNxqB2CQCIXg==}
     dev: false
@@ -928,6 +923,11 @@ packages:
 
   /@noble/hashes@1.3.3:
     resolution: {integrity: sha512-V7/fPHgl+jsVPXqqeOzT8egNj2iBIVt+ECeMMG8TdcnTikP3oaBtUVqpT/gYCR68aEBJSF+XbYUxStjbFMqIIA==}
+    engines: {node: '>= 16'}
+    dev: false
+
+  /@noble/hashes@1.4.0:
+    resolution: {integrity: sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==}
     engines: {node: '>= 16'}
     dev: false
 
@@ -1992,14 +1992,25 @@ packages:
       readable-stream: 4.4.2
     dev: false
 
-  /@web5/credentials@1.0.0:
-    resolution: {integrity: sha512-rlVaPA+eyTmoscMCiK3OCg8mucZ1jex/xo6dDOV4Fll3S7vVGocG8wZXK7x281xrcqWhypDyeidU8r1tJBBp0w==}
+  /@web5/common@1.0.1:
+    resolution: {integrity: sha512-dxczXqzWt6HCwuNyOVBeakg6GgOpP74tVEVxBeKkb+D3XcSP96mYaDtky5ZnjY4iBYb16SaCgwje+sgevOL51A==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@isaacs/ttlcache': 1.4.1
+      level: 8.0.1
+      multiformats: 13.1.0
+      readable-stream: 4.4.2
+    dev: false
+
+  /@web5/credentials@1.0.3:
+    resolution: {integrity: sha512-xWLey8+c8yv8XuYhiCkV0aUaxII5g4zDaVxEd84megsGl7RyjFNxxsx7cZBhr0BEYO/lcZRFGsMsBz4HKRYYpQ==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@sphereon/pex': 2.1.0
-      '@web5/common': 1.0.0
-      '@web5/crypto': 1.0.0
-      '@web5/dids': 1.0.0
+      '@web5/common': 1.0.1
+      '@web5/crypto': 1.0.1
+      '@web5/dids': 1.1.1
+      pako: 2.1.0
     dev: false
 
   /@web5/crypto@1.0.0:
@@ -2012,18 +2023,28 @@ packages:
       '@web5/common': 1.0.0
     dev: false
 
-  /@web5/dids@1.0.0:
-    resolution: {integrity: sha512-TJPRyNIuS50Za3qMHBgNDgwbJQUcVVWXm3Uc3UsDtZIpTLjYb+4LRaynlKzjRPAOR44Q185a+59//5Lyffon+Q==}
+  /@web5/crypto@1.0.1:
+    resolution: {integrity: sha512-LqJsJTDgzEZoxsYSWjhIKDTE3xwjfPF3rpkClMFAxmK4dur/KmYHgeZW2/HjRrFrUhNeaNVClcl7Fg2ZnvjsWw==}
     engines: {node: '>=18.0.0'}
     dependencies:
-      '@decentralized-identity/ion-sdk': 1.0.1
+      '@noble/ciphers': 0.4.1
+      '@noble/curves': 1.3.0
+      '@noble/hashes': 1.4.0
+      '@web5/common': 1.0.0
+    dev: false
+
+  /@web5/dids@1.1.1:
+    resolution: {integrity: sha512-LKc6Okl2iz78QGJCsd8QKQq3LdtmfQ9cfiRKu1BU4ITWteWsg4JD089hKmslNDd2KKnEf9LE72TqEYWxr/e8JA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@decentralized-identity/ion-sdk': 1.0.4
       '@dnsquery/dns-packet': 6.1.1
       '@web5/common': 1.0.0
       '@web5/crypto': 1.0.0
       abstract-level: 1.0.4
       bencode: 4.0.0
       buffer: 6.0.3
-      level: 8.0.0
+      level: 8.0.1
       ms: 2.1.3
     dev: false
 
@@ -4884,6 +4905,15 @@ packages:
       classic-level: 1.4.1
     dev: false
 
+  /level@8.0.1:
+    resolution: {integrity: sha512-oPBGkheysuw7DmzFQYyFe8NAia5jFLAgEnkgWnK3OXAuJr8qFT+xBQIwokAZPME2bhPFzS8hlYcL16m8UZrtwQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      abstract-level: 1.0.4
+      browser-level: 1.0.1
+      classic-level: 1.4.1
+    dev: false
+
   /levn@0.3.0:
     resolution: {integrity: sha512-0OO4y2iOHix2W6ujICbKIaEQXvFQHue65vUG3pb5EUomzPI90z9hsA1VsO/dbIIpC53J8gxM9Q4Oho0jrCM/yA==}
     engines: {node: '>= 0.8.0'}
@@ -5296,14 +5326,6 @@ packages:
   /ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
-  /multibase@4.0.6:
-    resolution: {integrity: sha512-x23pDe5+svdLz/k5JPGCVdfn7Q5mZVMBETiC+ORfO+sor9Sgs0smJzAjfTbM5tckeCqnaUuMYoz+k3RXMmJClQ==}
-    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
-    deprecated: This module has been superseded by the multiformats module
-    dependencies:
-      '@multiformats/base-x': 4.0.1
-    dev: false
-
   /multiformats@11.0.2:
     resolution: {integrity: sha512-b5mYMkOkARIuVZCpvijFj9a6m5wMVLC7cf/jIPd5D/ARDOfLC5+IFkbgDXQgcU2goIsTD/O9NY4DI/Mt4OGvlg==}
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
@@ -5314,17 +5336,8 @@ packages:
     engines: {node: '>=16.0.0', npm: '>=7.0.0'}
     dev: false
 
-  /multiformats@9.9.0:
-    resolution: {integrity: sha512-HoMUjhH9T8DDBNT+6xzkrd9ga/XiBI4xLr58LJACwK6G3HTOPeMz4nB4KJs33L2BelrIJa7P0VuNaVF3hMYfjg==}
-    dev: false
-
-  /multihashes@4.0.3:
-    resolution: {integrity: sha512-0AhMH7Iu95XjDLxIeuCOOE4t9+vQZsACyKZ9Fxw2pcsRmlX4iCn1mby0hS0bb+nQOVpdQYWPpnyusw4da5RPhA==}
-    engines: {node: '>=12.0.0', npm: '>=6.0.0'}
-    dependencies:
-      multibase: 4.0.6
-      uint8arrays: 3.1.1
-      varint: 5.0.2
+  /multiformats@13.1.0:
+    resolution: {integrity: sha512-HzdtdBwxsIkzpeXzhQ5mAhhuxcHbjEHH+JQoxt7hG/2HGFjjwyolLo7hbaexcnhoEuV4e0TNJ8kkpMjiEYY4VQ==}
     dev: false
 
   /nanocolors@0.2.13:
@@ -5671,6 +5684,10 @@ packages:
   /pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
     dev: true
+
+  /pako@2.1.0:
+    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+    dev: false
 
   /parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -7098,12 +7115,6 @@ packages:
       base64-arraybuffer: 1.0.2
     dev: false
 
-  /uint8arrays@3.1.1:
-    resolution: {integrity: sha512-+QJa8QRnbdXVpHYjLoTpJIdCTiw9Ir62nocClWuXIq2JIh4Uta0cQsTSpFL678p2CN8B+XSApwcU+pQEqVpKWg==}
-    dependencies:
-      multiformats: 9.9.0
-    dev: false
-
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
     dependencies:
@@ -7203,10 +7214,6 @@ packages:
     dependencies:
       builtins: 5.0.1
     dev: true
-
-  /varint@5.0.2:
-    resolution: {integrity: sha512-lKxKYG6H03yCZUpAGOPOsMcGxd1RHCu1iKvEHYDPmTyq2HueGhD73ssNBqqQWfvYs04G9iUFRvmAVLW20Jw6ow==}
-    dev: false
 
   /vary@1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
