@@ -1,6 +1,6 @@
 # tbdex http server
 
-A configurable implementation of the [tbdex http api draft specification](https://github.com/TBD54566975/tbdex-protocol/blob/main/rest-api/README.md)
+A configurable implementation of the [tbdex http api draft specification](https://github.com/TBD54566975/tbdex/blob/main/specs/http-api/README.md)
 
 >
 > This repo is currently under construction 🚧
