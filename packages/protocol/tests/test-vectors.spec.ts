@@ -12,21 +12,21 @@ import { Parser } from '../src/parser.js'
 import Sinon from 'sinon'
 
 describe('TbdexTestVectorsProtocol', function () {
-  let messageVerifyStub: Sinon.SinonStub;
-  let resourceVerifyStub: Sinon.SinonStub;
+  let messageVerifyStub: Sinon.SinonStub
+  let resourceVerifyStub: Sinon.SinonStub
 
   beforeEach(function() {
     // Our intent here is to test the overall parsing logic,
     // so stub the signature verify methods to avoid real DID resolution over the network which can take more than 10 seconds for DID DHT
-    messageVerifyStub = Sinon.stub(Message.prototype, 'verify');
-    resourceVerifyStub = Sinon.stub(Resource.prototype, 'verify');
-  });
+    messageVerifyStub = Sinon.stub(Message.prototype, 'verify')
+    resourceVerifyStub = Sinon.stub(Resource.prototype, 'verify')
+  })
 
   afterEach(function() {
     // Restore the original method
-    messageVerifyStub.restore();
-    resourceVerifyStub.restore();
-  });
+    messageVerifyStub.restore()
+    resourceVerifyStub.restore()
+  })
 
   it('parse_close', async () => {
     // Parse with parseMessage()
