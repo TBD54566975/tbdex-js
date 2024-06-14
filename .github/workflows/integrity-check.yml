@@ -42,14 +42,8 @@ jobs:
         run: pnpm lint
 
       - name: Run tests for all packages
-        run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
+        run: pnpm test:node
       
-      - name: Upload test results to update SDK reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: junit-results
-          path: packages/*/results.xml
-
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
         env:
