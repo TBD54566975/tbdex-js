@@ -537,7 +537,7 @@ describe('client', () => {
     })
     it('returns pfi service endpoint if all is well', async () => {
       const serviceEndpoint = await TbdexHttpClient.getPfiServiceEndpoint(pfiDid.uri)
-      expect(serviceEndpoint).to.equal('https://localhost:9000')
+      expect(serviceEndpoint).to.deep.equal(['https://localhost:9000'])
     })
   })
 
