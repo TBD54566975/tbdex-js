@@ -1,5 +1,14 @@
 # @tbdex/http-client
 
+## 1.1.0
+
+### Patch Changes
+
+- [#254](https://github.com/TBD54566975/tbdex-js/pull/254) [`ffcbb32`](https://github.com/TBD54566975/tbdex-js/commit/ffcbb320d3290a783b43e80eec29abfd5cea802c) Thanks [@nitro-neal](https://github.com/nitro-neal)! - bumped to latest version of @web5/credentials @web5/crypto @web5/common and @web5/dids
+
+- Updated dependencies [[`ffcbb32`](https://github.com/TBD54566975/tbdex-js/commit/ffcbb320d3290a783b43e80eec29abfd5cea802c)]:
+  - @tbdex/protocol@1.1.0
+
 ## 1.0.2
 
 ### Patch Changes
