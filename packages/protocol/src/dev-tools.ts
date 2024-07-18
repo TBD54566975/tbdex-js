@@ -119,6 +119,9 @@ export class DevTools {
             ]
           }
         }]
+      },
+      cancellation : {
+        enabled : true
       }
     }
   }

@@ -62,14 +62,16 @@ export type OfferingMetadata = ResourceMetadata & { kind: 'offering' }
 export type OfferingData = {
   /** Brief description of what is being offered. */
   description: string
-  /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
-  payoutUnitsPerPayinUnit: string
-  /** Details about the currency that the PFI is selling. */
-  payout: PayoutDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */
   payin: PayinDetails
+  /** Details about the currency that the PFI is selling. */
+  payout: PayoutDetails
+  /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
+  payoutUnitsPerPayinUnit: string
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
   requiredClaims?: PresentationDefinitionV2
+  /** Details about PFI's cancellation policy */
+  cancellation: CancelationDetails
 }
 
 /**
@@ -157,6 +159,19 @@ export type PayoutMethod = {
   /** Fee charged to use this payment method as a decimal string. */
   fee?: string
 
+}
+
+/**
+ * Cancellation details for the Offering.
+ * @beta
+ */
+export type CancelationDetails = {
+  /** Whether cancellation is enabled for this offering. */
+  enabled: boolean
+  /** A human-readable description of the terms of cancellation in plaintext. */
+  terms?: string
+  /** A link to a page that describes the terms of cancellation. */
+  termsUrl?: string
 }
 
 /**
@@ -412,6 +427,10 @@ export type OrderStatusData = {
   detail?: string
 }
 
+/**
+ * Valid order status values.
+ * @beta
+ */
 export enum OrderStatusEnum {
   PayinPending = 'PAYIN_PENDING',
   PayinInitiated = 'PAYIN_INITIATED',
