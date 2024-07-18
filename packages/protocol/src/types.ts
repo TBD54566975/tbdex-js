@@ -360,6 +360,8 @@ export type QuoteData = {
   payin: QuoteDetails
   /** the amount of payout currency that Alice will receive */
   payout: QuoteDetails
+  /** The exchange rate to convert from payin currency to payout currency. Expressed as an unrounded decimal string. */
+  payoutUnitsPerPayinUnit: string
 }
 
 /**
@@ -369,10 +371,12 @@ export type QuoteData = {
 export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
-  /** The amount of currency */
-  amount: string
+  /** The amount of currency paid for the exchange, excluding fees */
+  subtotal: string
   /** The amount paid in fees */
   fee?: string
+  /** The total amount of currency to be paid in or paid out. It is always a sum of subtotal and fee */
+  total: string
   /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
   paymentInstruction?: PaymentInstruction
 }

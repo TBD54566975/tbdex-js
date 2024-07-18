@@ -151,8 +151,9 @@ export class DevTools {
       expiresAt : new Date().toISOString(),
       payin     : {
         currencyCode       : 'BTC',
-        amount             : '0.01',
+        subtotal           : '0.01',
         fee                : '0.0001',
+        total              : '0.0101',
         paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
@@ -160,12 +161,15 @@ export class DevTools {
       },
       payout: {
         currencyCode       : 'USD',
-        amount             : '1000.00',
+        subtotal           : '1000',
+        fee                : '0',
+        total              : '1000',
         paymentInstruction : {
           link        : 'tbdex.io/example',
           instruction : 'Fake instruction'
         }
-      }
+      },
+      payoutUnitsPerPayinUnit: '100000.01'
     }
   }
 
