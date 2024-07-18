@@ -72,6 +72,6 @@ export class OrderStatus extends Message {
 
   /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */
   get orderStatus() {
-    return this.data.orderStatus
+    return this.data.status
   }
 }

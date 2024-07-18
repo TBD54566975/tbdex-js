@@ -1,5 +1,5 @@
 import { VerifiableCredential } from '@web5/credentials'
-import { Close, DevTools, Message, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
+import { Close, DevTools, Message, Order, OrderStatus, OrderStatusEnum, Quote, Resource, Rfq } from '../src/main.js'
 import fs from 'fs'
 import { DidDht } from '@web5/dids'
 
@@ -204,7 +204,7 @@ const generateParseOrderStatusVector = async () => {
   const orderStatus = OrderStatus.create({
     metadata : { from: pfiDid.uri, to: aliceDid.uri, exchangeId: Message.generateId('rfq'),  protocol: '1.0' },
     data     : {
-      orderStatus: 'wee'
+      status: OrderStatusEnum.PayinInitiated
     }
   })
 

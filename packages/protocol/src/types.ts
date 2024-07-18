@@ -406,8 +406,26 @@ export type OrderData = {
  * @beta
  */
 export type OrderStatusData = {
-  /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */
-  orderStatus: string
+  /** Current status of Order that's being executed (e.g. PAYIN_PENDING, PAYOUT_PENDING, PAYOUT_SETTLED etc.) */
+  status: OrderStatusEnum
+  /** An explanation of the status */
+  detail?: string
+}
+
+export enum OrderStatusEnum {
+  PayinPending = 'PAYIN_PENDING',
+  PayinInitiated = 'PAYIN_INITIATED',
+  PayinSettled = 'PAYIN_SETTLED',
+  PayinFailed = 'PAYIN_FAILED',
+  PayinExpired = 'PAYIN_EXPIRED',
+  PayoutPending = 'PAYOUT_PENDING',
+  PayoutInitiated = 'PAYOUT_INITIATED',
+  PayoutSettled = 'PAYOUT_SETTLED',
+  PayoutFailed = 'PAYOUT_FAILED',
+  RefundPending = 'REFUND_PENDING',
+  RefundInitiated = 'REFUND_INITIATED',
+  RefundSettled = 'REFUND_SETTLED',
+  RefundFailed = 'REFUND_FAILED'
 }
 
 /**
