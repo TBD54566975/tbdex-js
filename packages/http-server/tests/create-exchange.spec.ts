@@ -200,7 +200,6 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       data: {
         ...await DevTools.createRfqData(),
         offeringId : offering.metadata.id,
-        claims     : [],
       },
     })
     await rfq.sign(aliceDid)
@@ -291,7 +290,6 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
         data: {
           ...DevTools.createRfqData(),
           offeringId : offering.metadata.id,
-          claims     : [],
           payin      : {
             kind           : offering.data.payin.methods[0].kind,
             paymentDetails : {

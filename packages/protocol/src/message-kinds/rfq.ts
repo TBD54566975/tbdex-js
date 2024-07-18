@@ -162,8 +162,11 @@ export class Rfq extends Message {
       },
       payout: {
         paymentDetails: payoutDetails,
-      },
-      claims: claims
+      }
+    }
+
+    if (claims !== undefined) {
+      privateData.claims = claims
     }
 
     return {
