@@ -6,7 +6,10 @@
  * @packageDocumentation
  */
 
-export * from './callback-error.js'
 export * from '@tbdex/http-client'
+export * from './callback-error.js'
 export * from './http-server.js'
 export * from './types.js'
+export * from './in-memory-balances-api.js'
+export * from './in-memory-exchanges-api.js'
+export * from './in-memory-offerings-api.js'

@@ -432,18 +432,31 @@ export type OrderStatusData = {
  * @beta
  */
 export enum OrderStatusEnum {
+  /** Payin pending */
   PayinPending = 'PAYIN_PENDING',
+  /** Payin initiated */
   PayinInitiated = 'PAYIN_INITIATED',
+  /** Payin settled */
   PayinSettled = 'PAYIN_SETTLED',
+  /** Payin failed  */
   PayinFailed = 'PAYIN_FAILED',
+  /** Payin expired */
   PayinExpired = 'PAYIN_EXPIRED',
+  /** Payout pending */
   PayoutPending = 'PAYOUT_PENDING',
+  /** Payout initiated */
   PayoutInitiated = 'PAYOUT_INITIATED',
+  /** Payout settled */
   PayoutSettled = 'PAYOUT_SETTLED',
+  /** Payout failed */
   PayoutFailed = 'PAYOUT_FAILED',
+  /** Refund pending */
   RefundPending = 'REFUND_PENDING',
+  /** Refund initiated */
   RefundInitiated = 'REFUND_INITIATED',
+  /** Refund settled */
   RefundSettled = 'REFUND_SETTLED',
+  /** Refund failed */
   RefundFailed = 'REFUND_FAILED'
 }
 
