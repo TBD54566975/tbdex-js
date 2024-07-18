@@ -199,7 +199,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
       },
       data: {
         ...await DevTools.createRfqData(),
-        offeringId : offering.metadata.id,
+        offeringId: offering.metadata.id,
       },
     })
     await rfq.sign(aliceDid)
