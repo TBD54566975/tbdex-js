@@ -120,8 +120,8 @@ export class DevTools {
           }
         }]
       },
-      cancellation : {
-        enabled : true
+      cancellation: {
+        enabled: true
       }
     }
   }
