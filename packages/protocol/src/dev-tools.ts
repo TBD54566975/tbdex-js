@@ -51,7 +51,7 @@ export class DevTools {
         methods      : [{
           kind                   : 'DEBIT_CARD',
           requiredPaymentDetails : {
-            $schema    : 'http://json-schema.org/draft-07/schema',
+            $schema    : 'http://json-schema.org/draft-07/schema#',
             type       : 'object',
             properties : {
               cardNumber: {
@@ -87,7 +87,7 @@ export class DevTools {
         methods      : [{
           kind                   : 'BTC_ADDRESS',
           requiredPaymentDetails : {
-            $schema    : 'http://json-schema.org/draft-07/schema',
+            $schema    : 'http://json-schema.org/draft-07/schema#',
             type       : 'object',
             properties : {
               btcAddress: {
