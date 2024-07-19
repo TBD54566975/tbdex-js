@@ -1,6 +1,6 @@
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
-import { Close, DevTools, Exchange, Message, Order, OrderStatus, Quote, Rfq } from '../src/main.js'
+import { Close, DevTools, Exchange, Message, Order, OrderStatus, OrderStatusEnum, Quote, Rfq } from '../src/main.js'
 
 describe('Exchange', () => {
   let aliceDid: BearerDid
@@ -75,7 +75,7 @@ describe('Exchange', () => {
         exchangeId : rfq.metadata.exchangeId
       },
       data: {
-        orderStatus: 'Done'
+        status: OrderStatusEnum.PayoutSettled
       }
     })
   })
@@ -372,7 +372,7 @@ describe('Exchange', () => {
           exchangeId : rfq.metadata.exchangeId
         },
         data: {
-          orderStatus: 'Done'
+          status: OrderStatusEnum.PayoutSettled
         }
       })
       await orderStatus.sign(pfiDid)

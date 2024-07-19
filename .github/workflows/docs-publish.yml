@@ -48,6 +48,7 @@ jobs:
         uses: TBD54566975/tbdocs@main
         with:
           group_docs: true
+          fail_on_warnings: true
           fail_on_error: true
           entry_points: |
             - file: packages/protocol/src/main.ts

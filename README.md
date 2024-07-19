@@ -84,10 +84,9 @@ Release workflow:
 ## Working with the `tbdex` submodule
 
 ### Pulling
-You may need to update the `tbdex` submodule after pulling.
+You will need to update the `tbdex` submodule to the latest from time to time:
 ```sh
-git pull
-git submodule update
+git submodule update --remote
 ```
 
 ### Pushing

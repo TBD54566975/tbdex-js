@@ -62,14 +62,16 @@ export type OfferingMetadata = ResourceMetadata & { kind: 'offering' }
 export type OfferingData = {
   /** Brief description of what is being offered. */
   description: string
-  /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
-  payoutUnitsPerPayinUnit: string
-  /** Details about the currency that the PFI is selling. */
-  payout: PayoutDetails
   /** Details about the currency that the PFI is buying in exchange for payout currency. */
   payin: PayinDetails
+  /** Details about the currency that the PFI is selling. */
+  payout: PayoutDetails
+  /** Number of _payout_ currency units for one _payin_ currency unit (i.e 290000 USD for 1 BTC) */
+  payoutUnitsPerPayinUnit: string
   /** Articulates the claim(s) required when submitting an RFQ for this offering. */
   requiredClaims?: PresentationDefinitionV2
+  /** Details about PFI's cancellation policy */
+  cancellation: CancelationDetails
 }
 
 /**
@@ -157,6 +159,19 @@ export type PayoutMethod = {
   /** Fee charged to use this payment method as a decimal string. */
   fee?: string
 
+}
+
+/**
+ * Cancellation details for the Offering.
+ * @beta
+ */
+export type CancelationDetails = {
+  /** Whether cancellation is enabled for this offering. */
+  enabled: boolean
+  /** A human-readable description of the terms of cancellation in plaintext. */
+  terms?: string
+  /** A link to a page that describes the terms of cancellation. */
+  termsUrl?: string
 }
 
 /**
@@ -360,6 +375,8 @@ export type QuoteData = {
   payin: QuoteDetails
   /** the amount of payout currency that Alice will receive */
   payout: QuoteDetails
+  /** The exchange rate to convert from payin currency to payout currency. Expressed as an unrounded decimal string. */
+  payoutUnitsPerPayinUnit: string
 }
 
 /**
@@ -369,10 +386,12 @@ export type QuoteData = {
 export type QuoteDetails = {
   /** ISO 3166 currency code string */
   currencyCode: string
-  /** The amount of currency */
-  amount: string
+  /** The amount of currency paid for the exchange, excluding fees */
+  subtotal: string
   /** The amount paid in fees */
   fee?: string
+  /** The total amount of currency to be paid in or paid out. It is always a sum of subtotal and fee */
+  total: string
   /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
   paymentInstruction?: PaymentInstruction
 }
@@ -402,8 +421,43 @@ export type OrderData = {
  * @beta
  */
 export type OrderStatusData = {
-  /** Current status of Order that's being executed (e.g. PROCESSING, COMPLETED, FAILED etc.) */
-  orderStatus: string
+  /** Current status of Order that's being executed (e.g. PAYIN_PENDING, PAYOUT_PENDING, PAYOUT_SETTLED etc.) */
+  status: OrderStatusEnum
+  /** An explanation of the status */
+  detail?: string
+}
+
+/**
+ * Valid order status values.
+ * @beta
+ */
+export enum OrderStatusEnum {
+  /** Payin pending */
+  PayinPending = 'PAYIN_PENDING',
+  /** Payin initiated */
+  PayinInitiated = 'PAYIN_INITIATED',
+  /** Payin settled */
+  PayinSettled = 'PAYIN_SETTLED',
+  /** Payin failed  */
+  PayinFailed = 'PAYIN_FAILED',
+  /** Payin expired */
+  PayinExpired = 'PAYIN_EXPIRED',
+  /** Payout pending */
+  PayoutPending = 'PAYOUT_PENDING',
+  /** Payout initiated */
+  PayoutInitiated = 'PAYOUT_INITIATED',
+  /** Payout settled */
+  PayoutSettled = 'PAYOUT_SETTLED',
+  /** Payout failed */
+  PayoutFailed = 'PAYOUT_FAILED',
+  /** Refund pending */
+  RefundPending = 'REFUND_PENDING',
+  /** Refund initiated */
+  RefundInitiated = 'REFUND_INITIATED',
+  /** Refund settled */
+  RefundSettled = 'REFUND_SETTLED',
+  /** Refund failed */
+  RefundFailed = 'REFUND_FAILED'
 }
 
 /**
