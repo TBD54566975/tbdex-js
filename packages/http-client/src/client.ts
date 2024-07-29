@@ -87,7 +87,7 @@ export class TbdexHttpClient {
     await order.verify()
 
     const { to: pfiDid, exchangeId } = order.metadata
-    const requestBody = JSON.stringify(order)
+    const requestBody = JSON.stringify({ message: order })
 
     await TbdexHttpClient.sendMessage(pfiDid, 'PUT', `/exchanges/${exchangeId}`, requestBody)
   }
@@ -104,7 +104,7 @@ export class TbdexHttpClient {
 
     const { to: pfiDid, exchangeId } = close.metadata
 
-    const requestBody = JSON.stringify(close)
+    const requestBody = JSON.stringify({ message: close })
 
     await TbdexHttpClient.sendMessage(pfiDid, 'PUT', `/exchanges/${exchangeId}`, requestBody)
   }

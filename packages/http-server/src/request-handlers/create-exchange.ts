@@ -12,7 +12,7 @@ type CreateExchangeOpts = {
 }
 
 /**
- * Handler for POST to /exchanges.
+ * Handler for POST to /exchanges to create a new exchange.
  */
 export async function createExchange(req: Request, res: Response, options: CreateExchangeOpts): Promise<void> {
   const { offeringsApi, exchangesApi, callback } = options

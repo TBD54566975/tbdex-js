@@ -17,7 +17,7 @@ export async function submitMessage(req: Request, res: Response, opts: SubmitMes
   let message: Message
 
   try {
-    message = await Parser.parseMessage(req.body)
+    message = await Parser.parseMessage(req.body.message)
   } catch(e) {
     const errorResponse: ErrorDetail = { detail: 'Request body was not a valid Order or Close message' }
     res.status(400).json({ errors: [errorResponse] })
