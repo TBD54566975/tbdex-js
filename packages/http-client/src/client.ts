@@ -71,7 +71,7 @@ export class TbdexHttpClient {
     await rfq.verify()
 
     const { to: pfiDid } = rfq.metadata
-    const requestBody = JSON.stringify({ rfq, replyTo: opts?.replyTo })
+    const requestBody = JSON.stringify({ message: rfq, replyTo: opts?.replyTo })
 
     await TbdexHttpClient.sendMessage(pfiDid, 'POST', `/exchanges`, requestBody)
   }

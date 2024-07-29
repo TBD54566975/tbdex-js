@@ -62,7 +62,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq: rfq, replyTo: 'foo' })
+      body   : JSON.stringify({ message: rfq, replyTo: 'foo' })
     })
 
     expect(resp.status).to.equal(400)
@@ -79,6 +79,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     const aliceDid = await DidJwk.create()
     const pfiDid = await DidJwk.create()
 
+    // create an Order instead of RFQ
     const order = Order.create({
       metadata: {
         from       : aliceDid.uri,
@@ -90,7 +91,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq: order })
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(400)
@@ -112,7 +113,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq })
+      body   : JSON.stringify({ message: rfq })
     })
 
     expect(resp.status).to.equal(400)
@@ -136,7 +137,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq })
+      body   : JSON.stringify({ message: rfq })
     })
 
     expect(resp.status).to.equal(409)
@@ -169,7 +170,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq })
+      body   : JSON.stringify({ message: rfq })
     })
 
     expect(resp.status).to.equal(400)
@@ -206,7 +207,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges', {
       method : 'POST',
-      body   : JSON.stringify({ rfq })
+      body   : JSON.stringify({ message: rfq })
     })
 
     expect(resp.status).to.equal(400)
@@ -311,7 +312,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
     it('returns a 202 if RFQ is accepted', async () => {
       const resp = await fetch('http://localhost:8000/exchanges', {
         method : 'POST',
-        body   : JSON.stringify({ rfq })
+        body   : JSON.stringify({ message: rfq })
       })
 
       expect(resp.status).to.equal(202)
@@ -326,7 +327,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
       const resp = await fetch('http://localhost:8000/exchanges', {
         method : 'POST',
-        body   : JSON.stringify({ rfq })
+        body   : JSON.stringify({ message: rfq })
       })
 
       expect(resp.status).to.equal(202)
@@ -351,7 +352,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
       const response = await fetch('http://localhost:8000/exchanges', {
         method : 'POST',
-        body   : JSON.stringify({ rfq })
+        body   : JSON.stringify({ message: rfq })
       })
 
       expect(response.status).to.equal(customErrorStatus)
@@ -369,7 +370,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
       const response = await fetch('http://localhost:8000/exchanges', {
         method : 'POST',
-        body   : JSON.stringify({ rfq })
+        body   : JSON.stringify({ message: rfq })
       })
 
       expect(response.status).to.equal(500)
@@ -389,7 +390,7 @@ describe('POST /exchanges/:exchangeId/rfq', () => {
 
       const resp = await fetch('http://localhost:8000/exchanges', {
         method : 'POST',
-        body   : JSON.stringify({ rfq, replyTo })
+        body   : JSON.stringify({ message: rfq, replyTo })
       })
 
       expect(resp.status).to.equal(202)
