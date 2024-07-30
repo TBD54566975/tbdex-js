@@ -1,5 +1,19 @@
 # @tbdex/http-server
 
+## 2.0.0
+
+### Major Changes
+
+- [#263](https://github.com/TBD54566975/tbdex-js/pull/263) [`c673b00`](https://github.com/TBD54566975/tbdex-js/commit/c673b0015b4a4cb2a954aad5e6bf233d70a0dcec) Thanks [@thehenrytsai](https://github.com/thehenrytsai)! - Updated HTTP request body to contain `message` property according to spec change.
+
+- [#265](https://github.com/TBD54566975/tbdex-js/pull/265) [`e692ea2`](https://github.com/TBD54566975/tbdex-js/commit/e692ea209bd41df4173392f606c08ff1636e1040) Thanks [@leordev](https://github.com/leordev)! - Updated code and tests to align with latest tbDEX spec (commit 621f54f of `tbdex` repo)
+
+### Patch Changes
+
+- Updated dependencies [[`c673b00`](https://github.com/TBD54566975/tbdex-js/commit/c673b0015b4a4cb2a954aad5e6bf233d70a0dcec), [`e692ea2`](https://github.com/TBD54566975/tbdex-js/commit/e692ea209bd41df4173392f606c08ff1636e1040), [`e692ea2`](https://github.com/TBD54566975/tbdex-js/commit/e692ea209bd41df4173392f606c08ff1636e1040)]:
+  - @tbdex/protocol@2.0.0
+  - @tbdex/http-client@2.0.0
+
 ## 1.1.0
 
 ### Minor Changes
