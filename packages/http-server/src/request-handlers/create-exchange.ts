@@ -11,6 +11,9 @@ type CreateExchangeOpts = {
   exchangesApi: ExchangesApi
 }
 
+/**
+ * Handler for POST to /exchanges to create a new exchange.
+ */
 export async function createExchange(req: Request, res: Response, options: CreateExchangeOpts): Promise<void> {
   const { offeringsApi, exchangesApi, callback } = options
   const replyTo: string | undefined = req.body.replyTo
@@ -23,7 +26,7 @@ export async function createExchange(req: Request, res: Response, options: Creat
   }
 
   try {
-    rfq = await Rfq.parse(req.body.rfq)
+    rfq = await Rfq.parse(req.body.message)
   } catch(e) {
     const errorResponse: ErrorDetail = { detail: `Parsing of TBDex Rfq message failed: ${e.message}` }
     res.status(400).json({ errors: [errorResponse] })

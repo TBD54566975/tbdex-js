@@ -51,7 +51,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     await close.sign(alice)
     const resp = await fetch('http://localhost:8000/exchanges/123', {
       method : 'PUT',
-      body   : JSON.stringify(close)
+      body   : JSON.stringify({ message: close })
     })
 
     expect(resp.status).to.equal(404)
@@ -100,7 +100,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
     await close2.sign(alice)
     const resp = await fetch(`http://localhost:8000/exchanges/${exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(close2)
+      body   : JSON.stringify({ message: close2 })
     })
 
     expect(resp.status).to.equal(409)
@@ -141,7 +141,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(close)
+      body   : JSON.stringify({ message: close })
     })
 
     expect(resp.status).to.equal(202)
@@ -175,7 +175,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(close)
+      body   : JSON.stringify({ message: close })
     })
 
     expect(resp.status).to.equal(202)
@@ -209,7 +209,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(close)
+      body   : JSON.stringify({ message: close })
     })
 
     expect(resp.status).to.equal(400)
@@ -243,7 +243,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
       const resp = await fetch('http://localhost:8000/exchanges/123', {
         method : 'PUT',
-        body   : JSON.stringify(close)
+        body   : JSON.stringify({ message: close })
       })
 
       expect(resp.status).to.equal(400)
@@ -279,7 +279,7 @@ describe('POST /exchanges/:exchangeId with a Close', () => {
 
       const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
         method : 'PUT',
-        body   : JSON.stringify(close)
+        body   : JSON.stringify({ message: close })
       })
 
       expect(resp.status).to.equal(202)

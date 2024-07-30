@@ -51,7 +51,7 @@ describe('POST /exchanges/:exchangeId', () => {
 
     const resp = await fetch('http://localhost:8000/exchanges/123', {
       method : 'PUT',
-      body   : JSON.stringify(order)
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(400)
@@ -66,13 +66,15 @@ describe('POST /exchanges/:exchangeId', () => {
 
   it('returns a 400 if request body is not a valid close or order object', async () => {
     const alice = await DidJwk.create()
+
+    // creating an RFQ instead of an Order/close which is an invalid message to the path
     const rfq = await DevTools.createRfq({
       sender: alice
     })
     await rfq.sign(alice)
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(rfq)
+      body   : JSON.stringify({ message: rfq })
     })
 
     expect(resp.status).to.equal(400)

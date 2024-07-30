@@ -66,7 +66,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
     await order.sign(aliceDid)
     const resp = await fetch('http://localhost:8000/exchanges/123', {
       method : 'PUT',
-      body   : JSON.stringify(order)
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(404)
@@ -103,7 +103,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(order)
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(409)
@@ -155,7 +155,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(order)
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(410)
@@ -209,7 +209,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
     const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
       method : 'PUT',
-      body   : JSON.stringify(order)
+      body   : JSON.stringify({ message: order })
     })
 
     expect(resp.status).to.equal(202)
@@ -261,7 +261,7 @@ describe('POST /exchanges/:exchangeId with an Order', () => {
 
       const resp = await fetch(`http://localhost:8000/exchanges/${rfq.metadata.exchangeId}`, {
         method : 'PUT',
-        body   : JSON.stringify(order)
+        body   : JSON.stringify({ message: order })
       })
 
       expect(resp.status).to.equal(202)

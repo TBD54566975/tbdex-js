@@ -55,7 +55,7 @@ const rfq = Rfq.create({
 
 await rfq.sign(alice)
 
-console.log(JSON.stringify(rfq, null, 2))
+console.log(JSON.stringify({ message: rfq }, null, 2))
 ```
 
 ## Message Parsing
