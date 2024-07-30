@@ -1,5 +1,17 @@
 # @tbdex/http-server
 
+## 2.0.0
+
+### Major Changes
+
+- [#261](https://github.com/TBD54566975/tbdex-js/pull/261) [`fa3dfe8`](https://github.com/TBD54566975/tbdex-js/commit/fa3dfe870fdf14cd3516b020cba96fa29aa98c71) Thanks [@thehenrytsai](https://github.com/thehenrytsai)! - Updated code and tests to align with latest tbDEX spec (commit 621f54f of `tbdex` repo)
+
+### Patch Changes
+
+- Updated dependencies [[`fa3dfe8`](https://github.com/TBD54566975/tbdex-js/commit/fa3dfe870fdf14cd3516b020cba96fa29aa98c71), [`4c84157`](https://github.com/TBD54566975/tbdex-js/commit/4c841570d17682348b4edf1d5708616051a31eef)]:
+  - @tbdex/protocol@2.0.0
+  - @tbdex/http-client@2.0.0
+
 ## 1.1.0
 
 ### Minor Changes
