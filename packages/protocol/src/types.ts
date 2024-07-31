@@ -392,19 +392,6 @@ export type QuoteDetails = {
   fee?: string
   /** The total amount of currency to be paid in or paid out. It is always a sum of subtotal and fee */
   total: string
-  /** Object that describes how to pay the PFI, and how to get paid by the PFI (e.g. BTC address, payment link) */
-  paymentInstruction?: PaymentInstruction
-}
-
-/**
- * Describes the payment instructions with plain text and/or a link
- * @beta
- */
-export type PaymentInstruction = {
-  /** Link to allow Alice to pay PFI, or be paid by the PFI */
-  link?: string
-  /** Instruction on how Alice can pay PFI, or how Alice can be paid by the PFI */
-  instruction?: string
 }
 
 /**
