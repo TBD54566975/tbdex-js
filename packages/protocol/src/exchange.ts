@@ -1,4 +1,4 @@
-import { Close, Order, OrderStatus, Quote, Rfq } from './message-kinds/index.js'
+import { Close, Order, OrderInstructions, OrderStatus, Quote, Rfq } from './message-kinds/index.js'
 import { Message } from './message.js'
 import { MessageKind } from './types.js'
 
@@ -18,9 +18,11 @@ export class Exchange {
   rfq: Rfq | undefined
   /** Message sent by the PFI in response to an RFQ */
   quote: Quote | undefined
-  /** Message sent by Alice to the PFI to accept a quote*/
+  /** Message sent by Alice to the PFI to accept a quote */
   order: Order | undefined
-  /** Message sent by the PFI to Alice to convet the current status of the order */
+  /** Message sent by the PFI to Alice to give payin and payout instructions */
+  orderInstructions: OrderInstructions | undefined
+  /** Message sent by the PFI to Alice to convey the current status of the order */
   orderstatus: OrderStatus[]
   /** Message sent by either the PFI or Alice to terminate an exchange */
   close: Close | undefined
@@ -83,6 +85,8 @@ export class Exchange {
       this.close = message
     } else if (message.isOrder()) {
       this.order = message
+    } else if (message.isOrderInstructions()) {
+      this.orderInstructions = message
     } else if (message.isOrderStatus()) {
       this.orderstatus.push(message)
     } else {
@@ -107,6 +111,7 @@ export class Exchange {
   get latestMessage(): Message | undefined {
     return this.close ??
            this.orderstatus[this.orderstatus.length - 1] ??
+           this.orderInstructions ??
            this.order ??
            this.quote ??
            this.rfq
@@ -134,6 +139,7 @@ export class Exchange {
       this.rfq,
       this.quote,
       this.order,
+      this.orderInstructions,
       ...this.orderstatus,
       this.close
     ]

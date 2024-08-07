@@ -1,6 +1,6 @@
 import { BearerDid, DidDht, DidJwk } from '@web5/dids'
 import { expect } from 'chai'
-import { Close, DevTools, Exchange, Message, Order, OrderStatus, OrderStatusEnum, Quote, Rfq } from '../src/main.js'
+import { Close, DevTools, Exchange, Message, Order, OrderInstructions, OrderStatus, OrderStatusEnum, Quote, Rfq } from '../src/main.js'
 
 describe('Exchange', () => {
   let aliceDid: BearerDid
@@ -10,6 +10,7 @@ describe('Exchange', () => {
   let closeByAlice: Close
   let closeByPfi: Close
   let order: Order
+  let orderInstructions: OrderInstructions
   let orderStatus: OrderStatus
 
   beforeEach(async () => {
@@ -68,6 +69,19 @@ describe('Exchange', () => {
     })
     await order.sign(aliceDid)
 
+    orderInstructions = OrderInstructions.create({
+      metadata: {
+        from       : pfiDid.uri,
+        to         : aliceDid.uri,
+        exchangeId : rfq.metadata.exchangeId
+      },
+      data: {
+        payin: { },
+        payout: { }
+      }
+    })
+    await order.sign(pfiDid)
+
     orderStatus = OrderStatus.create({
       metadata: {
         from       : pfiDid.uri,
@@ -92,11 +106,12 @@ describe('Exchange', () => {
       const exchange = new Exchange()
 
       // Messages are listed out of order
-      exchange.addMessages([order, quote, orderStatus, rfq])
+      exchange.addMessages([order, quote, orderInstructions, orderStatus, rfq])
 
       expect(exchange.rfq).to.deep.eq(rfq)
       expect(exchange.quote).to.deep.eq(quote)
       expect(exchange.order).to.deep.eq(order)
+      expect(exchange.orderInstructions).to.deep.eq(orderInstructions)
       expect(exchange.orderstatus).to.deep.eq([orderStatus])
     })
 
@@ -169,7 +184,7 @@ describe('Exchange', () => {
     describe('message sequence', () => {
       it('can add an Rfq first but not other message kinds first', async () => {
         const exchange = new Exchange()
-        for (const message of [quote, closeByAlice, closeByPfi, order, orderStatus]) {
+        for (const message of [quote, closeByAlice, closeByPfi, order, orderInstructions, orderStatus]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
@@ -182,11 +197,11 @@ describe('Exchange', () => {
         expect(exchange.rfq).to.deep.eq(rfq)
       })
 
-      it('cannot add an Order, OrderStatus, or Rfq after Rfq', async () => {
+      it('cannot add an Order, OrderInstructions, OrderStatus, or Rfq after Rfq', async () => {
         const exchange = new Exchange()
         exchange.addNextMessage(rfq)
 
-        for (const message of [rfq, order, orderStatus]) {
+        for (const message of [rfq, order, orderInstructions, orderStatus]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
@@ -220,12 +235,12 @@ describe('Exchange', () => {
         expect(exchange.close).to.deep.eq(closeByPfi)
       })
 
-      it('cannot add Rfq, Quote, Order, OrderStatus, or Close after Close', async () => {
+      it('cannot add Rfq, Quote, Order, OrderInstructions, OrderStatus, or Close after Close', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote])
         exchange.addNextMessage(closeByAlice)
 
-        for (const message of [rfq, quote, order, orderStatus, closeByAlice]) {
+        for (const message of [rfq, quote, order, orderInstructions, orderStatus, closeByAlice]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
@@ -244,11 +259,11 @@ describe('Exchange', () => {
         expect(exchange.order).to.deep.eq(order)
       })
 
-      it('cannot add Rfq, Quote, or OrderStatus after Quote', async () => {
+      it('cannot add Rfq, Quote, OrderInstructions or OrderStatus after Quote', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote])
 
-        for (const message of [rfq, quote, orderStatus]) {
+        for (const message of [rfq, quote, orderInstructions, orderStatus]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
@@ -258,20 +273,43 @@ describe('Exchange', () => {
         }
       })
 
-      it('can add an OrderStatus after Order', async () => {
+      it('can add an OrderInstructions after Order', async () => {
         const exchange = new Exchange()
 
         exchange.addMessages([rfq, quote, order])
+
+        exchange.addNextMessage(orderInstructions)
+        expect(exchange.orderInstructions).to.deep.eq(orderInstructions)
+      })
+
+      it('cannot add Rfq, Quote, Order, OrderStatus, or Close after Order', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote, order])
+
+        for (const message of [rfq, quote, order, orderStatus, closeByAlice]) {
+          try {
+            exchange.addNextMessage(message)
+            expect.fail()
+          } catch (e) {
+            expect(e.message).to.contain('is not a valid next message')
+          }
+        }
+      })
+
+      it('can add an OrderStatus after OrderInstructions', async () => {
+        const exchange = new Exchange()
+
+        exchange.addMessages([rfq, quote, order, orderInstructions])
 
         exchange.addNextMessage(orderStatus)
         expect(exchange.orderstatus).to.deep.eq([orderStatus])
       })
 
-      it('cannot add Rfq, Quote, Order, or Close after Order', async () => {
+      it('cannot add Rfq, Quote, Order, or OrderInstructions after OrderInstructions', async () => {
         const exchange = new Exchange()
-        exchange.addMessages([rfq, quote, order])
+        exchange.addMessages([rfq, quote, order, orderInstructions])
 
-        for (const message of [rfq, quote, order, closeByAlice]) {
+        for (const message of [rfq, quote, order, orderInstructions]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
@@ -284,7 +322,6 @@ describe('Exchange', () => {
       it('cannot add a message if the protocol versions of the new message and the exchange mismatch', async () => {
         const exchange = new Exchange()
         exchange.addNextMessage(rfq)
-
 
         let quote = Quote.create({
           metadata: {
@@ -365,6 +402,19 @@ describe('Exchange', () => {
       })
       await order.sign(aliceDid)
 
+      const orderInstructions = OrderInstructions.create({
+        metadata: {
+          from       : aliceDid.uri,
+          to         : pfiDid.uri,
+          exchangeId : rfq.metadata.exchangeId
+        },
+        data: {
+          payin: { },
+          payout: { }
+        }
+      })
+      await order.sign(aliceDid)
+
       const orderStatus = OrderStatus.create({
         metadata: {
           from       : pfiDid.uri,
@@ -378,9 +428,9 @@ describe('Exchange', () => {
       await orderStatus.sign(pfiDid)
 
       const exchange = new Exchange()
-      exchange.addMessages([rfq, quote, order, orderStatus])
+      exchange.addMessages([rfq, quote, order, orderInstructions, orderStatus])
 
-      expect(exchange.messages).to.deep.eq([rfq, quote, order, orderStatus])
+      expect(exchange.messages).to.deep.eq([rfq, quote, order, orderInstructions, orderStatus])
     })
   })
 })
