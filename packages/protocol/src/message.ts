@@ -173,6 +173,11 @@ export abstract class Message {
     return this.metadata.kind === 'order'
   }
 
+    /** OrderInstructions type guard */
+    isOrderInstructions(): this is OrderStatus {
+      return this.metadata.kind === 'orderinstructions'
+    }
+
   /** OrderStatus type guard */
   isOrderStatus(): this is OrderStatus {
     return this.metadata.kind === 'orderstatus'

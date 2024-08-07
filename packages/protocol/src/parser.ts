@@ -1,10 +1,10 @@
-import type { MessageModel, ResourceModel, RfqMetadata, RfqData, QuoteData, QuoteMetadata, OrderData, OrderMetadata, OrderStatusMetadata, OrderStatusData, CloseMetadata, CloseData, OfferingMetadata, OfferingData, BalanceMetadata, BalanceData } from './types.js'
+import type { MessageModel, ResourceModel, RfqMetadata, RfqData, QuoteData, QuoteMetadata, OrderData, OrderMetadata, OrderStatusMetadata, OrderStatusData, CloseMetadata, CloseData, OfferingMetadata, OfferingData, BalanceMetadata, BalanceData, OrderInstructionsMetadata, OrderInstructionsData } from './types.js'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { Resource } from './resource.js'
 import type { Message } from './message.js'
 
-import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
+import { Rfq, Quote, Order, OrderInstructions, OrderStatus, Close } from './message-kinds/index.js'
 import { Balance, Offering } from './resource-kinds/index.js'
 
 /**
@@ -49,6 +49,14 @@ export class Parser {
         message = new Order(
           jsonMessage.metadata as OrderMetadata,
           jsonMessage.data as OrderData,
+          jsonMessage.signature
+        )
+        break
+
+      case 'orderinstructions':
+        message = new OrderInstructions(
+          jsonMessage.metadata as OrderInstructionsMetadata,
+          jsonMessage.data as OrderInstructionsData,
           jsonMessage.signature
         )
         break

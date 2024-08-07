@@ -1,5 +1,6 @@
 export * from './rfq.js'
 export * from './quote.js'
 export * from './order.js'
+export * from './order-instructions.js'
 export * from './order-status.js'
 export * from './close.js'

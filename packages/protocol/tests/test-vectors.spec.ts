@@ -7,7 +7,8 @@ import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 import ParseOmitPrivateData from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq-omit-private-data.json' assert { type: 'json' }
 import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
-import { Balance, Close, Message, Offering, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
+import vectorOrderInstructions from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderinstructions.json' assert { type: 'json' }
+import { Balance, Close, Message, Offering, Order, OrderInstructions, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 import Sinon from 'sinon'
 
@@ -73,7 +74,7 @@ describe('TbdexTestVectorsProtocol', function () {
     expect(order.toJSON()).to.deep.eq(ParseOrder.output)
   })
 
-  it('parse_orderstatus', async () => {
+  it('parse_order_status', async () => {
     // Parse with parseMessage()
     const message = await Parser.parseMessage(ParseOrderStatus.input)
     expect(messageVerifyStub.calledOnce).to.be.true
@@ -82,10 +83,25 @@ describe('TbdexTestVectorsProtocol', function () {
     messageVerifyStub.resetHistory()
 
     // Parse with OrderStatus.parse()
-    const orderstatus = await OrderStatus.parse(ParseOrderStatus.input)
+    const orderStatus = await OrderStatus.parse(ParseOrderStatus.input)
     expect(messageVerifyStub.calledOnce).to.be.true
-    expect(orderstatus.isOrderStatus()).to.be.true
-    expect(orderstatus.toJSON()).to.deep.eq(ParseOrderStatus.output)
+    expect(orderStatus.isOrderStatus()).to.be.true
+    expect(orderStatus.toJSON()).to.deep.eq(ParseOrderStatus.output)
+  })
+
+  it('parse_order_instructions', async () => {
+    // Parse with parseMessage()
+    const message = await Parser.parseMessage(vectorOrderInstructions.input)
+    expect(messageVerifyStub.calledOnce).to.be.true
+    expect(message.isOrderInstructions()).to.be.true
+    expect(message.toJSON()).to.deep.eq(vectorOrderInstructions.output)
+    messageVerifyStub.resetHistory()
+
+    // Parse with OrderInstructions.parse()
+    const orderInstructions = await OrderInstructions.parse(vectorOrderInstructions.input)
+    expect(messageVerifyStub.calledOnce).to.be.true
+    expect(orderInstructions.isOrderInstructions()).to.be.true
+    expect(orderInstructions.toJSON()).to.deep.eq(vectorOrderInstructions.output)
   })
 
   it('parse_quote', async () => {
