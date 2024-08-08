@@ -249,6 +249,12 @@ export type QuoteMetadata = MessageMetadata & { kind: 'quote' }
 export type OrderMetadata = MessageMetadata & { kind: 'order' }
 
 /**
+ * OrderInstructions' metadata
+ * @beta
+ */
+export type OrderInstructionsMetadata = MessageMetadata & { kind: 'orderinstructions' }
+
+/**
  * OrderStatus's metadata
  * @beta
  */
@@ -264,13 +270,13 @@ export type CloseMetadata = MessageMetadata & { kind: 'close' }
  * Type alias to represent a set of message kind string keys
  * @beta
  */
-export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderstatus' | 'close'
+export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderinstructions' | 'orderstatus' | 'close'
 
 /**
  * Message's data
  * @beta
  */
-export type MessageData = RfqData | QuoteData | OrderData | OrderStatusData | CloseData
+export type MessageData = RfqData | QuoteData | OrderData | OrderInstructionsData | OrderStatusData | CloseData
 
 /**
  * Data contained in a RFQ message
@@ -395,11 +401,35 @@ export type QuoteDetails = {
 }
 
 /**
+ * Describes the payment instructions with plain text and/or a link.
+ * @beta
+ */
+export type PaymentInstruction = {
+  /** Link to allow Alice to pay PFI, or be paid by the PFI. */
+  link?: string
+
+  /** Instruction on how Alice can pay PFI, or how Alice can be paid by the PFI. */
+  instruction?: string
+}
+
+/**
  * Message sent by Alice to the PFI to accept a Quote. Order is currently an empty object
  * @beta
  */
 export type OrderData = {
   [key: string]: never
+}
+
+/**
+ * Message sent by the PFI to Alice to convey payment instructions.
+ * @beta
+ */
+export type OrderInstructionsData = {
+  /** Object that describes how to pay the PFI (e.g. BTC address, payment link). */
+  payin: PaymentInstruction
+
+  /** Object that describes how be paid by the PFI (e.g. BTC address, payment link). */
+  payout: PaymentInstruction
 }
 
 /**

@@ -2,12 +2,13 @@ import { expect } from 'chai'
 import ParseClose from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-close.json' assert { type: 'json' }
 import ParseOffering from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-offering.json' assert { type: 'json' }
 import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-order.json' assert { type: 'json' }
+import ParseOrderInstructions from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderinstructions.json' assert { type: 'json' }
 import ParseOrderStatus from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-orderstatus.json' assert { type: 'json' }
 import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-quote.json' assert { type: 'json' }
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 import ParseOmitPrivateData from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq-omit-private-data.json' assert { type: 'json' }
 import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
-import { Balance, Close, Message, Offering, Order, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
+import { Balance, Close, Message, Offering, Order, OrderInstructions, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 import Sinon from 'sinon'
 
@@ -82,10 +83,25 @@ describe('TbdexTestVectorsProtocol', function () {
     messageVerifyStub.resetHistory()
 
     // Parse with OrderStatus.parse()
-    const orderstatus = await OrderStatus.parse(ParseOrderStatus.input)
+    const orderStatus = await OrderStatus.parse(ParseOrderStatus.input)
     expect(messageVerifyStub.calledOnce).to.be.true
-    expect(orderstatus.isOrderStatus()).to.be.true
-    expect(orderstatus.toJSON()).to.deep.eq(ParseOrderStatus.output)
+    expect(orderStatus.isOrderStatus()).to.be.true
+    expect(orderStatus.toJSON()).to.deep.eq(ParseOrderStatus.output)
+  })
+
+  it('parse_orderinstructions', async () => {
+    // Parse with parseMessage()
+    const message = await Parser.parseMessage(ParseOrderInstructions.input)
+    expect(messageVerifyStub.calledOnce).to.be.true
+    expect(message.isOrderInstructions()).to.be.true
+    expect(message.toJSON()).to.deep.eq(ParseOrderInstructions.output)
+    messageVerifyStub.resetHistory()
+
+    // Parse with OrderInstructions.parse()
+    const orderInstructions = await OrderInstructions.parse(ParseOrderInstructions.input)
+    expect(messageVerifyStub.calledOnce).to.be.true
+    expect(orderInstructions.isOrderInstructions()).to.be.true
+    expect(orderInstructions.toJSON()).to.deep.eq(ParseOrderInstructions.output)
   })
 
   it('parse_quote', async () => {

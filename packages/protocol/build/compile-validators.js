@@ -23,6 +23,7 @@ import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.j
 import BalanceSchema from '../../../tbdex/hosted/json-schemas/balance.schema.json' assert { type: 'json' }
 import MessageSchema from '../../../tbdex/hosted/json-schemas/message.schema.json' assert { type: 'json' }
 import OrderSchema from '../../../tbdex/hosted/json-schemas/order.schema.json' assert { type: 'json' }
+import OrderInstructionsSchema from '../../../tbdex/hosted/json-schemas/orderinstructions.schema.json' assert { type: 'json' }
 import OrderstatusSchema from '../../../tbdex/hosted/json-schemas/orderstatus.schema.json' assert { type: 'json' }
 import QuoteSchema from '../../../tbdex/hosted/json-schemas/quote.schema.json' assert { type: 'json' }
 import ResourceSchema from '../../../tbdex/hosted/json-schemas/resource.schema.json' assert { type: 'json' }
@@ -36,6 +37,7 @@ const schemas = {
   balance     : BalanceSchema,
   message     : MessageSchema,
   order       : OrderSchema,
+  orderinstructions : OrderInstructionsSchema,
   orderstatus : OrderstatusSchema,
   quote       : QuoteSchema,
   resource    : ResourceSchema,

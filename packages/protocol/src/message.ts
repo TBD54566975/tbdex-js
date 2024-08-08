@@ -1,5 +1,5 @@
 import type { MessageKind, MessageModel, MessageMetadata, MessageData } from './types.js'
-import { Rfq, Quote, Order, OrderStatus, Close } from './message-kinds/index.js'
+import { Rfq, Quote, Order, OrderInstructions, OrderStatus, Close } from './message-kinds/index.js'
 
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
@@ -171,6 +171,11 @@ export abstract class Message {
   /** Order type guard */
   isOrder(): this is Order {
     return this.metadata.kind === 'order'
+  }
+
+  /** OrderInstructions type guard */
+  isOrderInstructions(): this is OrderInstructions {
+    return this.metadata.kind === 'orderinstructions'
   }
 
   /** OrderStatus type guard */
