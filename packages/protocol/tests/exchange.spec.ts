@@ -76,8 +76,8 @@ describe('Exchange', () => {
         exchangeId : rfq.metadata.exchangeId
       },
       data: {
-        payin: { },
-        payout: { }
+        payin  : { },
+        payout : { }
       }
     })
     await order.sign(pfiDid)
@@ -409,8 +409,8 @@ describe('Exchange', () => {
           exchangeId : rfq.metadata.exchangeId
         },
         data: {
-          payin: { },
-          payout: { }
+          payin  : { },
+          payout : { }
         }
       })
       await order.sign(aliceDid)
