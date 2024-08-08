@@ -273,20 +273,27 @@ describe('Exchange', () => {
         }
       })
 
-      it('can add an OrderInstructions after Order', async () => {
+      it('can add an OrderInstructions or a Close after Order', async () => {
         const exchange = new Exchange()
-
         exchange.addMessages([rfq, quote, order])
 
         exchange.addNextMessage(orderInstructions)
         expect(exchange.orderInstructions).to.deep.eq(orderInstructions)
       })
 
-      it('cannot add Rfq, Quote, Order, OrderStatus, or Close after Order', async () => {
+      it('can add a Close after Order', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote, order])
 
-        for (const message of [rfq, quote, order, orderStatus, closeByAlice]) {
+        exchange.addNextMessage(closeByPfi)
+        expect(exchange.close).to.deep.eq(closeByPfi)
+      })
+
+      it('cannot add Rfq, Quote, Order, or OrderStatus after Order', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote, order])
+
+        for (const message of [rfq, quote, order, orderStatus]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()
