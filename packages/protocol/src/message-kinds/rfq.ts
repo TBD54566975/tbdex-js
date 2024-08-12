@@ -39,7 +39,7 @@ export type ParseRfqOptions = {
  */
 export class Rfq extends Message {
   /** a set of valid Message kinds that can come after an rfq */
-  readonly validNext = new Set<MessageKind>(['quote', 'close'])
+  readonly validNext = new Set<MessageKind>(['quote', 'close', 'cancel'])
   /** The message kind (rfq) */
   readonly kind = 'rfq'
 

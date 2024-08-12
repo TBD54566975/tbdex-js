@@ -17,6 +17,7 @@ import standaloneCode from 'ajv/dist/standalone/index.js'
 
 import { mkdirp } from 'mkdirp'
 
+import CancelSchema from '../../../tbdex/hosted/json-schemas/cancel.schema.json' assert { type: 'json' }
 import CloseSchema from '../../../tbdex/hosted/json-schemas/close.schema.json' assert { type: 'json' }
 import DefinitionsSchema from '../../../tbdex/hosted/json-schemas/definitions.json' assert { type: 'json' }
 import OfferingSchema from '../../../tbdex/hosted/json-schemas/offering.schema.json' assert { type: 'json' }
@@ -31,6 +32,7 @@ import RfqPrivateSchema from '../../../tbdex/hosted/json-schemas/rfq-private.sch
 import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
 
 const schemas = {
+  cancel       : CancelSchema,
   close       : CloseSchema,
   definitions : DefinitionsSchema,
   offering    : OfferingSchema,

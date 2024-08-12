@@ -18,7 +18,7 @@ export type CreateQuoteOptions = {
  */
 export class Quote extends Message {
   /** a set of valid Message kinds that can come after a quote */
-  readonly validNext = new Set<MessageKind>(['order', 'close'])
+  readonly validNext = new Set<MessageKind>(['order', 'close', 'cancel'])
   /** The message kind (quote) */
   readonly kind = 'quote'
 

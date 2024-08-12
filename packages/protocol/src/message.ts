@@ -1,5 +1,5 @@
 import type { MessageKind, MessageModel, MessageMetadata, MessageData } from './types.js'
-import { Rfq, Quote, Order, OrderInstructions, OrderStatus, Close } from './message-kinds/index.js'
+import { Rfq, Quote, Order, OrderInstructions, OrderStatus, Close, Cancel } from './message-kinds/index.js'
 
 import { Crypto } from './crypto.js'
 import { typeid } from 'typeid-js'
@@ -186,6 +186,11 @@ export abstract class Message {
   /** Close type guard */
   isClose(): this is Close {
     return this.metadata.kind === 'close'
+  }
+
+  /** Cancel type guard */
+  isCancel(): this is Cancel {
+    return this.metadata.kind === 'cancel'
   }
 
   /**
