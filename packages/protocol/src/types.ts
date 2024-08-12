@@ -484,7 +484,7 @@ export enum OrderStatusEnum {
 }
 
 /**
- * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * A Close can only be sent by the PFI at any point during the exchange, to indicate the PFI will not continue the exchange.
  * @beta
  */
 export type CloseData = {
@@ -495,7 +495,7 @@ export type CloseData = {
 }
 
 /**
- * A Cancel can be sent by Alice to indicate that she does not wish to further propagate the exchange, and get a refund if applicable
+ * A Cancel can only be sent by Alice to indicate that she does not wish to further propagate the exchange, and get a refund if applicable.
  * @beta
  */
 export type CancelData = {
