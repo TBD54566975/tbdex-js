@@ -32,7 +32,7 @@ import RfqPrivateSchema from '../../../tbdex/hosted/json-schemas/rfq-private.sch
 import RfqSchema from '../../../tbdex/hosted/json-schemas/rfq.schema.json' assert { type: 'json' }
 
 const schemas = {
-  cancel       : CancelSchema,
+  cancel      : CancelSchema,
   close       : CloseSchema,
   definitions : DefinitionsSchema,
   offering    : OfferingSchema,
