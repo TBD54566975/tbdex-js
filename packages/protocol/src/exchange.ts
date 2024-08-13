@@ -1,4 +1,4 @@
-import { Close, Order, OrderInstructions, OrderStatus, Quote, Rfq } from './message-kinds/index.js'
+import { Cancel, Close, Order, OrderInstructions, OrderStatus, Quote, Rfq } from './message-kinds/index.js'
 import { Message } from './message.js'
 import { MessageKind } from './types.js'
 
@@ -24,8 +24,10 @@ export class Exchange {
   orderInstructions: OrderInstructions | undefined
   /** Message sent by the PFI to Alice to convey the current status of the order */
   orderstatus: OrderStatus[]
-  /** Message sent by either the PFI or Alice to terminate an exchange */
+  /** Message sent by the PFI to terminate an exchange */
   close: Close | undefined
+  /** Message sent by Alice to indicate that she does not wish to further propagate the exchange, and get a refund if applicable */
+  cancel: Cancel | undefined
 
   constructor() {
     this.orderstatus = []
@@ -81,7 +83,9 @@ export class Exchange {
       this.rfq = message
     } else if (message.isQuote()) {
       this.quote = message
-    } else if (message.isClose()) {
+    } else if (message.isCancel()) {
+      this.cancel = message
+    }  else if (message.isClose()) {
       this.close = message
     } else if (message.isOrder()) {
       this.order = message
@@ -109,7 +113,8 @@ export class Exchange {
    * Latest message in an exchange if there are any messages currently
    */
   get latestMessage(): Message | undefined {
-    return this.close ??
+    return this.cancel ??
+           this.close ??
            this.orderstatus[this.orderstatus.length - 1] ??
            this.orderInstructions ??
            this.order ??
@@ -141,7 +146,8 @@ export class Exchange {
       this.order,
       this.orderInstructions,
       ...this.orderstatus,
-      this.close
+      this.close,
+      this.cancel
     ]
     return allPossibleMessages.filter((message): message is Message => message !== undefined)
   }

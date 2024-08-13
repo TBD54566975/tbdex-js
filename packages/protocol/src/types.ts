@@ -267,16 +267,22 @@ export type OrderStatusMetadata = MessageMetadata & { kind: 'orderstatus' }
 export type CloseMetadata = MessageMetadata & { kind: 'close' }
 
 /**
+ * Cancel's metadata
+ * @beta
+ */
+export type CancelMetadata = MessageMetadata & { kind: 'cancel' }
+
+/**
  * Type alias to represent a set of message kind string keys
  * @beta
  */
-export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderinstructions' | 'orderstatus' | 'close'
+export type MessageKind = 'rfq' | 'quote' | 'order' | 'orderinstructions' | 'orderstatus' | 'close' | 'cancel'
 
 /**
  * Message's data
  * @beta
  */
-export type MessageData = RfqData | QuoteData | OrderData | OrderInstructionsData | OrderStatusData | CloseData
+export type MessageData = RfqData | QuoteData | OrderData | OrderInstructionsData | OrderStatusData | CloseData | CancelData
 
 /**
  * Data contained in a RFQ message
@@ -478,7 +484,7 @@ export enum OrderStatusEnum {
 }
 
 /**
- * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * A Close, which only the PFI can send, can be submitted at any point during the exchange to indicate that the transaction has reached a terminal state.
  * @beta
  */
 export type CloseData = {
@@ -486,4 +492,13 @@ export type CloseData = {
   reason?: string
   /** indicates whether or not the exchange successfully completed */
   success?: boolean
+}
+
+/**
+ * A Cancel can only be sent by Alice to indicate that she does not wish to further propagate the exchange, and get a refund if applicable.
+ * @beta
+ */
+export type CancelData = {
+  /** an explanation of why the exchange is being canceled */
+  reason?: string
 }

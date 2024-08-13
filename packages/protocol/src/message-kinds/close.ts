@@ -12,17 +12,19 @@ export type CreateCloseOptions = {
 }
 
 /**
- * A Close can be sent by Alice or the PFI as a reply to an RFQ or a Quote
+ * A Close can only be sent the PFI as a reply to an RFQ, Quote, Order, OrderInstructions, OrderStatus, or Cancel
  * @beta
  */
 export class Close extends Message {
-  /** A set of valid Message kinds that can come after a close */
-  readonly validNext = new Set<MessageKind>([])
   /** The message kind (close) */
   readonly kind = 'close'
 
+  /** A set of valid Message kinds that can come after a close */
+  readonly validNext = new Set<MessageKind>([])
+
   /** Metadata such as sender, recipient, date created, and ID */
   readonly metadata: CloseMetadata
+
   /** Close's data containing a reason why the exchange was closed */
   readonly data: CloseData
 
@@ -67,10 +69,5 @@ export class Close extends Message {
     const close = new Close(metadata, opts.data)
     close.validateData()
     return close
-  }
-
-  /** an explanation of why the exchange is being closed */
-  get reason() {
-    return this.data.reason
   }
 }

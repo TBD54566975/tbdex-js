@@ -17,7 +17,7 @@ export type CreateOrderInstructionsOptions = {
  */
 export class OrderInstructions extends Message {
   /** A set of valid Message kinds that can come after an Order Instructions */
-  readonly validNext = new Set<MessageKind>(['orderstatus', 'close'])
+  readonly validNext = new Set<MessageKind>(['orderstatus', 'close', 'cancel'])
 
   /** The message kind `orderinstructions`. */
   readonly kind = 'orderinstructions'
