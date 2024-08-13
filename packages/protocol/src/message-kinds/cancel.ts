@@ -20,7 +20,7 @@ export class Cancel extends Message {
   readonly kind = 'cancel'
 
   /** A set of valid Message kinds that can come after a Cancel */
-  readonly validNext = new Set<MessageKind>([])
+  readonly validNext = new Set<MessageKind>(['orderstatus', 'close'])
 
   /** Metadata such as sender, recipient, date created, and ID */
   readonly metadata: CancelMetadata
@@ -35,7 +35,7 @@ export class Cancel extends Message {
   }
 
   /**
-   * Parses a JSON message into an Cancel.
+   * Parses a JSON message into a Cancel.
    * @param rawMessage - The Cancel to parse.
    * @throws Error if the Cancel could not be parsed or is not a valid Cancel.
    * @returns The parsed Cancel.

@@ -24,7 +24,7 @@ export class Exchange {
   orderInstructions: OrderInstructions | undefined
   /** Message sent by the PFI to Alice to convey the current status of the order */
   orderstatus: OrderStatus[]
-  /** Message sent by either the PFI or Alice to terminate an exchange */
+  /** Message sent by the PFI to terminate an exchange */
   close: Close | undefined
   /** Message sent by Alice to indicate that she does not wish to further propagate the exchange, and get a refund if applicable */
   cancel: Cancel | undefined

@@ -266,12 +266,30 @@ describe('Exchange', () => {
         }
       })
 
-      it('cannot add Rfq, Quote, Order, OrderInstructions, OrderStatus, Close, or Cancel after Cancel', async () => {
+      it('can add a Close after Cancel', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote])
         exchange.addNextMessage(cancelByAlice)
 
-        for (const message of [rfq, quote, order, orderInstructions, orderStatus, closeByPfi, cancelByAlice]) {
+        exchange.addNextMessage(closeByPfi)
+        expect(exchange.close).to.deep.eq(closeByPfi)
+      })
+
+      it('can add a OrderStatus after Cancel', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote])
+        exchange.addNextMessage(cancelByAlice)
+
+        exchange.addNextMessage(orderStatus)
+        expect(exchange.orderstatus).to.deep.eq([orderStatus])
+      })
+
+      it('cannot add Rfq, Quote, Order, OrderInstructions, or Cancel after Cancel', async () => {
+        const exchange = new Exchange()
+        exchange.addMessages([rfq, quote])
+        exchange.addNextMessage(cancelByAlice)
+
+        for (const message of [rfq, quote, order, orderInstructions, cancelByAlice]) {
           try {
             exchange.addNextMessage(message)
             expect.fail()

@@ -484,7 +484,7 @@ export enum OrderStatusEnum {
 }
 
 /**
- * A Close can only be sent by the PFI at any point during the exchange, to indicate the PFI will not continue the exchange.
+ * A Close, which only the PFI can send, can be submitted at any point during the exchange to indicate that the transaction has reached a terminal state.
  * @beta
  */
 export type CloseData = {
