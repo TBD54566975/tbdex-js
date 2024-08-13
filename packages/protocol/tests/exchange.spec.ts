@@ -387,6 +387,24 @@ describe('Exchange', () => {
         expect(exchange.cancel).to.deep.eq(cancelByAlice)
       })
 
+      it('can add a Close after OrderStatus', async () => {
+        const exchange = new Exchange()
+
+        exchange.addMessages([rfq, quote, order, orderInstructions, orderStatus])
+
+        exchange.addNextMessage(closeByPfi)
+        expect(exchange.close).to.deep.eq(closeByPfi)
+      })
+
+      it('can add a Cancel after OrderStatus', async () => {
+        const exchange = new Exchange()
+
+        exchange.addMessages([rfq, quote, order, orderInstructions, orderStatus])
+
+        exchange.addNextMessage(cancelByAlice)
+        expect(exchange.cancel).to.deep.eq(cancelByAlice)
+      })
+
       it('cannot add Rfq, Quote, Order, or OrderInstructions after OrderInstructions', async () => {
         const exchange = new Exchange()
         exchange.addMessages([rfq, quote, order, orderInstructions])

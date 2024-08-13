@@ -12,7 +12,7 @@ export type CreateCloseOptions = {
 }
 
 /**
- * A Close can only be sent the PFI as a reply to an RFQ or a Quote
+ * A Close can only be sent the PFI as a reply to an RFQ, Quote, Order, OrderInstructions, OrderStatus, or Cancel
  * @beta
  */
 export class Close extends Message {
