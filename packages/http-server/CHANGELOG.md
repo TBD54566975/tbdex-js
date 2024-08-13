@@ -1,5 +1,17 @@
 # @tbdex/http-server
 
+## 2.2.0
+
+### Minor Changes
+
+- [#270](https://github.com/TBD54566975/tbdex-js/pull/270) [`664dd07`](https://github.com/TBD54566975/tbdex-js/commit/664dd0769188386b11b5e9a2579195a68e992f03) Thanks [@thehenrytsai](https://github.com/thehenrytsai)! - Fixed minor issue to prep v2.2.0 release
+
+### Patch Changes
+
+- Updated dependencies [[`664dd07`](https://github.com/TBD54566975/tbdex-js/commit/664dd0769188386b11b5e9a2579195a68e992f03)]:
+  - @tbdex/http-client@2.2.0
+  - @tbdex/protocol@2.2.0
+
 ## 2.1.0
 
 ### Patch Changes
