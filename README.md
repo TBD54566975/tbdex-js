@@ -71,7 +71,7 @@ Release workflow:
 
 1. Open a PR
 2. `changeset-bot` will automatically [comment on the PR](https://github.com/TBD54566975/tbdex-js/pull/30#issuecomment-1732721942) with a reminder & recommendations for semver
-3. Run `pnpm changeset` locally and push changes (`.changet/*.md`).  The CLI tool will walk you through a set of steps for you to define the semantic changes and create a randomly-named markdown file within `.changeset/`.
+3. Run `pnpm changeset` locally and push changes (`.changeset/*.md`).  The CLI tool will walk you through a set of steps for you to define the semantic changes and create a randomly-named markdown file within `.changeset/`.
 4. Merge PR into `main`.
 5. Profit from the automated release pipeline:
    - [Release Workflow](./.github/workflows/release.yml) will create a new Version Package PR, or update the existing one. For example, [see this PR](https://github.com/TBD54566975/tbdex-js/pull/36). This PR updates the version numbers in the relevant `package.json` files & also aggregates the Summary notes into the relevant `CHANGELOG.md` files.
