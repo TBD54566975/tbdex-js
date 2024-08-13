@@ -1,5 +1,17 @@
 # @tbdex/protocol
 
+## 2.1.0
+
+### Minor Changes
+
+- [#269](https://github.com/TBD54566975/tbdex-js/pull/269) [`0a9394c`](https://github.com/TBD54566975/tbdex-js/commit/0a9394c6b56dc161feed8dc516f73ad2a55f39bb) Thanks [@thehenrytsai](https://github.com/thehenrytsai)! - Added Cancel message support
+
+- [#268](https://github.com/TBD54566975/tbdex-js/pull/268) [`8908f85`](https://github.com/TBD54566975/tbdex-js/commit/8908f855ac975b5dcba03fc388e14f57cb911227) Thanks [@thehenrytsai](https://github.com/thehenrytsai)! - Added OrderInstructions message.
+
+### Patch Changes
+
+- [#266](https://github.com/TBD54566975/tbdex-js/pull/266) [`cad5c4e`](https://github.com/TBD54566975/tbdex-js/commit/cad5c4e2b37d34a53add143f0fcf3f8c1d4fddd2) Thanks [@nitro-neal](https://github.com/nitro-neal)! - update to latest tbdex spec
+
 ## 2.0.0
 
 ### Major Changes
