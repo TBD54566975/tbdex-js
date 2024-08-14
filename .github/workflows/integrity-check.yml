@@ -16,14 +16,13 @@ env:
   PNPM_CACHE_FOLDER: .pnpm-store
 
 jobs:
-
   test-with-node:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
-          submodules: 'true'
+          submodules: "true"
 
       # https://cashapp.github.io/hermit/usage/ci/
       - name: Init Hermit
@@ -43,12 +42,17 @@ jobs:
 
       - name: Run tests for all packages
         run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
-      
+
       - name: Upload test results to update SDK reports
         uses: actions/upload-artifact@v3
         with:
           name: junit-results
           path: packages/*/results.xml
+
+      - id: spec-test-vector-report
+        uses: ./.github/actions/spec-test-vector-report
+        with:
+          junit-report-path: packages/*/results.xml
 
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
