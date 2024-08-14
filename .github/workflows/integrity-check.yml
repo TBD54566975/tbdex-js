@@ -41,18 +41,26 @@ jobs:
         run: pnpm lint
 
       - name: Run tests for all packages
+        id: tests
         run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
 
       - name: Upload test results to update SDK reports
+        if: always() && steps.tests.conclusion != 'skipped'
         uses: actions/upload-artifact@v3
         with:
           name: junit-results
           path: packages/*/results.xml
 
-      - id: spec-test-vector-report
+      - name: Execute Spec Test Vector Report
+        if: always() && steps.tests.conclusion != 'skipped'
         uses: ./.github/actions/spec-test-vector-report
         with:
-          junit-report-path: packages/*/results.xml
+          junit-report-paths: packages/*/results.xml
+          spec-path: tbdex
+          fail-on-missing-vectors: true
+          fail-on-failed-test-cases: true
+          comment-on-pr: true
+          git-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload test coverage to Codecov
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4

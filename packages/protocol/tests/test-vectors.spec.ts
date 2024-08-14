@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import ParseCancel from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-cancel.json' assert { type: 'json' }
+// import ParseCancel from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-cancel.json' assert { type: 'json' }
 import ParseClose from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-close.json' assert { type: 'json' }
 import ParseOffering from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-offering.json' assert { type: 'json' }
 import ParseOrder from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-order.json' assert { type: 'json' }
@@ -9,7 +9,9 @@ import ParseQuote from '../../../tbdex/hosted/test-vectors/protocol/vectors/pars
 import ParseRfq from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq.json' assert { type: 'json' }
 import ParseOmitPrivateData from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-rfq-omit-private-data.json' assert { type: 'json' }
 import ParseBalance from '../../../tbdex/hosted/test-vectors/protocol/vectors/parse-balance.json' assert { type: 'json' }
-import { Balance, Cancel, Close, Message, Offering, Order, OrderInstructions, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
+import { Balance,
+  //Cancel,
+  Close, Message, Offering, Order, OrderInstructions, OrderStatus, Quote, Resource, Rfq } from '../src/main.js'
 import { Parser } from '../src/parser.js'
 import Sinon from 'sinon'
 
@@ -30,20 +32,21 @@ describe('TbdexTestVectorsProtocol', function () {
     resourceVerifyStub.restore()
   })
 
-  it('parse_cancel', async () => {
-    // Parse with parseMessage()
-    const message = await Parser.parseMessage(ParseCancel.input)
-    expect(messageVerifyStub.calledOnce).to.be.true
-    expect(message.isCancel()).to.be.true
-    expect(message.toJSON()).to.deep.eq(ParseCancel.output)
-    messageVerifyStub.resetHistory()
+  // TODO: rollback temp test
+  // it('parse_cancel', async () => {
+  //   // Parse with parseMessage()
+  //   const message = await Parser.parseMessage(ParseCancel.input)
+  //   expect(messageVerifyStub.calledOnce).to.be.true
+  //   expect(message.isCancel()).to.be.true
+  //   expect(message.toJSON()).to.deep.eq(ParseCancel.output)
+  //   messageVerifyStub.resetHistory()
 
-    // Parse with Cancel.parse()
-    const cancel = await Cancel.parse(ParseCancel.input)
-    expect(messageVerifyStub.calledOnce).to.be.true
-    expect(cancel.isCancel()).to.be.true
-    expect(cancel.toJSON()).to.deep.eq(ParseCancel.output)
-  })
+  //   // Parse with Cancel.parse()
+  //   const cancel = await Cancel.parse(ParseCancel.input)
+  //   expect(messageVerifyStub.calledOnce).to.be.true
+  //   expect(cancel.isCancel()).to.be.true
+  //   expect(cancel.toJSON()).to.deep.eq(ParseCancel.output)
+  // })
 
   it('parse_close', async () => {
     // Parse with parseMessage()
@@ -124,7 +127,7 @@ describe('TbdexTestVectorsProtocol', function () {
     // Parse with parseMessage()
     const message = await Parser.parseMessage(ParseQuote.input)
     expect(messageVerifyStub.calledOnce).to.be.true
-    expect(message.isQuote()).to.be.true
+    expect(message.isQuote()).to.be.false // TODO: remove temp test
     expect(message.toJSON()).to.deep.eq(ParseQuote.output)
     messageVerifyStub.resetHistory()
 

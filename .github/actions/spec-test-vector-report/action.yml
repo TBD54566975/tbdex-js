@@ -2,17 +2,35 @@ name: "Spec Test Vector Report"
 description: "Generate and compare spec test vector report"
 
 inputs:
-  junit-report-path:
-    description: "Glob Path with the JUnit test vectors report"
+  junit-report-paths:
+    description: "Glob Path with the JUnit test vectors report, can be a single path or a list of paths in an array"
     required: true
+  spec-path:
+    description: "The path to the spec submodule"
+    required: true
+  test-cases-prefix:
+    description: "The prefix of the test cases to be filtered"
+    required: false
+  comment-on-pr:
+    description: "Whether to comment the summary report on the PR"
+    required: false
+  git-token:
+    description: "The git token to add the comment to the PR (required for PR comments)"
+    required: false
+  fail-on-missing-vectors:
+    description: "Whether to fail the job if missing test vectors are found"
+    required: false
+  fail-on-failed-test-cases:
+    description: "Whether to fail the job if failed test cases are found"
+    required: false
+
+# Define your outputs here.
+outputs:
+  summary:
+    description: "The summary of the test vector report, same as the GITHUB_STEP_SUMMARY"
+  test-vector-report:
+    description: "The test vector report object"
 
 runs:
-  using: "composite"
-  steps:
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@db71d41eb79864e25ab0337e395c352e84523afe # v4.3.1
-      with:
-        check_name: "tbDEX Spec Test Vector Report"
-        report_paths: ${{ inputs.junit-report-path }}
-        suite_regex: TbdexTestVector*
-        summary: "tbDEX Test Vectors Results"
+  using: node20
+  main: dist/index.js
