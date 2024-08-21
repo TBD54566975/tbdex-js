@@ -41,6 +41,7 @@ jobs:
         run: pnpm lint
 
       - name: Run tests for all packages
+        id: tests
         run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
 
       - name: Execute Spec Test Vector Report
