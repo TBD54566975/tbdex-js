@@ -16,14 +16,13 @@ env:
   PNPM_CACHE_FOLDER: .pnpm-store
 
 jobs:
-
   test-with-node:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
         uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab # v3.5.2
         with:
-          submodules: 'true'
+          submodules: "true"
 
       # https://cashapp.github.io/hermit/usage/ci/
       - name: Init Hermit
@@ -43,7 +42,18 @@ jobs:
 
       - name: Run tests for all packages
         run: pnpm test:node --reporter mocha-junit-reporter --reporter-options mochaFile=./results.xml
-      
+
+      - name: Execute Spec Test Vector Report
+        if: always() && steps.tests.conclusion != 'skipped'
+        uses: TBD54566975/sdk-report-runner/.github/actions/specs-report@main
+        with:
+          junit-report-paths: packages/*/results.xml
+          spec-path: tbdex
+          fail-on-missing-vectors: true
+          fail-on-failed-test-cases: true
+          comment-on-pr: true
+          git-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Upload test results to update SDK reports
         uses: actions/upload-artifact@v3
         with:
