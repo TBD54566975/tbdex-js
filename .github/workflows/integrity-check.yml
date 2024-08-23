@@ -50,6 +50,9 @@ jobs:
         with:
           junit-report-paths: packages/*/results.xml
           spec-path: tbdex
+          suite-name-regex: TbdexTestVector
+          feature-regex: TbdexTestVectors(\w+)
+          vector-regex: TbdexTestVectors(\w+) (\w+)
           fail-on-missing-vectors: true
           fail-on-failed-test-cases: true
           comment-on-pr: true
