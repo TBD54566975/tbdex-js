@@ -109,7 +109,7 @@ export class DevTools {
           constraints : {
             fields: [
               {
-                path   : ['$.type[*]'],
+                path   : ['$.vc.type[*]'],
                 filter : {
                   type    : 'string',
                   pattern : '^YoloCredential$'
