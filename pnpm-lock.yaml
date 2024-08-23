@@ -5,11 +5,11 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  micromatch: ^4.0.8
   browserify-sign@>=2.6.0 <=4.2.1: '>=4.2.2'
   follow-redirects: '>=1.15.4'
   ip@<1.1.9: '>=1.1.9'
   ip@=2.0.0: '>=2.0.1'
+  micromatch: 4.0.8
 
 importers:
 
