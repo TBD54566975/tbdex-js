@@ -5,6 +5,7 @@
       "ip",
       "mysql2",
       "braces",
+      "micromatch",
       "GHSA-rv95-896h-c2vc"
     ]
   }
