@@ -1,5 +1,13 @@
 # @tbdex/http-server
 
+## 2.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`b09615e`](https://github.com/TBD54566975/tbdex-js/commit/b09615e2ab3fa86eb74985b47d634021d3ba9cf9)]:
+  - @tbdex/http-client@2.2.1
+  - @tbdex/protocol@2.2.1
+
 ## 2.2.0
 
 ### Minor Changes
